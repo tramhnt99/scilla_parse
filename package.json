@@ -1,0 +1,22 @@
+{
+  "name": "scilla_parse",
+  "version": "1.0.0",
+  "description": "Parsing Scilla",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tramhnt99/scilla_parse.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tramhnt99/scilla_parse/issues"
+  },
+  "homepage": "https://github.com/tramhnt99/scilla_parse#readme",
+  "dependencies": {
+    "antlr4": "^4.9.3"
+  }
+}
