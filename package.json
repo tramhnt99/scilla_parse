@@ -18,5 +18,7 @@
   "homepage": "https://github.com/tramhnt99/scilla_parse#readme",
   "dependencies": {
     "antlr4": "^4.9.3"
-  }
+  },
+  "devDependencies": {},
+  "type": "module"
 }
