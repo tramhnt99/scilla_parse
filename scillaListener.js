@@ -5,132 +5,6 @@ import antlr4 from 'antlr4';
 // This class defines a complete listener for a parse tree produced by scillaParser.
 export default class scillaListener extends antlr4.tree.ParseTreeListener {
 
-	// Enter a parse tree produced by scillaParser#identifier.
-	enterIdentifier(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#identifier.
-	exitIdentifier(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#sid.
-	enterSid(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#sid.
-	exitSid(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#sident.
-	enterSident(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#sident.
-	exitSident(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#scid.
-	enterScid(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#scid.
-	exitScid(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#type_annot.
-	enterType_annot(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#type_annot.
-	exitType_annot(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#id_with_typ.
-	enterId_with_typ(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#id_with_typ.
-	exitId_with_typ(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#t_map_key.
-	enterT_map_key(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#t_map_key.
-	exitT_map_key(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#t_map_value_args.
-	enterT_map_value_args(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#t_map_value_args.
-	exitT_map_value_args(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#t_map_value.
-	enterT_map_value(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#t_map_value.
-	exitT_map_value(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#t_map_value_allow_targs.
-	enterT_map_value_allow_targs(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#t_map_value_allow_targs.
-	exitT_map_value_allow_targs(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#address_typ.
-	enterAddress_typ(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#address_typ.
-	exitAddress_typ(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#typ.
-	enterTyp(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#typ.
-	exitTyp(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#targ.
-	enterTarg(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#targ.
-	exitTarg(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#address_type_field.
-	enterAddress_type_field(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#address_type_field.
-	exitAddress_type_field(ctx) {
-	}
-
-
 	// Enter a parse tree produced by scillaParser#exp.
 	enterExp(ctx) {
 	}
@@ -164,15 +38,6 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by scillaParser#lit.
 	exitLit(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#ctargs.
-	enterCtargs(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#ctargs.
-	exitCtargs(ctx) {
 	}
 
 
@@ -248,336 +113,66 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#Load.
-	enterLoad(ctx) {
+	// Enter a parse tree produced by scillaParser#exp_term.
+	enterExp_term(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#Load.
-	exitLoad(ctx) {
+	// Exit a parse tree produced by scillaParser#exp_term.
+	exitExp_term(ctx) {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#RemoteFetch.
-	enterRemoteFetch(ctx) {
+	// Enter a parse tree produced by scillaParser#identifier.
+	enterIdentifier(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#RemoteFetch.
-	exitRemoteFetch(ctx) {
+	// Exit a parse tree produced by scillaParser#identifier.
+	exitIdentifier(ctx) {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#Store.
-	enterStore(ctx) {
+	// Enter a parse tree produced by scillaParser#sid.
+	enterSid(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#Store.
-	exitStore(ctx) {
+	// Exit a parse tree produced by scillaParser#sid.
+	exitSid(ctx) {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#Bind.
-	enterBind(ctx) {
+	// Enter a parse tree produced by scillaParser#sident.
+	enterSident(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#Bind.
-	exitBind(ctx) {
+	// Exit a parse tree produced by scillaParser#sident.
+	exitSident(ctx) {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#ReadFromBC.
-	enterReadFromBC(ctx) {
+	// Enter a parse tree produced by scillaParser#scid.
+	enterScid(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#ReadFromBC.
-	exitReadFromBC(ctx) {
+	// Exit a parse tree produced by scillaParser#scid.
+	exitScid(ctx) {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#MapGet.
-	enterMapGet(ctx) {
+	// Enter a parse tree produced by scillaParser#type_annot.
+	enterType_annot(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#MapGet.
-	exitMapGet(ctx) {
+	// Exit a parse tree produced by scillaParser#type_annot.
+	exitType_annot(ctx) {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#MapGetExists.
-	enterMapGetExists(ctx) {
+	// Enter a parse tree produced by scillaParser#id_with_typ.
+	enterId_with_typ(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#MapGetExists.
-	exitMapGetExists(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#MapUpdate.
-	enterMapUpdate(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#MapUpdate.
-	exitMapUpdate(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#MapUpdateDelete.
-	enterMapUpdateDelete(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#MapUpdateDelete.
-	exitMapUpdateDelete(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#Accept.
-	enterAccept(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#Accept.
-	exitAccept(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#Send.
-	enterSend(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#Send.
-	exitSend(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#CreateEvnt.
-	enterCreateEvnt(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#CreateEvnt.
-	exitCreateEvnt(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#Throw.
-	enterThrow(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#Throw.
-	exitThrow(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#MatchStmt.
-	enterMatchStmt(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#MatchStmt.
-	exitMatchStmt(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#CallProc.
-	enterCallProc(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#CallProc.
-	exitCallProc(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#Iterate.
-	enterIterate(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#Iterate.
-	exitIterate(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#remote_fetch_stmt.
-	enterRemote_fetch_stmt(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#remote_fetch_stmt.
-	exitRemote_fetch_stmt(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#stmt_pm_clause.
-	enterStmt_pm_clause(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#stmt_pm_clause.
-	exitStmt_pm_clause(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#stmts.
-	enterStmts(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#stmts.
-	exitStmts(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#stmts_term.
-	enterStmts_term(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#stmts_term.
-	exitStmts_term(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#param_pair.
-	enterParam_pair(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#param_pair.
-	exitParam_pair(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#component.
-	enterComponent(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#component.
-	exitComponent(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#procedure.
-	enterProcedure(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#procedure.
-	exitProcedure(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#transition.
-	enterTransition(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#transition.
-	exitTransition(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#component_id.
-	enterComponent_id(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#component_id.
-	exitComponent_id(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#component_params.
-	enterComponent_params(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#component_params.
-	exitComponent_params(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#component_body.
-	enterComponent_body(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#component_body.
-	exitComponent_body(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#field.
-	enterField(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#field.
-	exitField(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#with_constraint.
-	enterWith_constraint(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#with_constraint.
-	exitWith_constraint(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#contract.
-	enterContract(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#contract.
-	exitContract(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#tconstr.
-	enterTconstr(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#tconstr.
-	exitTconstr(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#libentry.
-	enterLibentry(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#libentry.
-	exitLibentry(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#library.
-	enterLibrary(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#library.
-	exitLibrary(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#lmodule.
-	enterLmodule(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#lmodule.
-	exitLmodule(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#importname.
-	enterImportname(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#importname.
-	exitImportname(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#imports.
-	enterImports(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#imports.
-	exitImports(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#cmodule.
-	enterCmodule(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#cmodule.
-	exitCmodule(ctx) {
+	// Exit a parse tree produced by scillaParser#id_with_typ.
+	exitId_with_typ(ctx) {
 	}
 
 
