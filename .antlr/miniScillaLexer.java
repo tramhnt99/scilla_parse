@@ -1,4 +1,4 @@
-// Generated from /Users/tramhoang/Desktop/Y5/cs4215/scilla_parse/miniScilla.g4 by ANTLR 4.8
+// Generated from /Users/tramhoang/Desktop/Y5/cs4215/scilla_parse/scilla.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -115,7 +115,7 @@ public class miniScillaLexer extends Lexer {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "miniScilla.g4"; }
+	public String getGrammarFileName() { return "scilla.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }

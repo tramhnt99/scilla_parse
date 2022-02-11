@@ -1,8 +1,8 @@
 // test.js
 import antlr4 from 'antlr4';
 import fs from 'fs';
-import MyGrammarLexer from './miniScillaLexer.js';
-import MyGrammarParser from './miniScillaParser.js';
+import MyGrammarLexer from './scillaLexer.js';
+import MyGrammarParser from './scillaParser.js';
 
 const exp_files = [
     'ackermann.scilexp',
