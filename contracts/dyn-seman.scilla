@@ -1,0 +1,53 @@
+scilla_version 0
+
+import BoolUtils
+
+library DynSeman
+
+let x = Int32 15
+let f = fun (z : Int32) =>
+    let b = x in
+    fun (c : Int32) => z
+
+
+contract DynSeman(
+  c_param1 : Uint128,
+  c_param2 : Int32
+)
+
+field a : Uint128 = Uint128 2
+field b : Bool = False
+
+transition Transition1 ()
+  v = let a = Uint32 15 in a;
+  b = Uint128 3;
+  a := b
+end
+
+procedure Proc1() 
+  b1 = Int32 0
+end
+
+procedure Proc2(some_arg: Int32) 
+  b2 = some_arg
+end
+
+transition Transition2 ()
+  v = True;
+  match v with 
+  | True => 
+    c1 = True;
+    c2 = False;
+    c3 = andb c1 c2;
+    c4 = Int32 2;
+    c5 = Int32 4;
+    c6 = f c4 c5;
+    Proc1;
+    Proc2 c6;
+    c7 = c_param1;
+    c8 = f c_param2 c5
+  | False => 
+    c4 = False;
+    c2 = negb c4
+    end
+end

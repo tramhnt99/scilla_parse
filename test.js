@@ -4,7 +4,7 @@ import fs from 'fs';
 import MyGrammarLexer from './miniScillaLexer.js';
 import MyGrammarParser from './miniScillaParser.js';
 
-const files = [
+const exp_files = [
     'ackermann.scilexp',
     'addr.scilexp',
     'app.scilexp',
@@ -147,14 +147,92 @@ const files = [
     'uint_conversions.scilexp'
 ]
 
-for (let i = 0; i < files.length; i++) {
-    const input = fs.readFileSync('scilexp/'.concat(files[i])).toString();
+for (let i = 0; i < exp_files.length; i++) {
+    const input = fs.readFileSync('scilexp/'.concat(exp_files[i])).toString();
     const chars = new antlr4.InputStream(input);
     const lexer = new MyGrammarLexer(chars);
     const tokens = new antlr4.CommonTokenStream(lexer);
     const parser = new MyGrammarParser(tokens);
     const tree = parser.simple_exp();
-    console.log(files[i]);
+    console.log(exp_files[i]);
+    console.log(tree.toString(parser.ruleNames));
+}
+
+
+
+const contracts = [
+    'Polynetwork.scilla',
+    'UintParam.scilla',
+    'addfunds.scilla',
+    'addfunds_proxy.scilla',
+    'address_eq_test.scilla',
+    'address_list_as_cparam.scilla',
+    'address_list_traversal.scilla',
+    'auction.scilla',
+    'bookstore.scilla',
+    'cfinvoke.scilla',
+    'chain-call-balance-1.scilla',
+    'chain-call-balance-2.scilla',
+    'chain-call-balance-3.scilla',
+    'constraint.scilla',
+    'creationtest.scilla',
+    'creationtest.scilla',
+    'crowdfunding.scilla',
+    'crowdfunding_proc.scilla',
+    'dead_code_test1.scilla',
+    'dead_code_test2.scilla',
+    'dead_code_test3.scilla',
+    'dead_code_test4.scilla',
+    'dyn-seman.scilla',
+    'earmarked-coin.scilla',
+    'ecdsa.scilla',
+    'empty.scilla',
+    'exception-example.scilla',
+    'fungible-token.scilla',
+    'helloWorld.scilla',
+    'import-test-lib.scilla',
+    'import-test-lib2.scilla',
+    'import-test-lib3.scilla',
+    'inplace-map.scilla',
+    'listiter.scilla',
+    'loopy-tree-call.scilla',
+    'map_as_cparam.scilla',
+    'map_corners_test.scilla',
+    'map_corners_test_combined.scilla',
+    'map_key_test.scilla',
+    'mappair.scilla',
+    'multiple-msgs.scilla',
+    'nonfungible-token.scilla',
+    'one-msg.scilla',
+    'one-msg1.scilla',
+    'ping.scilla',
+    'polymorphic_address.scilla',
+    'pong.scilla',
+    'remote_state_reads.scilla',
+    'remote_state_reads_2.scilla',
+    'salarybot.scilla',
+    'schnorr.scilla',
+    'shadow_import.scilla',
+    'shogi.scilla',
+    'shogi_proc.scilla',
+    'simple-dex-remote-reads.scilla',
+    'simple-dex.scilla',
+    'type_casts.scilla',
+    'ud-proxy.scilla',
+    'ud-registry.scilla',
+    'wallet.scilla',
+    'wallet_2.scilla',
+    'zil-game.scilla'
+]
+
+for (let i = 0; i < contracts.length; i++) {
+    const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
+    const chars = new antlr4.InputStream(input);
+    const lexer = new MyGrammarLexer(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    const parser = new MyGrammarParser(tokens);
+    const tree = parser.cmodule();
+    console.log(contracts[i]);
     console.log(tree.toString(parser.ruleNames));
 }
 
