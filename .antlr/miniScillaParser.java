@@ -16,56 +16,58 @@ public class miniScillaParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		FORALL=1, BUILTIN=2, LIBRARY=3, IMPORT=4, LET=5, IN=6, MATCH=7, WITH=8, 
-		END=9, FUN=10, TFUN=11, CONTRACT=12, TRANSITION=13, SEND=14, EVENT=15, 
-		FIELD=16, ACCEPT=17, EXISTS=18, DELETE=19, EMP=20, MAP=21, SCILLA_VERSION=22, 
-		TYPE=23, OF=24, TRY=25, CATCH=26, AS=27, PROCEDURE=28, THROW=29, SEMICOLON=30, 
-		COLON=31, PERIOD=32, BAR=33, LSQB=34, RSQB=35, LPAREN=36, RPAREN=37, LBRACE=38, 
-		RBRACE=39, COMMA=40, ARROW=41, TARROW=42, EQ=43, AND=44, FETCH=45, ASSIGN=46, 
-		AT=47, UNDERSCORE=48, BlockComment=49, NUMBER=50, INT=51, WS=52, TOSKIP=53, 
-		STRING=54, FLOAT=55, BOOLEAN=56, HEX=57, INTTY=58, ID=59, SPID=60, CID=61, 
-		TID=62;
+		T__0=1, FORALL=2, BUILTIN=3, LIBRARY=4, IMPORT=5, LET=6, IN=7, MATCH=8, 
+		WITH=9, END=10, FUN=11, TFUN=12, CONTRACT=13, TRANSITION=14, SEND=15, 
+		EVENT=16, FIELD=17, ACCEPT=18, EXISTS=19, DELETE=20, EMP=21, MAP=22, SCILLA_VERSION=23, 
+		TYPE=24, OF=25, TRY=26, CATCH=27, AS=28, PROCEDURE=29, THROW=30, SEMICOLON=31, 
+		COLON=32, PERIOD=33, BAR=34, LSQB=35, RSQB=36, LPAREN=37, RPAREN=38, LBRACE=39, 
+		RBRACE=40, COMMA=41, ARROW=42, TARROW=43, EQ=44, AND=45, FETCH=46, ASSIGN=47, 
+		AT=48, UNDERSCORE=49, BlockComment=50, NUMBER=51, WS=52, TOSKIP=53, STRING=54, 
+		FLOAT=55, BOOLEAN=56, OPTION=57, HEX=58, INTTY=59, BYSTR=60, BNUM=61, 
+		MESSAGE=62, EVENT_TY=63, ID=64, SPID=65, CID=66, TID=67;
 	public static final int
-		RULE_t_map_key = 0, RULE_t_map_value_args = 1, RULE_t_map_value = 2, RULE_t_map_value_allow_targs = 3, 
-		RULE_address_typ = 4, RULE_typ = 5, RULE_targ = 6, RULE_address_type_field = 7, 
-		RULE_exp = 8, RULE_simple_exp = 9, RULE_atomic_exp = 10, RULE_lit = 11, 
-		RULE_ctargs = 12, RULE_map_access = 13, RULE_pattern = 14, RULE_arg_pattern = 15, 
-		RULE_exp_pm_clause = 16, RULE_msg_entry = 17, RULE_builtin_args = 18, 
-		RULE_exp_term = 19, RULE_type_term = 20, RULE_identifier = 21, RULE_sid = 22, 
-		RULE_sident = 23, RULE_scid = 24;
+		RULE_int_ = 0, RULE_prim_types = 1, RULE_t_map_key = 2, RULE_t_map_value_args = 3, 
+		RULE_t_map_value = 4, RULE_t_map_value_allow_targs = 5, RULE_address_typ = 6, 
+		RULE_typ = 7, RULE_targ = 8, RULE_address_type_field = 9, RULE_exp = 10, 
+		RULE_simple_exp = 11, RULE_atomic_exp = 12, RULE_lit = 13, RULE_ctargs = 14, 
+		RULE_map_access = 15, RULE_pattern = 16, RULE_arg_pattern = 17, RULE_exp_pm_clause = 18, 
+		RULE_msg_entry = 19, RULE_builtin_args = 20, RULE_exp_term = 21, RULE_type_term = 22, 
+		RULE_identifier = 23, RULE_sid = 24, RULE_scid = 25;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"t_map_key", "t_map_value_args", "t_map_value", "t_map_value_allow_targs", 
-			"address_typ", "typ", "targ", "address_type_field", "exp", "simple_exp", 
-			"atomic_exp", "lit", "ctargs", "map_access", "pattern", "arg_pattern", 
-			"exp_pm_clause", "msg_entry", "builtin_args", "exp_term", "type_term", 
-			"identifier", "sid", "sident", "scid"
+			"int_", "prim_types", "t_map_key", "t_map_value_args", "t_map_value", 
+			"t_map_value_allow_targs", "address_typ", "typ", "targ", "address_type_field", 
+			"exp", "simple_exp", "atomic_exp", "lit", "ctargs", "map_access", "pattern", 
+			"arg_pattern", "exp_pm_clause", "msg_entry", "builtin_args", "exp_term", 
+			"type_term", "identifier", "sid", "scid"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'forall'", "'builtin'", "'library'", "'import'", "'let'", "'in'", 
-			"'match'", "'with'", "'end'", "'fun'", "'tfun'", "'contract'", "'transition'", 
-			"'send'", "'event'", "'field'", "'accept'", "'exists'", "'delete'", "'emp'", 
-			"'map'", "'scilla_version'", "'type'", "'of'", "'try'", "'catch'", "'as'", 
-			"'procedure'", "'throw'", "';'", "':'", "'.'", "'|'", "'['", "']'", "'('", 
-			"')'", "'{'", "'}'", "','", "'=>'", "'->'", "'='", "'&'", "'<-'", "':='", 
-			"'@'", "'_'"
+			null, "'-'", "'forall'", "'builtin'", "'library'", "'import'", "'let'", 
+			"'in'", "'match'", "'with'", "'end'", "'fun'", "'tfun'", "'contract'", 
+			"'transition'", "'send'", "'event'", "'field'", "'accept'", "'exists'", 
+			"'delete'", "'Emp'", "'Map'", "'scilla_version'", "'type'", "'of'", "'try'", 
+			"'catch'", "'as'", "'procedure'", "'throw'", "';'", "':'", "'.'", "'|'", 
+			"'['", "']'", "'('", "')'", "'{'", "'}'", "','", "'=>'", "'->'", "'='", 
+			"'&'", "'<-'", "':='", "'@'", "'_'", null, null, null, null, null, null, 
+			null, null, null, null, null, "'BNum'", "'Message'", "'Event'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "FORALL", "BUILTIN", "LIBRARY", "IMPORT", "LET", "IN", "MATCH", 
+			null, null, "FORALL", "BUILTIN", "LIBRARY", "IMPORT", "LET", "IN", "MATCH", 
 			"WITH", "END", "FUN", "TFUN", "CONTRACT", "TRANSITION", "SEND", "EVENT", 
 			"FIELD", "ACCEPT", "EXISTS", "DELETE", "EMP", "MAP", "SCILLA_VERSION", 
 			"TYPE", "OF", "TRY", "CATCH", "AS", "PROCEDURE", "THROW", "SEMICOLON", 
 			"COLON", "PERIOD", "BAR", "LSQB", "RSQB", "LPAREN", "RPAREN", "LBRACE", 
 			"RBRACE", "COMMA", "ARROW", "TARROW", "EQ", "AND", "FETCH", "ASSIGN", 
-			"AT", "UNDERSCORE", "BlockComment", "NUMBER", "INT", "WS", "TOSKIP", 
-			"STRING", "FLOAT", "BOOLEAN", "HEX", "INTTY", "ID", "SPID", "CID", "TID"
+			"AT", "UNDERSCORE", "BlockComment", "NUMBER", "WS", "TOSKIP", "STRING", 
+			"FLOAT", "BOOLEAN", "OPTION", "HEX", "INTTY", "BYSTR", "BNUM", "MESSAGE", 
+			"EVENT_TY", "ID", "SPID", "CID", "TID"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -119,6 +121,88 @@ public class miniScillaParser extends Parser {
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
+	public static class Int_Context extends ParserRuleContext {
+		public TerminalNode NUMBER() { return getToken(miniScillaParser.NUMBER, 0); }
+		public Int_Context(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_int_; }
+	}
+
+	public final Int_Context int_() throws RecognitionException {
+		Int_Context _localctx = new Int_Context(_ctx, getState());
+		enterRule(_localctx, 0, RULE_int_);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(53);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			if (_la==T__0) {
+				{
+				setState(52);
+				match(T__0);
+				}
+			}
+
+			setState(55);
+			match(NUMBER);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class Prim_typesContext extends ParserRuleContext {
+		public TerminalNode INTTY() { return getToken(miniScillaParser.INTTY, 0); }
+		public TerminalNode BYSTR() { return getToken(miniScillaParser.BYSTR, 0); }
+		public TerminalNode BNUM() { return getToken(miniScillaParser.BNUM, 0); }
+		public TerminalNode MESSAGE() { return getToken(miniScillaParser.MESSAGE, 0); }
+		public TerminalNode EVENT_TY() { return getToken(miniScillaParser.EVENT_TY, 0); }
+		public Prim_typesContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_prim_types; }
+	}
+
+	public final Prim_typesContext prim_types() throws RecognitionException {
+		Prim_typesContext _localctx = new Prim_typesContext(_ctx, getState());
+		enterRule(_localctx, 2, RULE_prim_types);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(57);
+			_la = _input.LA(1);
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INTTY) | (1L << BYSTR) | (1L << BNUM) | (1L << MESSAGE) | (1L << EVENT_TY))) != 0)) ) {
+			_errHandler.recoverInline(this);
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
+				consume();
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
 	public static class T_map_keyContext extends ParserRuleContext {
 		public ScidContext kt_to_map;
 		public Address_typContext kt;
@@ -138,44 +222,44 @@ public class miniScillaParser extends Parser {
 
 	public final T_map_keyContext t_map_key() throws RecognitionException {
 		T_map_keyContext _localctx = new T_map_keyContext(_ctx, getState());
-		enterRule(_localctx, 0, RULE_t_map_key);
+		enterRule(_localctx, 4, RULE_t_map_key);
 		try {
-			setState(60);
+			setState(69);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,0,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,1,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(50);
+				setState(59);
 				((T_map_keyContext)_localctx).kt_to_map = scid();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(51);
+				setState(60);
 				match(LPAREN);
-				setState(52);
+				setState(61);
 				((T_map_keyContext)_localctx).kt_to_map = scid();
-				setState(53);
+				setState(62);
 				match(RPAREN);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(55);
+				setState(64);
 				match(LPAREN);
-				setState(56);
+				setState(65);
 				((T_map_keyContext)_localctx).kt = address_typ();
-				setState(57);
+				setState(66);
 				match(RPAREN);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(59);
+				setState(68);
 				((T_map_keyContext)_localctx).kt = address_typ();
 				}
 				break;
@@ -220,38 +304,45 @@ public class miniScillaParser extends Parser {
 
 	public final T_map_value_argsContext t_map_value_args() throws RecognitionException {
 		T_map_value_argsContext _localctx = new T_map_value_argsContext(_ctx, getState());
-		enterRule(_localctx, 2, RULE_t_map_value_args);
+		enterRule(_localctx, 6, RULE_t_map_value_args);
 		try {
-			setState(71);
+			setState(80);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case LPAREN:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(62);
+				setState(71);
 				match(LPAREN);
-				setState(63);
+				setState(72);
 				((T_map_value_argsContext)_localctx).t = t_map_value_allow_targs();
-				setState(64);
+				setState(73);
 				match(RPAREN);
 				}
 				break;
+			case BOOLEAN:
+			case OPTION:
 			case HEX:
+			case INTTY:
+			case BYSTR:
+			case BNUM:
+			case MESSAGE:
+			case EVENT_TY:
 			case CID:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(66);
+				setState(75);
 				((T_map_value_argsContext)_localctx).d = scid();
 				}
 				break;
 			case MAP:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(67);
+				setState(76);
 				match(MAP);
-				setState(68);
+				setState(77);
 				((T_map_value_argsContext)_localctx).k = t_map_key();
-				setState(69);
+				setState(78);
 				((T_map_value_argsContext)_localctx).v = t_map_value();
 				}
 				break;
@@ -294,6 +385,9 @@ public class miniScillaParser extends Parser {
 		public Address_typContext address_typ() {
 			return getRuleContext(Address_typContext.class,0);
 		}
+		public Prim_typesContext prim_types() {
+			return getRuleContext(Prim_typesContext.class,0);
+		}
 		public T_map_valueContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -302,40 +396,47 @@ public class miniScillaParser extends Parser {
 
 	public final T_map_valueContext t_map_value() throws RecognitionException {
 		T_map_valueContext _localctx = new T_map_valueContext(_ctx, getState());
-		enterRule(_localctx, 4, RULE_t_map_value);
+		enterRule(_localctx, 8, RULE_t_map_value);
 		try {
-			setState(82);
+			setState(92);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,3,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(73);
+				setState(82);
 				((T_map_valueContext)_localctx).d = scid();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(74);
+				setState(83);
 				match(MAP);
-				setState(75);
+				setState(84);
 				((T_map_valueContext)_localctx).k = t_map_key();
-				setState(76);
+				setState(85);
 				((T_map_valueContext)_localctx).v = t_map_value();
-				setState(77);
+				setState(86);
 				match(LPAREN);
-				setState(78);
+				setState(87);
 				((T_map_valueContext)_localctx).t = t_map_value_allow_targs();
-				setState(79);
+				setState(88);
 				match(RPAREN);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(81);
+				setState(90);
 				((T_map_valueContext)_localctx).vt = address_typ();
+				}
+				break;
+			case 4:
+				enterOuterAlt(_localctx, 4);
+				{
+				setState(91);
+				prim_types();
 				}
 				break;
 			}
@@ -373,37 +474,37 @@ public class miniScillaParser extends Parser {
 
 	public final T_map_value_allow_targsContext t_map_value_allow_targs() throws RecognitionException {
 		T_map_value_allow_targsContext _localctx = new T_map_value_allow_targsContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_t_map_value_allow_targs);
+		enterRule(_localctx, 10, RULE_t_map_value_allow_targs);
 		int _la;
 		try {
-			setState(91);
+			setState(101);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,4,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,5,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(84);
+				setState(94);
 				((T_map_value_allow_targsContext)_localctx).d = scid();
-				setState(86); 
+				setState(96); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(85);
+					setState(95);
 					t_map_value_args();
 					}
 					}
-					setState(88); 
+					setState(98); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MAP) | (1L << LPAREN) | (1L << HEX) | (1L << CID))) != 0) );
+				} while ( ((((_la - 22)) & ~0x3f) == 0 && ((1L << (_la - 22)) & ((1L << (MAP - 22)) | (1L << (LPAREN - 22)) | (1L << (BOOLEAN - 22)) | (1L << (OPTION - 22)) | (1L << (HEX - 22)) | (1L << (INTTY - 22)) | (1L << (BYSTR - 22)) | (1L << (BNUM - 22)) | (1L << (MESSAGE - 22)) | (1L << (EVENT_TY - 22)) | (1L << (CID - 22)))) != 0) );
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(90);
+				setState(100);
 				t_map_value();
 				}
 				break;
@@ -446,53 +547,53 @@ public class miniScillaParser extends Parser {
 
 	public final Address_typContext address_typ() throws RecognitionException {
 		Address_typContext _localctx = new Address_typContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_address_typ);
+		enterRule(_localctx, 12, RULE_address_typ);
 		int _la;
 		try {
-			setState(109);
+			setState(119);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,6,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,7,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(93);
+				setState(103);
 				((Address_typContext)_localctx).d = match(CID);
-				setState(94);
+				setState(104);
 				match(WITH);
-				setState(95);
+				setState(105);
 				match(END);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(96);
+				setState(106);
 				((Address_typContext)_localctx).d = match(CID);
-				setState(97);
+				setState(107);
 				match(WITH);
-				setState(98);
+				setState(108);
 				match(CONTRACT);
-				setState(99);
+				setState(109);
 				((Address_typContext)_localctx).address_type_field = address_type_field();
 				((Address_typContext)_localctx).fs.add(((Address_typContext)_localctx).address_type_field);
-				setState(104);
+				setState(114);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(100);
+					setState(110);
 					match(COMMA);
-					setState(101);
+					setState(111);
 					((Address_typContext)_localctx).address_type_field = address_type_field();
 					((Address_typContext)_localctx).fs.add(((Address_typContext)_localctx).address_type_field);
 					}
 					}
-					setState(106);
+					setState(116);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(107);
+				setState(117);
 				match(END);
 				}
 				break;
@@ -551,7 +652,9 @@ public class miniScillaParser extends Parser {
 		public TerminalNode FORALL() { return getToken(miniScillaParser.FORALL, 0); }
 		public TerminalNode PERIOD() { return getToken(miniScillaParser.PERIOD, 0); }
 		public TerminalNode TID() { return getToken(miniScillaParser.TID, 0); }
-		public TerminalNode INTTY() { return getToken(miniScillaParser.INTTY, 0); }
+		public Prim_typesContext prim_types() {
+			return getRuleContext(Prim_typesContext.class,0);
+		}
 		public TerminalNode TARROW() { return getToken(miniScillaParser.TARROW, 0); }
 		public TypContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -568,93 +671,93 @@ public class miniScillaParser extends Parser {
 		int _parentState = getState();
 		TypContext _localctx = new TypContext(_ctx, _parentState);
 		TypContext _prevctx = _localctx;
-		int _startState = 10;
-		enterRecursionRule(_localctx, 10, RULE_typ, _p);
+		int _startState = 14;
+		enterRecursionRule(_localctx, 14, RULE_typ, _p);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(134);
+			setState(144);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,8,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
 			case 1:
 				{
-				setState(112);
+				setState(122);
 				((TypContext)_localctx).d = scid();
-				setState(116);
+				setState(126);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,8,_ctx);
 				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
-						setState(113);
+						setState(123);
 						((TypContext)_localctx).targ = targ();
 						((TypContext)_localctx).targs.add(((TypContext)_localctx).targ);
 						}
 						} 
 					}
-					setState(118);
+					setState(128);
 					_errHandler.sync(this);
-					_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
+					_alt = getInterpreter().adaptivePredict(_input,8,_ctx);
 				}
 				}
 				break;
 			case 2:
 				{
-				setState(119);
+				setState(129);
 				match(MAP);
-				setState(120);
+				setState(130);
 				((TypContext)_localctx).k = t_map_key();
-				setState(121);
+				setState(131);
 				((TypContext)_localctx).v = t_map_value();
 				}
 				break;
 			case 3:
 				{
-				setState(123);
+				setState(133);
 				match(LPAREN);
-				setState(124);
+				setState(134);
 				((TypContext)_localctx).t = typ(0);
-				setState(125);
+				setState(135);
 				match(RPAREN);
 				}
 				break;
 			case 4:
 				{
-				setState(127);
+				setState(137);
 				((TypContext)_localctx).t_to_map = address_typ();
 				}
 				break;
 			case 5:
 				{
-				setState(128);
+				setState(138);
 				match(FORALL);
-				setState(129);
+				setState(139);
 				((TypContext)_localctx).tv = match(TID);
-				setState(130);
+				setState(140);
 				match(PERIOD);
-				setState(131);
+				setState(141);
 				((TypContext)_localctx).t = typ(3);
 				}
 				break;
 			case 6:
 				{
-				setState(132);
+				setState(142);
 				((TypContext)_localctx).t_var = match(TID);
 				}
 				break;
 			case 7:
 				{
-				setState(133);
-				match(INTTY);
+				setState(143);
+				prim_types();
 				}
 				break;
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(141);
+			setState(151);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,9,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
@@ -665,18 +768,18 @@ public class miniScillaParser extends Parser {
 					_localctx.t1 = _prevctx;
 					_localctx.t1 = _prevctx;
 					pushNewRecursionContext(_localctx, _startState, RULE_typ);
-					setState(136);
+					setState(146);
 					if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
-					setState(137);
+					setState(147);
 					match(TARROW);
-					setState(138);
+					setState(148);
 					((TypContext)_localctx).t2 = typ(7);
 					}
 					} 
 				}
-				setState(143);
+				setState(153);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,9,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			}
 			}
 		}
@@ -725,51 +828,51 @@ public class miniScillaParser extends Parser {
 
 	public final TargContext targ() throws RecognitionException {
 		TargContext _localctx = new TargContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_targ);
+		enterRule(_localctx, 16, RULE_targ);
 		try {
-			setState(155);
+			setState(165);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,10,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,11,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(144);
+				setState(154);
 				match(LPAREN);
-				setState(145);
+				setState(155);
 				((TargContext)_localctx).t = typ(0);
-				setState(146);
+				setState(156);
 				match(RPAREN);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(148);
+				setState(158);
 				((TargContext)_localctx).d = scid();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(149);
+				setState(159);
 				((TargContext)_localctx).t_var = match(TID);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(150);
+				setState(160);
 				((TargContext)_localctx).t_to_map = address_typ();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(151);
+				setState(161);
 				match(MAP);
-				setState(152);
+				setState(162);
 				((TargContext)_localctx).k = t_map_key();
-				setState(153);
+				setState(163);
 				((TargContext)_localctx).v = t_map_value();
 				}
 				break;
@@ -805,17 +908,17 @@ public class miniScillaParser extends Parser {
 
 	public final Address_type_fieldContext address_type_field() throws RecognitionException {
 		Address_type_fieldContext _localctx = new Address_type_fieldContext(_ctx, getState());
-		enterRule(_localctx, 14, RULE_address_type_field);
+		enterRule(_localctx, 18, RULE_address_type_field);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(157);
+			setState(167);
 			match(FIELD);
-			setState(158);
+			setState(168);
 			((Address_type_fieldContext)_localctx).id = identifier();
-			setState(159);
+			setState(169);
 			match(COLON);
-			setState(160);
+			setState(170);
 			((Address_type_fieldContext)_localctx).ty = typ(0);
 			}
 		}
@@ -843,11 +946,11 @@ public class miniScillaParser extends Parser {
 
 	public final ExpContext exp() throws RecognitionException {
 		ExpContext _localctx = new ExpContext(_ctx, getState());
-		enterRule(_localctx, 16, RULE_exp);
+		enterRule(_localctx, 20, RULE_exp);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(162);
+			setState(172);
 			((ExpContext)_localctx).f = simple_exp();
 			}
 		}
@@ -875,21 +978,36 @@ public class miniScillaParser extends Parser {
 	}
 	public static class AppContext extends Simple_expContext {
 		public SidContext f_var;
-		public SidentContext sident;
-		public List<SidentContext> args = new ArrayList<SidentContext>();
-		public SidContext sid() {
-			return getRuleContext(SidContext.class,0);
+		public SidContext sid;
+		public List<SidContext> args = new ArrayList<SidContext>();
+		public List<SidContext> sid() {
+			return getRuleContexts(SidContext.class);
 		}
-		public List<SidentContext> sident() {
-			return getRuleContexts(SidentContext.class);
-		}
-		public SidentContext sident(int i) {
-			return getRuleContext(SidentContext.class,i);
+		public SidContext sid(int i) {
+			return getRuleContext(SidContext.class,i);
 		}
 		public AppContext(Simple_expContext ctx) { copyFrom(ctx); }
 	}
+	public static class MessageContext extends Simple_expContext {
+		public Msg_entryContext msg_entry;
+		public List<Msg_entryContext> es = new ArrayList<Msg_entryContext>();
+		public TerminalNode LBRACE() { return getToken(miniScillaParser.LBRACE, 0); }
+		public TerminalNode RBRACE() { return getToken(miniScillaParser.RBRACE, 0); }
+		public List<Msg_entryContext> msg_entry() {
+			return getRuleContexts(Msg_entryContext.class);
+		}
+		public Msg_entryContext msg_entry(int i) {
+			return getRuleContext(Msg_entryContext.class,i);
+		}
+		public List<TerminalNode> SEMICOLON() { return getTokens(miniScillaParser.SEMICOLON); }
+		public TerminalNode SEMICOLON(int i) {
+			return getToken(miniScillaParser.SEMICOLON, i);
+		}
+		public MessageContext(Simple_expContext ctx) { copyFrom(ctx); }
+	}
 	public static class LetContext extends Simple_expContext {
 		public IdentifierContext x;
+		public TypContext ty;
 		public Simple_expContext f;
 		public ExpContext e;
 		public TerminalNode LET() { return getToken(miniScillaParser.LET, 0); }
@@ -904,6 +1022,10 @@ public class miniScillaParser extends Parser {
 		public ExpContext exp() {
 			return getRuleContext(ExpContext.class,0);
 		}
+		public TerminalNode COLON() { return getToken(miniScillaParser.COLON, 0); }
+		public TypContext typ() {
+			return getRuleContext(TypContext.class,0);
+		}
 		public LetContext(Simple_expContext ctx) { copyFrom(ctx); }
 	}
 	public static class AtomicContext extends Simple_expContext {
@@ -912,6 +1034,52 @@ public class miniScillaParser extends Parser {
 			return getRuleContext(Atomic_expContext.class,0);
 		}
 		public AtomicContext(Simple_expContext ctx) { copyFrom(ctx); }
+	}
+	public static class TAppContext extends Simple_expContext {
+		public SidContext f;
+		public TargContext targ;
+		public List<TargContext> targs = new ArrayList<TargContext>();
+		public TerminalNode AT() { return getToken(miniScillaParser.AT, 0); }
+		public SidContext sid() {
+			return getRuleContext(SidContext.class,0);
+		}
+		public List<TargContext> targ() {
+			return getRuleContexts(TargContext.class);
+		}
+		public TargContext targ(int i) {
+			return getRuleContext(TargContext.class,i);
+		}
+		public TAppContext(Simple_expContext ctx) { copyFrom(ctx); }
+	}
+	public static class TFunContext extends Simple_expContext {
+		public Token i;
+		public ExpContext e;
+		public TerminalNode TFUN() { return getToken(miniScillaParser.TFUN, 0); }
+		public TerminalNode ARROW() { return getToken(miniScillaParser.ARROW, 0); }
+		public TerminalNode TID() { return getToken(miniScillaParser.TID, 0); }
+		public ExpContext exp() {
+			return getRuleContext(ExpContext.class,0);
+		}
+		public TFunContext(Simple_expContext ctx) { copyFrom(ctx); }
+	}
+	public static class DataConstructorAppContext extends Simple_expContext {
+		public ScidContext c;
+		public CtargsContext ts;
+		public SidContext sid;
+		public List<SidContext> args = new ArrayList<SidContext>();
+		public ScidContext scid() {
+			return getRuleContext(ScidContext.class,0);
+		}
+		public CtargsContext ctargs() {
+			return getRuleContext(CtargsContext.class,0);
+		}
+		public List<SidContext> sid() {
+			return getRuleContexts(SidContext.class);
+		}
+		public SidContext sid(int i) {
+			return getRuleContext(SidContext.class,i);
+		}
+		public DataConstructorAppContext(Simple_expContext ctx) { copyFrom(ctx); }
 	}
 	public static class FunContext extends Simple_expContext {
 		public IdentifierContext id;
@@ -951,30 +1119,59 @@ public class miniScillaParser extends Parser {
 		}
 		public BuiltinContext(Simple_expContext ctx) { copyFrom(ctx); }
 	}
+	public static class MatchContext extends Simple_expContext {
+		public SidContext x_sid;
+		public Exp_pm_clauseContext cs;
+		public TerminalNode MATCH() { return getToken(miniScillaParser.MATCH, 0); }
+		public TerminalNode WITH() { return getToken(miniScillaParser.WITH, 0); }
+		public TerminalNode END() { return getToken(miniScillaParser.END, 0); }
+		public SidContext sid() {
+			return getRuleContext(SidContext.class,0);
+		}
+		public List<Exp_pm_clauseContext> exp_pm_clause() {
+			return getRuleContexts(Exp_pm_clauseContext.class);
+		}
+		public Exp_pm_clauseContext exp_pm_clause(int i) {
+			return getRuleContext(Exp_pm_clauseContext.class,i);
+		}
+		public MatchContext(Simple_expContext ctx) { copyFrom(ctx); }
+	}
 
 	public final Simple_expContext simple_exp() throws RecognitionException {
 		Simple_expContext _localctx = new Simple_expContext(_ctx, getState());
-		enterRule(_localctx, 18, RULE_simple_exp);
+		enterRule(_localctx, 22, RULE_simple_exp);
 		int _la;
 		try {
-			setState(196);
+			setState(253);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,13,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,20,_ctx) ) {
 			case 1:
 				_localctx = new LetContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(164);
+				setState(174);
 				match(LET);
-				setState(165);
+				setState(175);
 				((LetContext)_localctx).x = identifier();
-				setState(166);
+				setState(178);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				if (_la==COLON) {
+					{
+					setState(176);
+					match(COLON);
+					setState(177);
+					((LetContext)_localctx).ty = typ(0);
+					}
+				}
+
+				setState(180);
 				match(EQ);
-				setState(167);
+				setState(181);
 				((LetContext)_localctx).f = simple_exp();
-				setState(168);
+				setState(182);
 				match(IN);
-				setState(169);
+				setState(183);
 				((LetContext)_localctx).e = exp();
 				}
 				break;
@@ -982,21 +1179,21 @@ public class miniScillaParser extends Parser {
 				_localctx = new FunContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(171);
+				setState(185);
 				match(FUN);
-				setState(172);
+				setState(186);
 				match(LPAREN);
-				setState(173);
+				setState(187);
 				((FunContext)_localctx).id = identifier();
-				setState(174);
+				setState(188);
 				match(COLON);
-				setState(175);
+				setState(189);
 				((FunContext)_localctx).ty = typ(0);
-				setState(176);
+				setState(190);
 				match(RPAREN);
-				setState(177);
+				setState(191);
 				match(ARROW);
-				setState(178);
+				setState(192);
 				((FunContext)_localctx).e = exp();
 				}
 				break;
@@ -1004,30 +1201,30 @@ public class miniScillaParser extends Parser {
 				_localctx = new AppContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(180);
+				setState(194);
 				((AppContext)_localctx).f_var = sid();
-				setState(182); 
+				setState(196); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(181);
-					((AppContext)_localctx).sident = sident();
-					((AppContext)_localctx).args.add(((AppContext)_localctx).sident);
+					setState(195);
+					((AppContext)_localctx).sid = sid();
+					((AppContext)_localctx).args.add(((AppContext)_localctx).sid);
 					}
 					}
-					setState(184); 
+					setState(198); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ID) | (1L << SPID) | (1L << CID))) != 0) );
+				} while ( ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ID - 64)) | (1L << (SPID - 64)) | (1L << (CID - 64)))) != 0) );
 				}
 				break;
 			case 4:
 				_localctx = new AtomicContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(186);
+				setState(200);
 				((AtomicContext)_localctx).a = atomic_exp();
 				}
 				break;
@@ -1035,27 +1232,157 @@ public class miniScillaParser extends Parser {
 				_localctx = new BuiltinContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(187);
+				setState(201);
 				match(BUILTIN);
-				setState(188);
+				setState(202);
 				((BuiltinContext)_localctx).b = match(ID);
-				setState(192);
+				setState(206);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==LBRACE) {
 					{
 					{
-					setState(189);
+					setState(203);
 					((BuiltinContext)_localctx).ctargs = ctargs();
 					((BuiltinContext)_localctx).targs.add(((BuiltinContext)_localctx).ctargs);
 					}
 					}
-					setState(194);
+					setState(208);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(195);
+				setState(209);
 				((BuiltinContext)_localctx).xs = builtin_args();
+				}
+				break;
+			case 6:
+				_localctx = new MessageContext(_localctx);
+				enterOuterAlt(_localctx, 6);
+				{
+				setState(210);
+				match(LBRACE);
+				setState(211);
+				((MessageContext)_localctx).msg_entry = msg_entry();
+				((MessageContext)_localctx).es.add(((MessageContext)_localctx).msg_entry);
+				setState(216);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==SEMICOLON) {
+					{
+					{
+					setState(212);
+					match(SEMICOLON);
+					setState(213);
+					((MessageContext)_localctx).msg_entry = msg_entry();
+					((MessageContext)_localctx).es.add(((MessageContext)_localctx).msg_entry);
+					}
+					}
+					setState(218);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(219);
+				match(RBRACE);
+				}
+				break;
+			case 7:
+				_localctx = new MatchContext(_localctx);
+				enterOuterAlt(_localctx, 7);
+				{
+				setState(221);
+				match(MATCH);
+				setState(222);
+				((MatchContext)_localctx).x_sid = sid();
+				setState(223);
+				match(WITH);
+				setState(227);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==BAR) {
+					{
+					{
+					setState(224);
+					((MatchContext)_localctx).cs = exp_pm_clause();
+					}
+					}
+					setState(229);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(230);
+				match(END);
+				}
+				break;
+			case 8:
+				_localctx = new DataConstructorAppContext(_localctx);
+				enterOuterAlt(_localctx, 8);
+				{
+				setState(232);
+				((DataConstructorAppContext)_localctx).c = scid();
+				setState(234);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				if (_la==LBRACE) {
+					{
+					setState(233);
+					((DataConstructorAppContext)_localctx).ts = ctargs();
+					}
+				}
+
+				setState(239);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ID - 64)) | (1L << (SPID - 64)) | (1L << (CID - 64)))) != 0)) {
+					{
+					{
+					setState(236);
+					((DataConstructorAppContext)_localctx).sid = sid();
+					((DataConstructorAppContext)_localctx).args.add(((DataConstructorAppContext)_localctx).sid);
+					}
+					}
+					setState(241);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				}
+				break;
+			case 9:
+				_localctx = new TFunContext(_localctx);
+				enterOuterAlt(_localctx, 9);
+				{
+				setState(242);
+				match(TFUN);
+				setState(243);
+				((TFunContext)_localctx).i = match(TID);
+				setState(244);
+				match(ARROW);
+				setState(245);
+				((TFunContext)_localctx).e = exp();
+				}
+				break;
+			case 10:
+				_localctx = new TAppContext(_localctx);
+				enterOuterAlt(_localctx, 10);
+				{
+				setState(246);
+				match(AT);
+				setState(247);
+				((TAppContext)_localctx).f = sid();
+				setState(249); 
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				do {
+					{
+					{
+					setState(248);
+					((TAppContext)_localctx).targ = targ();
+					((TAppContext)_localctx).targs.add(((TAppContext)_localctx).targ);
+					}
+					}
+					setState(251); 
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				} while ( ((((_la - 22)) & ~0x3f) == 0 && ((1L << (_la - 22)) & ((1L << (MAP - 22)) | (1L << (LPAREN - 22)) | (1L << (BOOLEAN - 22)) | (1L << (OPTION - 22)) | (1L << (HEX - 22)) | (1L << (INTTY - 22)) | (1L << (BYSTR - 22)) | (1L << (BNUM - 22)) | (1L << (MESSAGE - 22)) | (1L << (EVENT_TY - 22)) | (1L << (CID - 22)) | (1L << (TID - 22)))) != 0) );
 				}
 				break;
 			}
@@ -1088,22 +1415,22 @@ public class miniScillaParser extends Parser {
 
 	public final Atomic_expContext atomic_exp() throws RecognitionException {
 		Atomic_expContext _localctx = new Atomic_expContext(_ctx, getState());
-		enterRule(_localctx, 20, RULE_atomic_exp);
+		enterRule(_localctx, 24, RULE_atomic_exp);
 		try {
-			setState(200);
+			setState(257);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,14,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,21,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(198);
+				setState(255);
 				((Atomic_expContext)_localctx).i = sid();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(199);
+				setState(256);
 				((Atomic_expContext)_localctx).l = lit();
 				}
 				break;
@@ -1122,6 +1449,7 @@ public class miniScillaParser extends Parser {
 
 	public static class LitContext extends ParserRuleContext {
 		public Token i;
+		public Int_Context i_int;
 		public Token i_number;
 		public Token n;
 		public Token h;
@@ -1131,6 +1459,10 @@ public class miniScillaParser extends Parser {
 		public Token b;
 		public TerminalNode CID() { return getToken(miniScillaParser.CID, 0); }
 		public TerminalNode INTTY() { return getToken(miniScillaParser.INTTY, 0); }
+		public Int_Context int_() {
+			return getRuleContext(Int_Context.class,0);
+		}
+		public TerminalNode BNUM() { return getToken(miniScillaParser.BNUM, 0); }
 		public TerminalNode NUMBER() { return getToken(miniScillaParser.NUMBER, 0); }
 		public TerminalNode HEX() { return getToken(miniScillaParser.HEX, 0); }
 		public TerminalNode STRING() { return getToken(miniScillaParser.STRING, 0); }
@@ -1150,63 +1482,72 @@ public class miniScillaParser extends Parser {
 
 	public final LitContext lit() throws RecognitionException {
 		LitContext _localctx = new LitContext(_ctx, getState());
-		enterRule(_localctx, 22, RULE_lit);
+		enterRule(_localctx, 26, RULE_lit);
 		try {
-			setState(213);
+			setState(272);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case CID:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(202);
+				setState(259);
 				((LitContext)_localctx).i = match(CID);
 				}
 				break;
 			case INTTY:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(203);
+				setState(260);
 				match(INTTY);
-				setState(204);
+				setState(261);
+				((LitContext)_localctx).i_int = int_();
+				}
+				break;
+			case BNUM:
+				enterOuterAlt(_localctx, 3);
+				{
+				setState(262);
+				match(BNUM);
+				setState(263);
 				((LitContext)_localctx).i_number = match(NUMBER);
 				}
 				break;
 			case NUMBER:
-				enterOuterAlt(_localctx, 3);
+				enterOuterAlt(_localctx, 4);
 				{
-				setState(205);
+				setState(264);
 				((LitContext)_localctx).n = match(NUMBER);
 				}
 				break;
 			case HEX:
-				enterOuterAlt(_localctx, 4);
+				enterOuterAlt(_localctx, 5);
 				{
-				setState(206);
+				setState(265);
 				((LitContext)_localctx).h = match(HEX);
 				}
 				break;
 			case STRING:
-				enterOuterAlt(_localctx, 5);
+				enterOuterAlt(_localctx, 6);
 				{
-				setState(207);
+				setState(266);
 				((LitContext)_localctx).s = match(STRING);
 				}
 				break;
 			case EMP:
-				enterOuterAlt(_localctx, 6);
+				enterOuterAlt(_localctx, 7);
 				{
-				setState(208);
+				setState(267);
 				match(EMP);
-				setState(209);
+				setState(268);
 				((LitContext)_localctx).kt = t_map_key();
-				setState(210);
+				setState(269);
 				((LitContext)_localctx).vt = t_map_value();
 				}
 				break;
 			case BOOLEAN:
-				enterOuterAlt(_localctx, 7);
+				enterOuterAlt(_localctx, 8);
 				{
-				setState(212);
+				setState(271);
 				((LitContext)_localctx).b = match(BOOLEAN);
 				}
 				break;
@@ -1243,28 +1584,28 @@ public class miniScillaParser extends Parser {
 
 	public final CtargsContext ctargs() throws RecognitionException {
 		CtargsContext _localctx = new CtargsContext(_ctx, getState());
-		enterRule(_localctx, 24, RULE_ctargs);
+		enterRule(_localctx, 28, RULE_ctargs);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(215);
+			setState(274);
 			match(LBRACE);
-			setState(219);
+			setState(278);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MAP) | (1L << LPAREN) | (1L << HEX) | (1L << CID) | (1L << TID))) != 0)) {
+			while (((((_la - 22)) & ~0x3f) == 0 && ((1L << (_la - 22)) & ((1L << (MAP - 22)) | (1L << (LPAREN - 22)) | (1L << (BOOLEAN - 22)) | (1L << (OPTION - 22)) | (1L << (HEX - 22)) | (1L << (INTTY - 22)) | (1L << (BYSTR - 22)) | (1L << (BNUM - 22)) | (1L << (MESSAGE - 22)) | (1L << (EVENT_TY - 22)) | (1L << (CID - 22)) | (1L << (TID - 22)))) != 0)) {
 				{
 				{
-				setState(216);
+				setState(275);
 				((CtargsContext)_localctx).ts = targ();
 				}
 				}
-				setState(221);
+				setState(280);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(222);
+			setState(281);
 			match(RBRACE);
 			}
 		}
@@ -1280,11 +1621,11 @@ public class miniScillaParser extends Parser {
 	}
 
 	public static class Map_accessContext extends ParserRuleContext {
-		public SidentContext i;
+		public SidContext i;
 		public TerminalNode LSQB() { return getToken(miniScillaParser.LSQB, 0); }
 		public TerminalNode RSQB() { return getToken(miniScillaParser.RSQB, 0); }
-		public SidentContext sident() {
-			return getRuleContext(SidentContext.class,0);
+		public SidContext sid() {
+			return getRuleContext(SidContext.class,0);
 		}
 		public Map_accessContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1294,15 +1635,15 @@ public class miniScillaParser extends Parser {
 
 	public final Map_accessContext map_access() throws RecognitionException {
 		Map_accessContext _localctx = new Map_accessContext(_ctx, getState());
-		enterRule(_localctx, 26, RULE_map_access);
+		enterRule(_localctx, 30, RULE_map_access);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(224);
+			setState(283);
 			match(LSQB);
-			setState(225);
-			((Map_accessContext)_localctx).i = sident();
-			setState(226);
+			setState(284);
+			((Map_accessContext)_localctx).i = sid();
+			setState(285);
 			match(RSQB);
 			}
 		}
@@ -1354,17 +1695,17 @@ public class miniScillaParser extends Parser {
 
 	public final PatternContext pattern() throws RecognitionException {
 		PatternContext _localctx = new PatternContext(_ctx, getState());
-		enterRule(_localctx, 28, RULE_pattern);
+		enterRule(_localctx, 32, RULE_pattern);
 		int _la;
 		try {
-			setState(237);
+			setState(296);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case UNDERSCORE:
 				_localctx = new WildcardContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(228);
+				setState(287);
 				match(UNDERSCORE);
 				}
 				break;
@@ -1372,28 +1713,35 @@ public class miniScillaParser extends Parser {
 				_localctx = new BinderContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(229);
+				setState(288);
 				((BinderContext)_localctx).x = match(ID);
 				}
 				break;
+			case BOOLEAN:
+			case OPTION:
 			case HEX:
+			case INTTY:
+			case BYSTR:
+			case BNUM:
+			case MESSAGE:
+			case EVENT_TY:
 			case CID:
 				_localctx = new ConstructorContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(230);
+				setState(289);
 				((ConstructorContext)_localctx).c = scid();
-				setState(234);
+				setState(293);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << UNDERSCORE) | (1L << HEX) | (1L << ID) | (1L << CID))) != 0)) {
+				while (((((_la - 37)) & ~0x3f) == 0 && ((1L << (_la - 37)) & ((1L << (LPAREN - 37)) | (1L << (UNDERSCORE - 37)) | (1L << (BOOLEAN - 37)) | (1L << (OPTION - 37)) | (1L << (HEX - 37)) | (1L << (INTTY - 37)) | (1L << (BYSTR - 37)) | (1L << (BNUM - 37)) | (1L << (MESSAGE - 37)) | (1L << (EVENT_TY - 37)) | (1L << (ID - 37)) | (1L << (CID - 37)))) != 0)) {
 					{
 					{
-					setState(231);
+					setState(290);
 					((ConstructorContext)_localctx).ps = arg_pattern();
 					}
 					}
-					setState(236);
+					setState(295);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -1436,41 +1784,48 @@ public class miniScillaParser extends Parser {
 
 	public final Arg_patternContext arg_pattern() throws RecognitionException {
 		Arg_patternContext _localctx = new Arg_patternContext(_ctx, getState());
-		enterRule(_localctx, 30, RULE_arg_pattern);
+		enterRule(_localctx, 34, RULE_arg_pattern);
 		try {
-			setState(246);
+			setState(305);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case UNDERSCORE:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(239);
+				setState(298);
 				match(UNDERSCORE);
 				}
 				break;
 			case ID:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(240);
+				setState(299);
 				((Arg_patternContext)_localctx).x = match(ID);
 				}
 				break;
+			case BOOLEAN:
+			case OPTION:
 			case HEX:
+			case INTTY:
+			case BYSTR:
+			case BNUM:
+			case MESSAGE:
+			case EVENT_TY:
 			case CID:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(241);
+				setState(300);
 				((Arg_patternContext)_localctx).c = scid();
 				}
 				break;
 			case LPAREN:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(242);
+				setState(301);
 				match(LPAREN);
-				setState(243);
+				setState(302);
 				((Arg_patternContext)_localctx).p = pattern();
-				setState(244);
+				setState(303);
 				match(RPAREN);
 				}
 				break;
@@ -1508,17 +1863,17 @@ public class miniScillaParser extends Parser {
 
 	public final Exp_pm_clauseContext exp_pm_clause() throws RecognitionException {
 		Exp_pm_clauseContext _localctx = new Exp_pm_clauseContext(_ctx, getState());
-		enterRule(_localctx, 32, RULE_exp_pm_clause);
+		enterRule(_localctx, 36, RULE_exp_pm_clause);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(248);
+			setState(307);
 			match(BAR);
-			setState(249);
+			setState(308);
 			((Exp_pm_clauseContext)_localctx).p = pattern();
-			setState(250);
+			setState(309);
 			match(ARROW);
-			setState(251);
+			setState(310);
 			((Exp_pm_clauseContext)_localctx).e = exp();
 			}
 		}
@@ -1555,30 +1910,30 @@ public class miniScillaParser extends Parser {
 
 	public final Msg_entryContext msg_entry() throws RecognitionException {
 		Msg_entryContext _localctx = new Msg_entryContext(_ctx, getState());
-		enterRule(_localctx, 34, RULE_msg_entry);
+		enterRule(_localctx, 38, RULE_msg_entry);
 		try {
-			setState(261);
+			setState(320);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,20,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,27,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(253);
+				setState(312);
 				((Msg_entryContext)_localctx).i = sid();
-				setState(254);
+				setState(313);
 				match(COLON);
-				setState(255);
+				setState(314);
 				((Msg_entryContext)_localctx).l = lit();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(257);
+				setState(316);
 				((Msg_entryContext)_localctx).i = sid();
-				setState(258);
+				setState(317);
 				match(COLON);
-				setState(259);
+				setState(318);
 				((Msg_entryContext)_localctx).v = sid();
 				}
 				break;
@@ -1596,12 +1951,12 @@ public class miniScillaParser extends Parser {
 	}
 
 	public static class Builtin_argsContext extends ParserRuleContext {
-		public SidentContext args;
-		public List<SidentContext> sident() {
-			return getRuleContexts(SidentContext.class);
+		public SidContext args;
+		public List<SidContext> sid() {
+			return getRuleContexts(SidContext.class);
 		}
-		public SidentContext sident(int i) {
-			return getRuleContext(SidentContext.class,i);
+		public SidContext sid(int i) {
+			return getRuleContext(SidContext.class,i);
 		}
 		public TerminalNode LPAREN() { return getToken(miniScillaParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(miniScillaParser.RPAREN, 0); }
@@ -1613,10 +1968,10 @@ public class miniScillaParser extends Parser {
 
 	public final Builtin_argsContext builtin_args() throws RecognitionException {
 		Builtin_argsContext _localctx = new Builtin_argsContext(_ctx, getState());
-		enterRule(_localctx, 36, RULE_builtin_args);
+		enterRule(_localctx, 40, RULE_builtin_args);
 		int _la;
 		try {
-			setState(270);
+			setState(329);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ID:
@@ -1624,28 +1979,28 @@ public class miniScillaParser extends Parser {
 			case CID:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(264); 
+				setState(323); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(263);
-					((Builtin_argsContext)_localctx).args = sident();
+					setState(322);
+					((Builtin_argsContext)_localctx).args = sid();
 					}
 					}
-					setState(266); 
+					setState(325); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << ID) | (1L << SPID) | (1L << CID))) != 0) );
+				} while ( ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (ID - 64)) | (1L << (SPID - 64)) | (1L << (CID - 64)))) != 0) );
 				}
 				break;
 			case LPAREN:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(268);
+				setState(327);
 				match(LPAREN);
-				setState(269);
+				setState(328);
 				match(RPAREN);
 				}
 				break;
@@ -1678,13 +2033,13 @@ public class miniScillaParser extends Parser {
 
 	public final Exp_termContext exp_term() throws RecognitionException {
 		Exp_termContext _localctx = new Exp_termContext(_ctx, getState());
-		enterRule(_localctx, 38, RULE_exp_term);
+		enterRule(_localctx, 42, RULE_exp_term);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(272);
+			setState(331);
 			((Exp_termContext)_localctx).e = exp();
-			setState(273);
+			setState(332);
 			match(EOF);
 			}
 		}
@@ -1713,13 +2068,13 @@ public class miniScillaParser extends Parser {
 
 	public final Type_termContext type_term() throws RecognitionException {
 		Type_termContext _localctx = new Type_termContext(_ctx, getState());
-		enterRule(_localctx, 40, RULE_type_term);
+		enterRule(_localctx, 44, RULE_type_term);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(275);
+			setState(334);
 			((Type_termContext)_localctx).t = typ(0);
-			setState(276);
+			setState(335);
 			match(EOF);
 			}
 		}
@@ -1744,11 +2099,11 @@ public class miniScillaParser extends Parser {
 
 	public final IdentifierContext identifier() throws RecognitionException {
 		IdentifierContext _localctx = new IdentifierContext(_ctx, getState());
-		enterRule(_localctx, 42, RULE_identifier);
+		enterRule(_localctx, 46, RULE_identifier);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(278);
+			setState(337);
 			match(ID);
 			}
 		}
@@ -1778,94 +2133,34 @@ public class miniScillaParser extends Parser {
 
 	public final SidContext sid() throws RecognitionException {
 		SidContext _localctx = new SidContext(_ctx, getState());
-		enterRule(_localctx, 44, RULE_sid);
+		enterRule(_localctx, 48, RULE_sid);
 		try {
-			setState(285);
+			setState(344);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ID:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(280);
+				setState(339);
 				((SidContext)_localctx).name = match(ID);
 				}
 				break;
 			case SPID:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(281);
+				setState(340);
 				((SidContext)_localctx).name = match(SPID);
 				}
 				break;
 			case CID:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(282);
+				setState(341);
 				((SidContext)_localctx).ns = match(CID);
-				setState(283);
+				setState(342);
 				match(PERIOD);
-				setState(284);
+				setState(343);
 				((SidContext)_localctx).name = match(ID);
-				}
-				break;
-			default:
-				throw new NoViableAltException(this);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	public static class SidentContext extends ParserRuleContext {
-		public Token name;
-		public Token ns;
-		public TerminalNode ID() { return getToken(miniScillaParser.ID, 0); }
-		public TerminalNode SPID() { return getToken(miniScillaParser.SPID, 0); }
-		public TerminalNode PERIOD() { return getToken(miniScillaParser.PERIOD, 0); }
-		public TerminalNode CID() { return getToken(miniScillaParser.CID, 0); }
-		public SidentContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_sident; }
-	}
-
-	public final SidentContext sident() throws RecognitionException {
-		SidentContext _localctx = new SidentContext(_ctx, getState());
-		enterRule(_localctx, 46, RULE_sident);
-		try {
-			setState(292);
-			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case ID:
-				enterOuterAlt(_localctx, 1);
-				{
-				setState(287);
-				((SidentContext)_localctx).name = match(ID);
-				}
-				break;
-			case SPID:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(288);
-				((SidentContext)_localctx).name = match(SPID);
-				}
-				break;
-			case CID:
-				enterOuterAlt(_localctx, 3);
-				{
-				setState(289);
-				((SidentContext)_localctx).ns = match(CID);
-				setState(290);
-				match(PERIOD);
-				setState(291);
-				((SidentContext)_localctx).name = match(ID);
 				}
 				break;
 			default:
@@ -1886,12 +2181,20 @@ public class miniScillaParser extends Parser {
 	public static class ScidContext extends ParserRuleContext {
 		public Token name;
 		public Token ns;
+		public Token bool;
+		public Token option;
+		public Prim_typesContext prim;
 		public List<TerminalNode> CID() { return getTokens(miniScillaParser.CID); }
 		public TerminalNode CID(int i) {
 			return getToken(miniScillaParser.CID, i);
 		}
 		public TerminalNode PERIOD() { return getToken(miniScillaParser.PERIOD, 0); }
 		public TerminalNode HEX() { return getToken(miniScillaParser.HEX, 0); }
+		public TerminalNode BOOLEAN() { return getToken(miniScillaParser.BOOLEAN, 0); }
+		public TerminalNode OPTION() { return getToken(miniScillaParser.OPTION, 0); }
+		public Prim_typesContext prim_types() {
+			return getRuleContext(Prim_typesContext.class,0);
+		}
 		public ScidContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1900,38 +2203,59 @@ public class miniScillaParser extends Parser {
 
 	public final ScidContext scid() throws RecognitionException {
 		ScidContext _localctx = new ScidContext(_ctx, getState());
-		enterRule(_localctx, 48, RULE_scid);
+		enterRule(_localctx, 50, RULE_scid);
 		try {
-			setState(301);
+			setState(356);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,25,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,31,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(294);
+				setState(346);
 				((ScidContext)_localctx).name = match(CID);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(295);
+				setState(347);
 				((ScidContext)_localctx).ns = match(CID);
-				setState(296);
+				setState(348);
 				match(PERIOD);
-				setState(297);
+				setState(349);
 				((ScidContext)_localctx).name = match(CID);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(298);
+				setState(350);
 				((ScidContext)_localctx).ns = match(HEX);
-				setState(299);
+				setState(351);
 				match(PERIOD);
-				setState(300);
+				setState(352);
 				((ScidContext)_localctx).name = match(CID);
+				}
+				break;
+			case 4:
+				enterOuterAlt(_localctx, 4);
+				{
+				setState(353);
+				((ScidContext)_localctx).bool = match(BOOLEAN);
+				}
+				break;
+			case 5:
+				enterOuterAlt(_localctx, 5);
+				{
+				setState(354);
+				((ScidContext)_localctx).option = match(OPTION);
+				}
+				break;
+			case 6:
+				enterOuterAlt(_localctx, 6);
+				{
+				setState(355);
+				((ScidContext)_localctx).prim = prim_types();
 				}
 				break;
 			}
@@ -1949,7 +2273,7 @@ public class miniScillaParser extends Parser {
 
 	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
 		switch (ruleIndex) {
-		case 5:
+		case 7:
 			return typ_sempred((TypContext)_localctx, predIndex);
 		}
 		return true;
@@ -1963,111 +2287,136 @@ public class miniScillaParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3@\u0132\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3E\u0169\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
-		"\4\32\t\32\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\5\2?\n\2\3\3\3\3\3"+
-		"\3\3\3\3\3\3\3\3\3\3\3\3\3\5\3J\n\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3"+
-		"\4\5\4U\n\4\3\5\3\5\6\5Y\n\5\r\5\16\5Z\3\5\5\5^\n\5\3\6\3\6\3\6\3\6\3"+
-		"\6\3\6\3\6\3\6\3\6\7\6i\n\6\f\6\16\6l\13\6\3\6\3\6\5\6p\n\6\3\7\3\7\3"+
-		"\7\7\7u\n\7\f\7\16\7x\13\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7"+
-		"\3\7\3\7\3\7\3\7\5\7\u0089\n\7\3\7\3\7\3\7\7\7\u008e\n\7\f\7\16\7\u0091"+
-		"\13\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\5\b\u009e\n\b\3\t\3"+
-		"\t\3\t\3\t\3\t\3\n\3\n\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3"+
-		"\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\6\13\u00b9\n\13\r\13\16\13"+
-		"\u00ba\3\13\3\13\3\13\3\13\7\13\u00c1\n\13\f\13\16\13\u00c4\13\13\3\13"+
-		"\5\13\u00c7\n\13\3\f\3\f\5\f\u00cb\n\f\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r"+
-		"\3\r\3\r\3\r\5\r\u00d8\n\r\3\16\3\16\7\16\u00dc\n\16\f\16\16\16\u00df"+
-		"\13\16\3\16\3\16\3\17\3\17\3\17\3\17\3\20\3\20\3\20\3\20\7\20\u00eb\n"+
-		"\20\f\20\16\20\u00ee\13\20\5\20\u00f0\n\20\3\21\3\21\3\21\3\21\3\21\3"+
-		"\21\3\21\5\21\u00f9\n\21\3\22\3\22\3\22\3\22\3\22\3\23\3\23\3\23\3\23"+
-		"\3\23\3\23\3\23\3\23\5\23\u0108\n\23\3\24\6\24\u010b\n\24\r\24\16\24\u010c"+
-		"\3\24\3\24\5\24\u0111\n\24\3\25\3\25\3\25\3\26\3\26\3\26\3\27\3\27\3\30"+
-		"\3\30\3\30\3\30\3\30\5\30\u0120\n\30\3\31\3\31\3\31\3\31\3\31\5\31\u0127"+
-		"\n\31\3\32\3\32\3\32\3\32\3\32\3\32\3\32\5\32\u0130\n\32\3\32\2\3\f\33"+
-		"\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\2\2\2\u014c\2>"+
-		"\3\2\2\2\4I\3\2\2\2\6T\3\2\2\2\b]\3\2\2\2\no\3\2\2\2\f\u0088\3\2\2\2\16"+
-		"\u009d\3\2\2\2\20\u009f\3\2\2\2\22\u00a4\3\2\2\2\24\u00c6\3\2\2\2\26\u00ca"+
-		"\3\2\2\2\30\u00d7\3\2\2\2\32\u00d9\3\2\2\2\34\u00e2\3\2\2\2\36\u00ef\3"+
-		"\2\2\2 \u00f8\3\2\2\2\"\u00fa\3\2\2\2$\u0107\3\2\2\2&\u0110\3\2\2\2(\u0112"+
-		"\3\2\2\2*\u0115\3\2\2\2,\u0118\3\2\2\2.\u011f\3\2\2\2\60\u0126\3\2\2\2"+
-		"\62\u012f\3\2\2\2\64?\5\62\32\2\65\66\7&\2\2\66\67\5\62\32\2\678\7\'\2"+
-		"\28?\3\2\2\29:\7&\2\2:;\5\n\6\2;<\7\'\2\2<?\3\2\2\2=?\5\n\6\2>\64\3\2"+
-		"\2\2>\65\3\2\2\2>9\3\2\2\2>=\3\2\2\2?\3\3\2\2\2@A\7&\2\2AB\5\b\5\2BC\7"+
-		"\'\2\2CJ\3\2\2\2DJ\5\62\32\2EF\7\27\2\2FG\5\2\2\2GH\5\6\4\2HJ\3\2\2\2"+
-		"I@\3\2\2\2ID\3\2\2\2IE\3\2\2\2J\5\3\2\2\2KU\5\62\32\2LM\7\27\2\2MN\5\2"+
-		"\2\2NO\5\6\4\2OP\7&\2\2PQ\5\b\5\2QR\7\'\2\2RU\3\2\2\2SU\5\n\6\2TK\3\2"+
-		"\2\2TL\3\2\2\2TS\3\2\2\2U\7\3\2\2\2VX\5\62\32\2WY\5\4\3\2XW\3\2\2\2YZ"+
-		"\3\2\2\2ZX\3\2\2\2Z[\3\2\2\2[^\3\2\2\2\\^\5\6\4\2]V\3\2\2\2]\\\3\2\2\2"+
-		"^\t\3\2\2\2_`\7?\2\2`a\7\n\2\2ap\7\13\2\2bc\7?\2\2cd\7\n\2\2de\7\16\2"+
-		"\2ej\5\20\t\2fg\7*\2\2gi\5\20\t\2hf\3\2\2\2il\3\2\2\2jh\3\2\2\2jk\3\2"+
-		"\2\2km\3\2\2\2lj\3\2\2\2mn\7\13\2\2np\3\2\2\2o_\3\2\2\2ob\3\2\2\2p\13"+
-		"\3\2\2\2qr\b\7\1\2rv\5\62\32\2su\5\16\b\2ts\3\2\2\2ux\3\2\2\2vt\3\2\2"+
-		"\2vw\3\2\2\2w\u0089\3\2\2\2xv\3\2\2\2yz\7\27\2\2z{\5\2\2\2{|\5\6\4\2|"+
-		"\u0089\3\2\2\2}~\7&\2\2~\177\5\f\7\2\177\u0080\7\'\2\2\u0080\u0089\3\2"+
-		"\2\2\u0081\u0089\5\n\6\2\u0082\u0083\7\3\2\2\u0083\u0084\7@\2\2\u0084"+
-		"\u0085\7\"\2\2\u0085\u0089\5\f\7\5\u0086\u0089\7@\2\2\u0087\u0089\7<\2"+
-		"\2\u0088q\3\2\2\2\u0088y\3\2\2\2\u0088}\3\2\2\2\u0088\u0081\3\2\2\2\u0088"+
-		"\u0082\3\2\2\2\u0088\u0086\3\2\2\2\u0088\u0087\3\2\2\2\u0089\u008f\3\2"+
-		"\2\2\u008a\u008b\f\b\2\2\u008b\u008c\7,\2\2\u008c\u008e\5\f\7\t\u008d"+
-		"\u008a\3\2\2\2\u008e\u0091\3\2\2\2\u008f\u008d\3\2\2\2\u008f\u0090\3\2"+
-		"\2\2\u0090\r\3\2\2\2\u0091\u008f\3\2\2\2\u0092\u0093\7&\2\2\u0093\u0094"+
-		"\5\f\7\2\u0094\u0095\7\'\2\2\u0095\u009e\3\2\2\2\u0096\u009e\5\62\32\2"+
-		"\u0097\u009e\7@\2\2\u0098\u009e\5\n\6\2\u0099\u009a\7\27\2\2\u009a\u009b"+
-		"\5\2\2\2\u009b\u009c\5\6\4\2\u009c\u009e\3\2\2\2\u009d\u0092\3\2\2\2\u009d"+
-		"\u0096\3\2\2\2\u009d\u0097\3\2\2\2\u009d\u0098\3\2\2\2\u009d\u0099\3\2"+
-		"\2\2\u009e\17\3\2\2\2\u009f\u00a0\7\22\2\2\u00a0\u00a1\5,\27\2\u00a1\u00a2"+
-		"\7!\2\2\u00a2\u00a3\5\f\7\2\u00a3\21\3\2\2\2\u00a4\u00a5\5\24\13\2\u00a5"+
-		"\23\3\2\2\2\u00a6\u00a7\7\7\2\2\u00a7\u00a8\5,\27\2\u00a8\u00a9\7-\2\2"+
-		"\u00a9\u00aa\5\24\13\2\u00aa\u00ab\7\b\2\2\u00ab\u00ac\5\22\n\2\u00ac"+
-		"\u00c7\3\2\2\2\u00ad\u00ae\7\f\2\2\u00ae\u00af\7&\2\2\u00af\u00b0\5,\27"+
-		"\2\u00b0\u00b1\7!\2\2\u00b1\u00b2\5\f\7\2\u00b2\u00b3\7\'\2\2\u00b3\u00b4"+
-		"\7+\2\2\u00b4\u00b5\5\22\n\2\u00b5\u00c7\3\2\2\2\u00b6\u00b8\5.\30\2\u00b7"+
-		"\u00b9\5\60\31\2\u00b8\u00b7\3\2\2\2\u00b9\u00ba\3\2\2\2\u00ba\u00b8\3"+
-		"\2\2\2\u00ba\u00bb\3\2\2\2\u00bb\u00c7\3\2\2\2\u00bc\u00c7\5\26\f\2\u00bd"+
-		"\u00be\7\4\2\2\u00be\u00c2\7=\2\2\u00bf\u00c1\5\32\16\2\u00c0\u00bf\3"+
-		"\2\2\2\u00c1\u00c4\3\2\2\2\u00c2\u00c0\3\2\2\2\u00c2\u00c3\3\2\2\2\u00c3"+
-		"\u00c5\3\2\2\2\u00c4\u00c2\3\2\2\2\u00c5\u00c7\5&\24\2\u00c6\u00a6\3\2"+
-		"\2\2\u00c6\u00ad\3\2\2\2\u00c6\u00b6\3\2\2\2\u00c6\u00bc\3\2\2\2\u00c6"+
-		"\u00bd\3\2\2\2\u00c7\25\3\2\2\2\u00c8\u00cb\5.\30\2\u00c9\u00cb\5\30\r"+
-		"\2\u00ca\u00c8\3\2\2\2\u00ca\u00c9\3\2\2\2\u00cb\27\3\2\2\2\u00cc\u00d8"+
-		"\7?\2\2\u00cd\u00ce\7<\2\2\u00ce\u00d8\7\64\2\2\u00cf\u00d8\7\64\2\2\u00d0"+
-		"\u00d8\7;\2\2\u00d1\u00d8\78\2\2\u00d2\u00d3\7\26\2\2\u00d3\u00d4\5\2"+
-		"\2\2\u00d4\u00d5\5\6\4\2\u00d5\u00d8\3\2\2\2\u00d6\u00d8\7:\2\2\u00d7"+
-		"\u00cc\3\2\2\2\u00d7\u00cd\3\2\2\2\u00d7\u00cf\3\2\2\2\u00d7\u00d0\3\2"+
-		"\2\2\u00d7\u00d1\3\2\2\2\u00d7\u00d2\3\2\2\2\u00d7\u00d6\3\2\2\2\u00d8"+
-		"\31\3\2\2\2\u00d9\u00dd\7(\2\2\u00da\u00dc\5\16\b\2\u00db\u00da\3\2\2"+
-		"\2\u00dc\u00df\3\2\2\2\u00dd\u00db\3\2\2\2\u00dd\u00de\3\2\2\2\u00de\u00e0"+
-		"\3\2\2\2\u00df\u00dd\3\2\2\2\u00e0\u00e1\7)\2\2\u00e1\33\3\2\2\2\u00e2"+
-		"\u00e3\7$\2\2\u00e3\u00e4\5\60\31\2\u00e4\u00e5\7%\2\2\u00e5\35\3\2\2"+
-		"\2\u00e6\u00f0\7\62\2\2\u00e7\u00f0\7=\2\2\u00e8\u00ec\5\62\32\2\u00e9"+
-		"\u00eb\5 \21\2\u00ea\u00e9\3\2\2\2\u00eb\u00ee\3\2\2\2\u00ec\u00ea\3\2"+
-		"\2\2\u00ec\u00ed\3\2\2\2\u00ed\u00f0\3\2\2\2\u00ee\u00ec\3\2\2\2\u00ef"+
-		"\u00e6\3\2\2\2\u00ef\u00e7\3\2\2\2\u00ef\u00e8\3\2\2\2\u00f0\37\3\2\2"+
-		"\2\u00f1\u00f9\7\62\2\2\u00f2\u00f9\7=\2\2\u00f3\u00f9\5\62\32\2\u00f4"+
-		"\u00f5\7&\2\2\u00f5\u00f6\5\36\20\2\u00f6\u00f7\7\'\2\2\u00f7\u00f9\3"+
-		"\2\2\2\u00f8\u00f1\3\2\2\2\u00f8\u00f2\3\2\2\2\u00f8\u00f3\3\2\2\2\u00f8"+
-		"\u00f4\3\2\2\2\u00f9!\3\2\2\2\u00fa\u00fb\7#\2\2\u00fb\u00fc\5\36\20\2"+
-		"\u00fc\u00fd\7+\2\2\u00fd\u00fe\5\22\n\2\u00fe#\3\2\2\2\u00ff\u0100\5"+
-		".\30\2\u0100\u0101\7!\2\2\u0101\u0102\5\30\r\2\u0102\u0108\3\2\2\2\u0103"+
-		"\u0104\5.\30\2\u0104\u0105\7!\2\2\u0105\u0106\5.\30\2\u0106\u0108\3\2"+
-		"\2\2\u0107\u00ff\3\2\2\2\u0107\u0103\3\2\2\2\u0108%\3\2\2\2\u0109\u010b"+
-		"\5\60\31\2\u010a\u0109\3\2\2\2\u010b\u010c\3\2\2\2\u010c\u010a\3\2\2\2"+
-		"\u010c\u010d\3\2\2\2\u010d\u0111\3\2\2\2\u010e\u010f\7&\2\2\u010f\u0111"+
-		"\7\'\2\2\u0110\u010a\3\2\2\2\u0110\u010e\3\2\2\2\u0111\'\3\2\2\2\u0112"+
-		"\u0113\5\22\n\2\u0113\u0114\7\2\2\3\u0114)\3\2\2\2\u0115\u0116\5\f\7\2"+
-		"\u0116\u0117\7\2\2\3\u0117+\3\2\2\2\u0118\u0119\7=\2\2\u0119-\3\2\2\2"+
-		"\u011a\u0120\7=\2\2\u011b\u0120\7>\2\2\u011c\u011d\7?\2\2\u011d\u011e"+
-		"\7\"\2\2\u011e\u0120\7=\2\2\u011f\u011a\3\2\2\2\u011f\u011b\3\2\2\2\u011f"+
-		"\u011c\3\2\2\2\u0120/\3\2\2\2\u0121\u0127\7=\2\2\u0122\u0127\7>\2\2\u0123"+
-		"\u0124\7?\2\2\u0124\u0125\7\"\2\2\u0125\u0127\7=\2\2\u0126\u0121\3\2\2"+
-		"\2\u0126\u0122\3\2\2\2\u0126\u0123\3\2\2\2\u0127\61\3\2\2\2\u0128\u0130"+
-		"\7?\2\2\u0129\u012a\7?\2\2\u012a\u012b\7\"\2\2\u012b\u0130\7?\2\2\u012c"+
-		"\u012d\7;\2\2\u012d\u012e\7\"\2\2\u012e\u0130\7?\2\2\u012f\u0128\3\2\2"+
-		"\2\u012f\u0129\3\2\2\2\u012f\u012c\3\2\2\2\u0130\63\3\2\2\2\34>ITZ]jo"+
-		"v\u0088\u008f\u009d\u00ba\u00c2\u00c6\u00ca\u00d7\u00dd\u00ec\u00ef\u00f8"+
-		"\u0107\u010c\u0110\u011f\u0126\u012f";
+		"\4\32\t\32\4\33\t\33\3\2\5\28\n\2\3\2\3\2\3\3\3\3\3\4\3\4\3\4\3\4\3\4"+
+		"\3\4\3\4\3\4\3\4\3\4\5\4H\n\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\5\5"+
+		"S\n\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\5\6_\n\6\3\7\3\7\6\7c\n"+
+		"\7\r\7\16\7d\3\7\5\7h\n\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\7\bs\n\b"+
+		"\f\b\16\bv\13\b\3\b\3\b\5\bz\n\b\3\t\3\t\3\t\7\t\177\n\t\f\t\16\t\u0082"+
+		"\13\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\5\t"+
+		"\u0093\n\t\3\t\3\t\3\t\7\t\u0098\n\t\f\t\16\t\u009b\13\t\3\n\3\n\3\n\3"+
+		"\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\5\n\u00a8\n\n\3\13\3\13\3\13\3\13\3\13"+
+		"\3\f\3\f\3\r\3\r\3\r\3\r\5\r\u00b5\n\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r"+
+		"\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\6\r\u00c7\n\r\r\r\16\r\u00c8\3\r\3\r"+
+		"\3\r\3\r\7\r\u00cf\n\r\f\r\16\r\u00d2\13\r\3\r\3\r\3\r\3\r\3\r\7\r\u00d9"+
+		"\n\r\f\r\16\r\u00dc\13\r\3\r\3\r\3\r\3\r\3\r\3\r\7\r\u00e4\n\r\f\r\16"+
+		"\r\u00e7\13\r\3\r\3\r\3\r\3\r\5\r\u00ed\n\r\3\r\7\r\u00f0\n\r\f\r\16\r"+
+		"\u00f3\13\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\6\r\u00fc\n\r\r\r\16\r\u00fd\5"+
+		"\r\u0100\n\r\3\16\3\16\5\16\u0104\n\16\3\17\3\17\3\17\3\17\3\17\3\17\3"+
+		"\17\3\17\3\17\3\17\3\17\3\17\3\17\5\17\u0113\n\17\3\20\3\20\7\20\u0117"+
+		"\n\20\f\20\16\20\u011a\13\20\3\20\3\20\3\21\3\21\3\21\3\21\3\22\3\22\3"+
+		"\22\3\22\7\22\u0126\n\22\f\22\16\22\u0129\13\22\5\22\u012b\n\22\3\23\3"+
+		"\23\3\23\3\23\3\23\3\23\3\23\5\23\u0134\n\23\3\24\3\24\3\24\3\24\3\24"+
+		"\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\5\25\u0143\n\25\3\26\6\26\u0146"+
+		"\n\26\r\26\16\26\u0147\3\26\3\26\5\26\u014c\n\26\3\27\3\27\3\27\3\30\3"+
+		"\30\3\30\3\31\3\31\3\32\3\32\3\32\3\32\3\32\5\32\u015b\n\32\3\33\3\33"+
+		"\3\33\3\33\3\33\3\33\3\33\3\33\3\33\3\33\5\33\u0167\n\33\3\33\2\3\20\34"+
+		"\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\2\3\3\2=A\2"+
+		"\u0191\2\67\3\2\2\2\4;\3\2\2\2\6G\3\2\2\2\bR\3\2\2\2\n^\3\2\2\2\fg\3\2"+
+		"\2\2\16y\3\2\2\2\20\u0092\3\2\2\2\22\u00a7\3\2\2\2\24\u00a9\3\2\2\2\26"+
+		"\u00ae\3\2\2\2\30\u00ff\3\2\2\2\32\u0103\3\2\2\2\34\u0112\3\2\2\2\36\u0114"+
+		"\3\2\2\2 \u011d\3\2\2\2\"\u012a\3\2\2\2$\u0133\3\2\2\2&\u0135\3\2\2\2"+
+		"(\u0142\3\2\2\2*\u014b\3\2\2\2,\u014d\3\2\2\2.\u0150\3\2\2\2\60\u0153"+
+		"\3\2\2\2\62\u015a\3\2\2\2\64\u0166\3\2\2\2\668\7\3\2\2\67\66\3\2\2\2\67"+
+		"8\3\2\2\289\3\2\2\29:\7\65\2\2:\3\3\2\2\2;<\t\2\2\2<\5\3\2\2\2=H\5\64"+
+		"\33\2>?\7\'\2\2?@\5\64\33\2@A\7(\2\2AH\3\2\2\2BC\7\'\2\2CD\5\16\b\2DE"+
+		"\7(\2\2EH\3\2\2\2FH\5\16\b\2G=\3\2\2\2G>\3\2\2\2GB\3\2\2\2GF\3\2\2\2H"+
+		"\7\3\2\2\2IJ\7\'\2\2JK\5\f\7\2KL\7(\2\2LS\3\2\2\2MS\5\64\33\2NO\7\30\2"+
+		"\2OP\5\6\4\2PQ\5\n\6\2QS\3\2\2\2RI\3\2\2\2RM\3\2\2\2RN\3\2\2\2S\t\3\2"+
+		"\2\2T_\5\64\33\2UV\7\30\2\2VW\5\6\4\2WX\5\n\6\2XY\7\'\2\2YZ\5\f\7\2Z["+
+		"\7(\2\2[_\3\2\2\2\\_\5\16\b\2]_\5\4\3\2^T\3\2\2\2^U\3\2\2\2^\\\3\2\2\2"+
+		"^]\3\2\2\2_\13\3\2\2\2`b\5\64\33\2ac\5\b\5\2ba\3\2\2\2cd\3\2\2\2db\3\2"+
+		"\2\2de\3\2\2\2eh\3\2\2\2fh\5\n\6\2g`\3\2\2\2gf\3\2\2\2h\r\3\2\2\2ij\7"+
+		"D\2\2jk\7\13\2\2kz\7\f\2\2lm\7D\2\2mn\7\13\2\2no\7\17\2\2ot\5\24\13\2"+
+		"pq\7+\2\2qs\5\24\13\2rp\3\2\2\2sv\3\2\2\2tr\3\2\2\2tu\3\2\2\2uw\3\2\2"+
+		"\2vt\3\2\2\2wx\7\f\2\2xz\3\2\2\2yi\3\2\2\2yl\3\2\2\2z\17\3\2\2\2{|\b\t"+
+		"\1\2|\u0080\5\64\33\2}\177\5\22\n\2~}\3\2\2\2\177\u0082\3\2\2\2\u0080"+
+		"~\3\2\2\2\u0080\u0081\3\2\2\2\u0081\u0093\3\2\2\2\u0082\u0080\3\2\2\2"+
+		"\u0083\u0084\7\30\2\2\u0084\u0085\5\6\4\2\u0085\u0086\5\n\6\2\u0086\u0093"+
+		"\3\2\2\2\u0087\u0088\7\'\2\2\u0088\u0089\5\20\t\2\u0089\u008a\7(\2\2\u008a"+
+		"\u0093\3\2\2\2\u008b\u0093\5\16\b\2\u008c\u008d\7\4\2\2\u008d\u008e\7"+
+		"E\2\2\u008e\u008f\7#\2\2\u008f\u0093\5\20\t\5\u0090\u0093\7E\2\2\u0091"+
+		"\u0093\5\4\3\2\u0092{\3\2\2\2\u0092\u0083\3\2\2\2\u0092\u0087\3\2\2\2"+
+		"\u0092\u008b\3\2\2\2\u0092\u008c\3\2\2\2\u0092\u0090\3\2\2\2\u0092\u0091"+
+		"\3\2\2\2\u0093\u0099\3\2\2\2\u0094\u0095\f\b\2\2\u0095\u0096\7-\2\2\u0096"+
+		"\u0098\5\20\t\t\u0097\u0094\3\2\2\2\u0098\u009b\3\2\2\2\u0099\u0097\3"+
+		"\2\2\2\u0099\u009a\3\2\2\2\u009a\21\3\2\2\2\u009b\u0099\3\2\2\2\u009c"+
+		"\u009d\7\'\2\2\u009d\u009e\5\20\t\2\u009e\u009f\7(\2\2\u009f\u00a8\3\2"+
+		"\2\2\u00a0\u00a8\5\64\33\2\u00a1\u00a8\7E\2\2\u00a2\u00a8\5\16\b\2\u00a3"+
+		"\u00a4\7\30\2\2\u00a4\u00a5\5\6\4\2\u00a5\u00a6\5\n\6\2\u00a6\u00a8\3"+
+		"\2\2\2\u00a7\u009c\3\2\2\2\u00a7\u00a0\3\2\2\2\u00a7\u00a1\3\2\2\2\u00a7"+
+		"\u00a2\3\2\2\2\u00a7\u00a3\3\2\2\2\u00a8\23\3\2\2\2\u00a9\u00aa\7\23\2"+
+		"\2\u00aa\u00ab\5\60\31\2\u00ab\u00ac\7\"\2\2\u00ac\u00ad\5\20\t\2\u00ad"+
+		"\25\3\2\2\2\u00ae\u00af\5\30\r\2\u00af\27\3\2\2\2\u00b0\u00b1\7\b\2\2"+
+		"\u00b1\u00b4\5\60\31\2\u00b2\u00b3\7\"\2\2\u00b3\u00b5\5\20\t\2\u00b4"+
+		"\u00b2\3\2\2\2\u00b4\u00b5\3\2\2\2\u00b5\u00b6\3\2\2\2\u00b6\u00b7\7."+
+		"\2\2\u00b7\u00b8\5\30\r\2\u00b8\u00b9\7\t\2\2\u00b9\u00ba\5\26\f\2\u00ba"+
+		"\u0100\3\2\2\2\u00bb\u00bc\7\r\2\2\u00bc\u00bd\7\'\2\2\u00bd\u00be\5\60"+
+		"\31\2\u00be\u00bf\7\"\2\2\u00bf\u00c0\5\20\t\2\u00c0\u00c1\7(\2\2\u00c1"+
+		"\u00c2\7,\2\2\u00c2\u00c3\5\26\f\2\u00c3\u0100\3\2\2\2\u00c4\u00c6\5\62"+
+		"\32\2\u00c5\u00c7\5\62\32\2\u00c6\u00c5\3\2\2\2\u00c7\u00c8\3\2\2\2\u00c8"+
+		"\u00c6\3\2\2\2\u00c8\u00c9\3\2\2\2\u00c9\u0100\3\2\2\2\u00ca\u0100\5\32"+
+		"\16\2\u00cb\u00cc\7\5\2\2\u00cc\u00d0\7B\2\2\u00cd\u00cf\5\36\20\2\u00ce"+
+		"\u00cd\3\2\2\2\u00cf\u00d2\3\2\2\2\u00d0\u00ce\3\2\2\2\u00d0\u00d1\3\2"+
+		"\2\2\u00d1\u00d3\3\2\2\2\u00d2\u00d0\3\2\2\2\u00d3\u0100\5*\26\2\u00d4"+
+		"\u00d5\7)\2\2\u00d5\u00da\5(\25\2\u00d6\u00d7\7!\2\2\u00d7\u00d9\5(\25"+
+		"\2\u00d8\u00d6\3\2\2\2\u00d9\u00dc\3\2\2\2\u00da\u00d8\3\2\2\2\u00da\u00db"+
+		"\3\2\2\2\u00db\u00dd\3\2\2\2\u00dc\u00da\3\2\2\2\u00dd\u00de\7*\2\2\u00de"+
+		"\u0100\3\2\2\2\u00df\u00e0\7\n\2\2\u00e0\u00e1\5\62\32\2\u00e1\u00e5\7"+
+		"\13\2\2\u00e2\u00e4\5&\24\2\u00e3\u00e2\3\2\2\2\u00e4\u00e7\3\2\2\2\u00e5"+
+		"\u00e3\3\2\2\2\u00e5\u00e6\3\2\2\2\u00e6\u00e8\3\2\2\2\u00e7\u00e5\3\2"+
+		"\2\2\u00e8\u00e9\7\f\2\2\u00e9\u0100\3\2\2\2\u00ea\u00ec\5\64\33\2\u00eb"+
+		"\u00ed\5\36\20\2\u00ec\u00eb\3\2\2\2\u00ec\u00ed\3\2\2\2\u00ed\u00f1\3"+
+		"\2\2\2\u00ee\u00f0\5\62\32\2\u00ef\u00ee\3\2\2\2\u00f0\u00f3\3\2\2\2\u00f1"+
+		"\u00ef\3\2\2\2\u00f1\u00f2\3\2\2\2\u00f2\u0100\3\2\2\2\u00f3\u00f1\3\2"+
+		"\2\2\u00f4\u00f5\7\16\2\2\u00f5\u00f6\7E\2\2\u00f6\u00f7\7,\2\2\u00f7"+
+		"\u0100\5\26\f\2\u00f8\u00f9\7\62\2\2\u00f9\u00fb\5\62\32\2\u00fa\u00fc"+
+		"\5\22\n\2\u00fb\u00fa\3\2\2\2\u00fc\u00fd\3\2\2\2\u00fd\u00fb\3\2\2\2"+
+		"\u00fd\u00fe\3\2\2\2\u00fe\u0100\3\2\2\2\u00ff\u00b0\3\2\2\2\u00ff\u00bb"+
+		"\3\2\2\2\u00ff\u00c4\3\2\2\2\u00ff\u00ca\3\2\2\2\u00ff\u00cb\3\2\2\2\u00ff"+
+		"\u00d4\3\2\2\2\u00ff\u00df\3\2\2\2\u00ff\u00ea\3\2\2\2\u00ff\u00f4\3\2"+
+		"\2\2\u00ff\u00f8\3\2\2\2\u0100\31\3\2\2\2\u0101\u0104\5\62\32\2\u0102"+
+		"\u0104\5\34\17\2\u0103\u0101\3\2\2\2\u0103\u0102\3\2\2\2\u0104\33\3\2"+
+		"\2\2\u0105\u0113\7D\2\2\u0106\u0107\7=\2\2\u0107\u0113\5\2\2\2\u0108\u0109"+
+		"\7?\2\2\u0109\u0113\7\65\2\2\u010a\u0113\7\65\2\2\u010b\u0113\7<\2\2\u010c"+
+		"\u0113\78\2\2\u010d\u010e\7\27\2\2\u010e\u010f\5\6\4\2\u010f\u0110\5\n"+
+		"\6\2\u0110\u0113\3\2\2\2\u0111\u0113\7:\2\2\u0112\u0105\3\2\2\2\u0112"+
+		"\u0106\3\2\2\2\u0112\u0108\3\2\2\2\u0112\u010a\3\2\2\2\u0112\u010b\3\2"+
+		"\2\2\u0112\u010c\3\2\2\2\u0112\u010d\3\2\2\2\u0112\u0111\3\2\2\2\u0113"+
+		"\35\3\2\2\2\u0114\u0118\7)\2\2\u0115\u0117\5\22\n\2\u0116\u0115\3\2\2"+
+		"\2\u0117\u011a\3\2\2\2\u0118\u0116\3\2\2\2\u0118\u0119\3\2\2\2\u0119\u011b"+
+		"\3\2\2\2\u011a\u0118\3\2\2\2\u011b\u011c\7*\2\2\u011c\37\3\2\2\2\u011d"+
+		"\u011e\7%\2\2\u011e\u011f\5\62\32\2\u011f\u0120\7&\2\2\u0120!\3\2\2\2"+
+		"\u0121\u012b\7\63\2\2\u0122\u012b\7B\2\2\u0123\u0127\5\64\33\2\u0124\u0126"+
+		"\5$\23\2\u0125\u0124\3\2\2\2\u0126\u0129\3\2\2\2\u0127\u0125\3\2\2\2\u0127"+
+		"\u0128\3\2\2\2\u0128\u012b\3\2\2\2\u0129\u0127\3\2\2\2\u012a\u0121\3\2"+
+		"\2\2\u012a\u0122\3\2\2\2\u012a\u0123\3\2\2\2\u012b#\3\2\2\2\u012c\u0134"+
+		"\7\63\2\2\u012d\u0134\7B\2\2\u012e\u0134\5\64\33\2\u012f\u0130\7\'\2\2"+
+		"\u0130\u0131\5\"\22\2\u0131\u0132\7(\2\2\u0132\u0134\3\2\2\2\u0133\u012c"+
+		"\3\2\2\2\u0133\u012d\3\2\2\2\u0133\u012e\3\2\2\2\u0133\u012f\3\2\2\2\u0134"+
+		"%\3\2\2\2\u0135\u0136\7$\2\2\u0136\u0137\5\"\22\2\u0137\u0138\7,\2\2\u0138"+
+		"\u0139\5\26\f\2\u0139\'\3\2\2\2\u013a\u013b\5\62\32\2\u013b\u013c\7\""+
+		"\2\2\u013c\u013d\5\34\17\2\u013d\u0143\3\2\2\2\u013e\u013f\5\62\32\2\u013f"+
+		"\u0140\7\"\2\2\u0140\u0141\5\62\32\2\u0141\u0143\3\2\2\2\u0142\u013a\3"+
+		"\2\2\2\u0142\u013e\3\2\2\2\u0143)\3\2\2\2\u0144\u0146\5\62\32\2\u0145"+
+		"\u0144\3\2\2\2\u0146\u0147\3\2\2\2\u0147\u0145\3\2\2\2\u0147\u0148\3\2"+
+		"\2\2\u0148\u014c\3\2\2\2\u0149\u014a\7\'\2\2\u014a\u014c\7(\2\2\u014b"+
+		"\u0145\3\2\2\2\u014b\u0149\3\2\2\2\u014c+\3\2\2\2\u014d\u014e\5\26\f\2"+
+		"\u014e\u014f\7\2\2\3\u014f-\3\2\2\2\u0150\u0151\5\20\t\2\u0151\u0152\7"+
+		"\2\2\3\u0152/\3\2\2\2\u0153\u0154\7B\2\2\u0154\61\3\2\2\2\u0155\u015b"+
+		"\7B\2\2\u0156\u015b\7C\2\2\u0157\u0158\7D\2\2\u0158\u0159\7#\2\2\u0159"+
+		"\u015b\7B\2\2\u015a\u0155\3\2\2\2\u015a\u0156\3\2\2\2\u015a\u0157\3\2"+
+		"\2\2\u015b\63\3\2\2\2\u015c\u0167\7D\2\2\u015d\u015e\7D\2\2\u015e\u015f"+
+		"\7#\2\2\u015f\u0167\7D\2\2\u0160\u0161\7<\2\2\u0161\u0162\7#\2\2\u0162"+
+		"\u0167\7D\2\2\u0163\u0167\7:\2\2\u0164\u0167\7;\2\2\u0165\u0167\5\4\3"+
+		"\2\u0166\u015c\3\2\2\2\u0166\u015d\3\2\2\2\u0166\u0160\3\2\2\2\u0166\u0163"+
+		"\3\2\2\2\u0166\u0164\3\2\2\2\u0166\u0165\3\2\2\2\u0167\65\3\2\2\2\"\67"+
+		"GR^dgty\u0080\u0092\u0099\u00a7\u00b4\u00c8\u00d0\u00da\u00e5\u00ec\u00f1"+
+		"\u00fd\u00ff\u0103\u0112\u0118\u0127\u012a\u0133\u0142\u0147\u014b\u015a"+
+		"\u0166";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

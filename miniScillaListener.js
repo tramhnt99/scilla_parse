@@ -5,6 +5,24 @@ import antlr4 from 'antlr4';
 // This class defines a complete listener for a parse tree produced by miniScillaParser.
 export default class miniScillaListener extends antlr4.tree.ParseTreeListener {
 
+	// Enter a parse tree produced by miniScillaParser#int_.
+	enterInt_(ctx) {
+	}
+
+	// Exit a parse tree produced by miniScillaParser#int_.
+	exitInt_(ctx) {
+	}
+
+
+	// Enter a parse tree produced by miniScillaParser#prim_types.
+	enterPrim_types(ctx) {
+	}
+
+	// Exit a parse tree produced by miniScillaParser#prim_types.
+	exitPrim_types(ctx) {
+	}
+
+
 	// Enter a parse tree produced by miniScillaParser#t_map_key.
 	enterT_map_key(ctx) {
 	}
@@ -128,6 +146,51 @@ export default class miniScillaListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by miniScillaParser#Builtin.
 	exitBuiltin(ctx) {
+	}
+
+
+	// Enter a parse tree produced by miniScillaParser#Message.
+	enterMessage(ctx) {
+	}
+
+	// Exit a parse tree produced by miniScillaParser#Message.
+	exitMessage(ctx) {
+	}
+
+
+	// Enter a parse tree produced by miniScillaParser#Match.
+	enterMatch(ctx) {
+	}
+
+	// Exit a parse tree produced by miniScillaParser#Match.
+	exitMatch(ctx) {
+	}
+
+
+	// Enter a parse tree produced by miniScillaParser#DataConstructorApp.
+	enterDataConstructorApp(ctx) {
+	}
+
+	// Exit a parse tree produced by miniScillaParser#DataConstructorApp.
+	exitDataConstructorApp(ctx) {
+	}
+
+
+	// Enter a parse tree produced by miniScillaParser#TFun.
+	enterTFun(ctx) {
+	}
+
+	// Exit a parse tree produced by miniScillaParser#TFun.
+	exitTFun(ctx) {
+	}
+
+
+	// Enter a parse tree produced by miniScillaParser#TApp.
+	enterTApp(ctx) {
+	}
+
+	// Exit a parse tree produced by miniScillaParser#TApp.
+	exitTApp(ctx) {
 	}
 
 
@@ -263,15 +326,6 @@ export default class miniScillaListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by miniScillaParser#sid.
 	exitSid(ctx) {
-	}
-
-
-	// Enter a parse tree produced by miniScillaParser#sident.
-	enterSident(ctx) {
-	}
-
-	// Exit a parse tree produced by miniScillaParser#sident.
-	exitSident(ctx) {
 	}
 
 

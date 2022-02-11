@@ -22,8 +22,8 @@ FIELD: 'field';
 ACCEPT: 'accept';
 EXISTS: 'exists';
 DELETE: 'delete';
-EMP: 'emp';
-MAP: 'map';
+EMP: 'Emp';
+MAP: 'Map';
 SCILLA_VERSION: 'scilla_version';
 TYPE: 'type';
 OF: 'of';
@@ -58,14 +58,21 @@ UNDERSCORE: '_';
 BlockComment: '(*' .*? '*)' -> skip;
 
 NUMBER: [0-9]+;
-INT: [-]? NUMBER;
+int_: '-'? NUMBER;
 WS: [ ]+ -> skip;
 TOSKIP: [\r\n\t]+ -> skip;
 STRING: '"' ~[\r\n"]* '"';
 FLOAT: ('0'..'9')+ '.' ('0'..'9')*;
 BOOLEAN: 'True' | 'False';
+OPTION: 'None' | 'Some';
 HEX: [0][x]([a-fA-F0-9] [a-fA-F0-9])*;
 INTTY: 'Int32' | 'Int64' | 'Int128' | 'Int256' | 'Uint32' | 'Uint64' | 'Uint128' | 'Uint256';
+BYSTR: 'ByStr' [0-9]*;
+BNUM: 'BNum';
+MESSAGE: 'Message';
+EVENT_TY: 'Event';
+prim_types: (INTTY | BYSTR | BNUM | MESSAGE | EVENT_TY);
+
 
 ID: [a-z_] [a-zA-Z0-9_]*;
 SPID: [_] [a-zA-Z0-9_]*;
@@ -91,6 +98,7 @@ t_map_value
     : d=scid
     | MAP k=t_map_key v=t_map_value LPAREN t=t_map_value_allow_targs RPAREN
     | vt = address_typ
+    | prim_types
     ;
 
 t_map_value_allow_targs
@@ -105,14 +113,14 @@ address_typ
     ;
 
 typ
-    : d=scid (targs+=targ)* //TODO:support list of targs to make ADTs
+    : d=scid (targs+=targ)*
     | MAP k=t_map_key v=t_map_value 
     | t1=typ TARROW t2=typ 
     | LPAREN t=typ RPAREN
     | t_to_map=address_typ
     | FORALL tv=TID PERIOD t=typ
     | t_var=TID
-    | INTTY
+    | prim_types
     ;
 
 targ 
@@ -137,11 +145,16 @@ exp :
     ;
 
 simple_exp
-    : LET x=identifier EQ f=simple_exp IN e=exp #Let
+    : LET x=identifier (COLON ty=typ)? EQ f=simple_exp IN e=exp #Let
     | FUN LPAREN id=identifier COLON ty=typ RPAREN ARROW e=exp #Fun
-    | f_var=sid (args+=sident)+ #App
+    | f_var=sid (args+=sid)+ #App
     | a=atomic_exp #Atomic
     | BUILTIN b=ID (targs+=ctargs)* xs=builtin_args #Builtin
+    | LBRACE es+=msg_entry (SEMICOLON es+=msg_entry)* RBRACE #Message
+    | MATCH x_sid=sid WITH cs=exp_pm_clause* END #Match
+    | c=scid ts=ctargs? (args+=sid)* #DataConstructorApp //I THINK STUCK HERE
+    | TFUN i=TID ARROW e=exp #TFun
+    | AT f=sid (targs+=targ)+ #TApp
     ;
 
 atomic_exp
@@ -151,7 +164,8 @@ atomic_exp
 
 lit
     : i=CID
-    | INTTY i_number=NUMBER
+    | INTTY i_int=int_
+    | BNUM i_number=NUMBER
     | n=NUMBER
     | h=HEX 
     | s=STRING
@@ -165,7 +179,7 @@ ctargs
 
 
 map_access
-    : LSQB i=sident RSQB
+    : LSQB i=sid RSQB
     ;
 
 pattern
@@ -191,7 +205,7 @@ msg_entry
     ;
 
 builtin_args 
-    : args=sident+
+    : args=sid+
     | LPAREN RPAREN
     ;
 
@@ -218,16 +232,19 @@ sid
     | ns=CID PERIOD name=ID
     ;
 
-sident
-    :  name=ID 
-    |  name=SPID 
-    |  ns=CID PERIOD name=ID 
-    ;
+// sid
+//     :  name=ID 
+//     |  name=SPID 
+//     |  ns=CID PERIOD name=ID 
+//     ;
 
 scid 
     : name=CID
     | ns=CID PERIOD name=CID
     | ns=HEX PERIOD name=CID
+    | bool=BOOLEAN
+    | option=OPTION
+    | prim=prim_types
     ;
 
 // //TODO: See how to build types and ADTs
