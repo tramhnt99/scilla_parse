@@ -154,7 +154,7 @@ simple_exp
     | BUILTIN b=identifier (targs+=ctargs)* xs=builtin_args #Builtin
     | LBRACE es+=msg_entry (SEMICOLON es+=msg_entry)* RBRACE #Message
     | MATCH x_sid=sid WITH cs=exp_pm_clause* END #Match
-    | c=scid ts=ctargs? (args+=sid)* #DataConstructorApp //I THINK STUCK HERE
+    | c=scid ts=ctargs? (args+=sid)* #DataConstructorApp
     | TFUN i=TID ARROW e=exp #TFun
     | AT f=sid (targs+=targ)+ #TApp
     ;

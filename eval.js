@@ -27,6 +27,22 @@ export default class EvalVisitor {
         return this.globalEnv;
     }
 
+    //Returns bindings
+    matchClause(v, p) {
+        if (p instanceof SP.WildcardContext) {
+            return {};
+        } 
+        if (p instanceof SP.BinderContext) {
+            const x = p.identifier;
+            return {x : v}
+        }
+        if (p instanceof SP.ConstructorContext) {
+            return; //TODO
+        }
+        console.log("matchClause: Didn't match match clause");
+        return undefined;
+    }
+
     visitLet(ctx) {
         if (!ctx) {return;}
         const x = ctx.identifier().getText();
@@ -74,7 +90,19 @@ export default class EvalVisitor {
             ? this.visitLiteral(ctx.a.lit())
             : ctx.a instanceof SP.AtomicSidContext //Indentifier TODO
             ? this.visitSid(ctx.a.sid())
-            : console.log("Couldn't match atomic expression!");
+            : console.log("visitAtomicExp: Couldn't match atomic expression!");
+    }
+
+    visitMatchExp(ctx) {
+        const value = this.lookup(ctx.sid());
+        for (const clause of ctx.exp_pm_clause()) {
+            const found = this.matchClause(value, clause.pattern());
+            if (found === undefined) {} //continue
+            else {
+                //We update env for the branch
+                var env = Object.assign({}, this.getEnv());
+            }
+        }
     }
 
     visitSid(ctx) {
@@ -85,18 +113,18 @@ export default class EvalVisitor {
             ? undefined 
             : ctx instanceof SP.SidCidContext
             ? undefined 
-            : console.log("Coulnd't match sid!");
+            : console.log("visitSid: Coulnd't match sid!");
     }
 
     visitID(ctx) {
         console.log("Looking for ID " + ctx.getText());
         return ctx.ID().getText()
             ? this.lookup(ctx.ID().getText())
-            : console.log("Couldn't find ID");
+            : console.log("visitID: Couldn't find ID");
     }
 
     visitLiteral(ctx) {
-        console.log("oh literal! " + ctx.getText());
+        // console.log("oh literal! " + ctx.getText());
         return ctx instanceof SP.LitCidContext
             ? undefined //cid
             : ctx instanceof SP.LitIntContext
@@ -113,7 +141,7 @@ export default class EvalVisitor {
             ? undefined //empty map TODO
             : ctx instanceof SP.LitBoolContext
             ? (ctx.b.getText() === "True")
-            : console.log("Couldn't match literal");
+            : console.log("visitLiteral: Couldn't match literal");
     }
     
     visitSimpleExp(ctx) {
@@ -126,6 +154,12 @@ export default class EvalVisitor {
             ? this.visitFun(ctx)
             : ctx instanceof SP.AppContext
             ? this.visitApp(ctx)
+            : ctx instanceof SP.MessageContext
+            ? console.log("TODO: Resolve Message")
+            : ctx instanceof SP.BuiltinContext
+            ? console.log("TODO: Builtin") //All builtins will be saved as closures
+            : ctx instanceof SP.MatchContext
+            ? this.visitMatchExp(ctx)
             : undefined;
     }
 
