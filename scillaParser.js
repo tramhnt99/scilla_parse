@@ -1498,12 +1498,14 @@ export default class scillaParser extends antlr4.Parser {
 	        var la_ = this._interp.adaptivePredict(this._input,24,this._ctx);
 	        switch(la_) {
 	        case 1:
+	            localctx = new AtomicSidContext(this, localctx);
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 336;
 	            localctx.i = this.sid();
 	            break;
 
 	        case 2:
+	            localctx = new AtomicLitContext(this, localctx);
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 337;
 	            localctx.l = this.lit();
@@ -1535,11 +1537,13 @@ export default class scillaParser extends antlr4.Parser {
 	        switch(this._input.LA(1)) {
 	        case scillaParser.BYSTR:
 	        case scillaParser.CID:
+	            localctx = new LitCidContext(this, localctx);
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 340;
 	            localctx.i = this.cid();
 	            break;
 	        case scillaParser.INTTY:
+	            localctx = new LitIntContext(this, localctx);
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 341;
 	            this.match(scillaParser.INTTY);
@@ -1547,6 +1551,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.i_int = this.int_();
 	            break;
 	        case scillaParser.BNUM:
+	            localctx = new LitBNumContext(this, localctx);
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 343;
 	            this.match(scillaParser.BNUM);
@@ -1554,21 +1559,25 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.i_number = this.match(scillaParser.NUMBER);
 	            break;
 	        case scillaParser.NUMBER:
+	            localctx = new LitNumContext(this, localctx);
 	            this.enterOuterAlt(localctx, 4);
 	            this.state = 345;
 	            localctx.n = this.match(scillaParser.NUMBER);
 	            break;
 	        case scillaParser.HEX:
+	            localctx = new LitHexContext(this, localctx);
 	            this.enterOuterAlt(localctx, 5);
 	            this.state = 346;
 	            localctx.h = this.match(scillaParser.HEX);
 	            break;
 	        case scillaParser.STRING:
+	            localctx = new LitStringContext(this, localctx);
 	            this.enterOuterAlt(localctx, 6);
 	            this.state = 347;
 	            localctx.s = this.match(scillaParser.STRING);
 	            break;
 	        case scillaParser.EMP:
+	            localctx = new LitEmpContext(this, localctx);
 	            this.enterOuterAlt(localctx, 7);
 	            this.state = 348;
 	            this.match(scillaParser.EMP);
@@ -1578,6 +1587,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.vt = this.t_map_value();
 	            break;
 	        case scillaParser.BOOLEAN:
+	            localctx = new LitBoolContext(this, localctx);
 	            this.enterOuterAlt(localctx, 8);
 	            this.state = 352;
 	            localctx.b = this.match(scillaParser.BOOLEAN);
@@ -1995,17 +2005,20 @@ export default class scillaParser extends antlr4.Parser {
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
 	        case scillaParser.ID:
+	            localctx = new SidNameContext(this, localctx);
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 420;
 	            localctx.name = this.identifier();
 	            break;
 	        case scillaParser.SPID:
+	            localctx = new SidSPIDContext(this, localctx);
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 421;
 	            localctx.name_spid = this.match(scillaParser.SPID);
 	            break;
 	        case scillaParser.BYSTR:
 	        case scillaParser.CID:
+	            localctx = new SidCidContext(this, localctx);
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 422;
 	            localctx.ns = this.cid();
@@ -4735,13 +4748,53 @@ class Atomic_expContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_atomic_exp;
-        this.i = null; // SidContext
-        this.l = null; // LitContext
+    }
+
+
+	 
+		copyFrom(ctx) {
+			super.copyFrom(ctx);
+		}
+
+}
+
+
+class AtomicSidContext extends Atomic_expContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.i = null; // SidContext;
+        super.copyFrom(ctx);
     }
 
 	sid() {
 	    return this.getTypedRuleContext(SidContext,0);
 	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterAtomicSid(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitAtomicSid(this);
+		}
+	}
+
+
+}
+
+scillaParser.AtomicSidContext = AtomicSidContext;
+
+class AtomicLitContext extends Atomic_expContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.l = null; // LitContext;
+        super.copyFrom(ctx);
+    }
 
 	lit() {
 	    return this.getTypedRuleContext(LitContext,0);
@@ -4749,20 +4802,20 @@ class Atomic_expContext extends antlr4.ParserRuleContext {
 
 	enterRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.enterAtomic_exp(this);
+	        listener.enterAtomicLit(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.exitAtomic_exp(this);
+	        listener.exitAtomicLit(this);
 		}
 	}
 
 
 }
 
-
+scillaParser.AtomicLitContext = AtomicLitContext;
 
 class LitContext extends antlr4.ParserRuleContext {
 
@@ -4776,28 +4829,82 @@ class LitContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_lit;
-        this.i = null; // CidContext
-        this.i_int = null; // Int_Context
-        this.i_number = null; // Token
-        this.n = null; // Token
-        this.h = null; // Token
-        this.s = null; // Token
-        this.kt = null; // T_map_keyContext
-        this.vt = null; // T_map_valueContext
-        this.b = null; // Token
     }
 
-	cid() {
-	    return this.getTypedRuleContext(CidContext,0);
+
+	 
+		copyFrom(ctx) {
+			super.copyFrom(ctx);
+		}
+
+}
+
+
+class LitStringContext extends LitContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.s = null; // Token;
+        super.copyFrom(ctx);
+    }
+
+	STRING() {
+	    return this.getToken(scillaParser.STRING, 0);
 	};
 
-	INTTY() {
-	    return this.getToken(scillaParser.INTTY, 0);
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterLitString(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitLitString(this);
+		}
+	}
+
+
+}
+
+scillaParser.LitStringContext = LitStringContext;
+
+class LitNumContext extends LitContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.n = null; // Token;
+        super.copyFrom(ctx);
+    }
+
+	NUMBER() {
+	    return this.getToken(scillaParser.NUMBER, 0);
 	};
 
-	int_() {
-	    return this.getTypedRuleContext(Int_Context,0);
-	};
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterLitNum(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitLitNum(this);
+		}
+	}
+
+
+}
+
+scillaParser.LitNumContext = LitNumContext;
+
+class LitBNumContext extends LitContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.i_number = null; // Token;
+        super.copyFrom(ctx);
+    }
 
 	BNUM() {
 	    return this.getToken(scillaParser.BNUM, 0);
@@ -4807,13 +4914,151 @@ class LitContext extends antlr4.ParserRuleContext {
 	    return this.getToken(scillaParser.NUMBER, 0);
 	};
 
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterLitBNum(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitLitBNum(this);
+		}
+	}
+
+
+}
+
+scillaParser.LitBNumContext = LitBNumContext;
+
+class LitIntContext extends LitContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.i_int = null; // Int_Context;
+        super.copyFrom(ctx);
+    }
+
+	INTTY() {
+	    return this.getToken(scillaParser.INTTY, 0);
+	};
+
+	int_() {
+	    return this.getTypedRuleContext(Int_Context,0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterLitInt(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitLitInt(this);
+		}
+	}
+
+
+}
+
+scillaParser.LitIntContext = LitIntContext;
+
+class LitHexContext extends LitContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.h = null; // Token;
+        super.copyFrom(ctx);
+    }
+
 	HEX() {
 	    return this.getToken(scillaParser.HEX, 0);
 	};
 
-	STRING() {
-	    return this.getToken(scillaParser.STRING, 0);
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterLitHex(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitLitHex(this);
+		}
+	}
+
+
+}
+
+scillaParser.LitHexContext = LitHexContext;
+
+class LitBoolContext extends LitContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.b = null; // Token;
+        super.copyFrom(ctx);
+    }
+
+	BOOLEAN() {
+	    return this.getToken(scillaParser.BOOLEAN, 0);
 	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterLitBool(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitLitBool(this);
+		}
+	}
+
+
+}
+
+scillaParser.LitBoolContext = LitBoolContext;
+
+class LitCidContext extends LitContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.i = null; // CidContext;
+        super.copyFrom(ctx);
+    }
+
+	cid() {
+	    return this.getTypedRuleContext(CidContext,0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterLitCid(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitLitCid(this);
+		}
+	}
+
+
+}
+
+scillaParser.LitCidContext = LitCidContext;
+
+class LitEmpContext extends LitContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.kt = null; // T_map_keyContext;
+        this.vt = null; // T_map_valueContext;
+        super.copyFrom(ctx);
+    }
 
 	EMP() {
 	    return this.getToken(scillaParser.EMP, 0);
@@ -4827,26 +5072,22 @@ class LitContext extends antlr4.ParserRuleContext {
 	    return this.getTypedRuleContext(T_map_valueContext,0);
 	};
 
-	BOOLEAN() {
-	    return this.getToken(scillaParser.BOOLEAN, 0);
-	};
-
 	enterRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.enterLit(this);
+	        listener.enterLitEmp(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.exitLit(this);
+	        listener.exitLitEmp(this);
 		}
 	}
 
 
 }
 
-
+scillaParser.LitEmpContext = LitEmpContext;
 
 class CtargsContext extends antlr4.ParserRuleContext {
 
@@ -5402,18 +5643,54 @@ class SidContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_sid;
-        this.name = null; // IdentifierContext
-        this.name_spid = null; // Token
-        this.ns = null; // CidContext
+    }
+
+
+	 
+		copyFrom(ctx) {
+			super.copyFrom(ctx);
+		}
+
+}
+
+
+class SidNameContext extends SidContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.name = null; // IdentifierContext;
+        super.copyFrom(ctx);
     }
 
 	identifier() {
 	    return this.getTypedRuleContext(IdentifierContext,0);
 	};
 
-	SPID() {
-	    return this.getToken(scillaParser.SPID, 0);
-	};
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterSidName(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitSidName(this);
+		}
+	}
+
+
+}
+
+scillaParser.SidNameContext = SidNameContext;
+
+class SidCidContext extends SidContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.ns = null; // CidContext;
+        this.name = null; // IdentifierContext;
+        super.copyFrom(ctx);
+    }
 
 	PERIOD() {
 	    return this.getToken(scillaParser.PERIOD, 0);
@@ -5423,22 +5700,55 @@ class SidContext extends antlr4.ParserRuleContext {
 	    return this.getTypedRuleContext(CidContext,0);
 	};
 
+	identifier() {
+	    return this.getTypedRuleContext(IdentifierContext,0);
+	};
+
 	enterRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.enterSid(this);
+	        listener.enterSidCid(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.exitSid(this);
+	        listener.exitSidCid(this);
 		}
 	}
 
 
 }
 
+scillaParser.SidCidContext = SidCidContext;
 
+class SidSPIDContext extends SidContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.name_spid = null; // Token;
+        super.copyFrom(ctx);
+    }
+
+	SPID() {
+	    return this.getToken(scillaParser.SPID, 0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterSidSPID(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitSidSPID(this);
+		}
+	}
+
+
+}
+
+scillaParser.SidSPIDContext = SidSPIDContext;
 
 class ScidContext extends antlr4.ParserRuleContext {
 

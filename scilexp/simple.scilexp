@@ -1,0 +1,3 @@
+let foo = 
+    let bar = Int64 42 in bar
+in foo

@@ -160,19 +160,19 @@ simple_exp
     ;
 
 atomic_exp
-    : i=sid
-    | l=lit
+    : i=sid #AtomicSid
+    | l=lit #AtomicLit
     ;
 
 lit
-    : i=cid
-    | INTTY i_int=int_
-    | BNUM i_number=NUMBER
-    | n=NUMBER
-    | h=HEX 
-    | s=STRING
-    | EMP kt=t_map_key vt=t_map_value
-    | b=BOOLEAN
+    : i=cid #LitCid
+    | INTTY i_int=int_ #LitInt
+    | BNUM i_number=NUMBER #LitBNum
+    | n=NUMBER #LitNum
+    | h=HEX #LitHex
+    | s=STRING #LitString
+    | EMP kt=t_map_key vt=t_map_value #LitEmp
+    | b=BOOLEAN #LitBool
     ;
 
 ctargs
@@ -229,9 +229,9 @@ identifier
     ;
 
 sid 
-    : name=identifier
-    | name_spid=SPID
-    | ns=cid PERIOD name=identifier
+    : name=identifier #SidName
+    | name_spid=SPID #SidSPID
+    | ns=cid PERIOD name=identifier #SidCid
     ;
 
 scid 

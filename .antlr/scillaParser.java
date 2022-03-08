@@ -1515,18 +1515,29 @@ public class scillaParser extends Parser {
 	}
 
 	public static class Atomic_expContext extends ParserRuleContext {
-		public SidContext i;
-		public LitContext l;
-		public SidContext sid() {
-			return getRuleContext(SidContext.class,0);
-		}
-		public LitContext lit() {
-			return getRuleContext(LitContext.class,0);
-		}
 		public Atomic_expContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_atomic_exp; }
+	 
+		public Atomic_expContext() { }
+		public void copyFrom(Atomic_expContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class AtomicSidContext extends Atomic_expContext {
+		public SidContext i;
+		public SidContext sid() {
+			return getRuleContext(SidContext.class,0);
+		}
+		public AtomicSidContext(Atomic_expContext ctx) { copyFrom(ctx); }
+	}
+	public static class AtomicLitContext extends Atomic_expContext {
+		public LitContext l;
+		public LitContext lit() {
+			return getRuleContext(LitContext.class,0);
+		}
+		public AtomicLitContext(Atomic_expContext ctx) { copyFrom(ctx); }
 	}
 
 	public final Atomic_expContext atomic_exp() throws RecognitionException {
@@ -1537,17 +1548,19 @@ public class scillaParser extends Parser {
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,24,_ctx) ) {
 			case 1:
+				_localctx = new AtomicSidContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(336);
-				((Atomic_expContext)_localctx).i = sid();
+				((AtomicSidContext)_localctx).i = sid();
 				}
 				break;
 			case 2:
+				_localctx = new AtomicLitContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(337);
-				((Atomic_expContext)_localctx).l = lit();
+				((AtomicLitContext)_localctx).l = lit();
 				}
 				break;
 			}
@@ -1564,26 +1577,60 @@ public class scillaParser extends Parser {
 	}
 
 	public static class LitContext extends ParserRuleContext {
-		public CidContext i;
-		public Int_Context i_int;
-		public Token i_number;
-		public Token n;
-		public Token h;
-		public Token s;
-		public T_map_keyContext kt;
-		public T_map_valueContext vt;
-		public Token b;
-		public CidContext cid() {
-			return getRuleContext(CidContext.class,0);
+		public LitContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
 		}
+		@Override public int getRuleIndex() { return RULE_lit; }
+	 
+		public LitContext() { }
+		public void copyFrom(LitContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class LitStringContext extends LitContext {
+		public Token s;
+		public TerminalNode STRING() { return getToken(scillaParser.STRING, 0); }
+		public LitStringContext(LitContext ctx) { copyFrom(ctx); }
+	}
+	public static class LitNumContext extends LitContext {
+		public Token n;
+		public TerminalNode NUMBER() { return getToken(scillaParser.NUMBER, 0); }
+		public LitNumContext(LitContext ctx) { copyFrom(ctx); }
+	}
+	public static class LitBNumContext extends LitContext {
+		public Token i_number;
+		public TerminalNode BNUM() { return getToken(scillaParser.BNUM, 0); }
+		public TerminalNode NUMBER() { return getToken(scillaParser.NUMBER, 0); }
+		public LitBNumContext(LitContext ctx) { copyFrom(ctx); }
+	}
+	public static class LitIntContext extends LitContext {
+		public Int_Context i_int;
 		public TerminalNode INTTY() { return getToken(scillaParser.INTTY, 0); }
 		public Int_Context int_() {
 			return getRuleContext(Int_Context.class,0);
 		}
-		public TerminalNode BNUM() { return getToken(scillaParser.BNUM, 0); }
-		public TerminalNode NUMBER() { return getToken(scillaParser.NUMBER, 0); }
+		public LitIntContext(LitContext ctx) { copyFrom(ctx); }
+	}
+	public static class LitHexContext extends LitContext {
+		public Token h;
 		public TerminalNode HEX() { return getToken(scillaParser.HEX, 0); }
-		public TerminalNode STRING() { return getToken(scillaParser.STRING, 0); }
+		public LitHexContext(LitContext ctx) { copyFrom(ctx); }
+	}
+	public static class LitBoolContext extends LitContext {
+		public Token b;
+		public TerminalNode BOOLEAN() { return getToken(scillaParser.BOOLEAN, 0); }
+		public LitBoolContext(LitContext ctx) { copyFrom(ctx); }
+	}
+	public static class LitCidContext extends LitContext {
+		public CidContext i;
+		public CidContext cid() {
+			return getRuleContext(CidContext.class,0);
+		}
+		public LitCidContext(LitContext ctx) { copyFrom(ctx); }
+	}
+	public static class LitEmpContext extends LitContext {
+		public T_map_keyContext kt;
+		public T_map_valueContext vt;
 		public TerminalNode EMP() { return getToken(scillaParser.EMP, 0); }
 		public T_map_keyContext t_map_key() {
 			return getRuleContext(T_map_keyContext.class,0);
@@ -1591,11 +1638,7 @@ public class scillaParser extends Parser {
 		public T_map_valueContext t_map_value() {
 			return getRuleContext(T_map_valueContext.class,0);
 		}
-		public TerminalNode BOOLEAN() { return getToken(scillaParser.BOOLEAN, 0); }
-		public LitContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_lit; }
+		public LitEmpContext(LitContext ctx) { copyFrom(ctx); }
 	}
 
 	public final LitContext lit() throws RecognitionException {
@@ -1607,67 +1650,75 @@ public class scillaParser extends Parser {
 			switch (_input.LA(1)) {
 			case BYSTR:
 			case CID:
+				_localctx = new LitCidContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(340);
-				((LitContext)_localctx).i = cid();
+				((LitCidContext)_localctx).i = cid();
 				}
 				break;
 			case INTTY:
+				_localctx = new LitIntContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(341);
 				match(INTTY);
 				setState(342);
-				((LitContext)_localctx).i_int = int_();
+				((LitIntContext)_localctx).i_int = int_();
 				}
 				break;
 			case BNUM:
+				_localctx = new LitBNumContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(343);
 				match(BNUM);
 				setState(344);
-				((LitContext)_localctx).i_number = match(NUMBER);
+				((LitBNumContext)_localctx).i_number = match(NUMBER);
 				}
 				break;
 			case NUMBER:
+				_localctx = new LitNumContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(345);
-				((LitContext)_localctx).n = match(NUMBER);
+				((LitNumContext)_localctx).n = match(NUMBER);
 				}
 				break;
 			case HEX:
+				_localctx = new LitHexContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(346);
-				((LitContext)_localctx).h = match(HEX);
+				((LitHexContext)_localctx).h = match(HEX);
 				}
 				break;
 			case STRING:
+				_localctx = new LitStringContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(347);
-				((LitContext)_localctx).s = match(STRING);
+				((LitStringContext)_localctx).s = match(STRING);
 				}
 				break;
 			case EMP:
+				_localctx = new LitEmpContext(_localctx);
 				enterOuterAlt(_localctx, 7);
 				{
 				setState(348);
 				match(EMP);
 				setState(349);
-				((LitContext)_localctx).kt = t_map_key();
+				((LitEmpContext)_localctx).kt = t_map_key();
 				setState(350);
-				((LitContext)_localctx).vt = t_map_value();
+				((LitEmpContext)_localctx).vt = t_map_value();
 				}
 				break;
 			case BOOLEAN:
+				_localctx = new LitBoolContext(_localctx);
 				enterOuterAlt(_localctx, 8);
 				{
 				setState(352);
-				((LitContext)_localctx).b = match(BOOLEAN);
+				((LitBoolContext)_localctx).b = match(BOOLEAN);
 				}
 				break;
 			default:
@@ -2249,21 +2300,39 @@ public class scillaParser extends Parser {
 	}
 
 	public static class SidContext extends ParserRuleContext {
-		public IdentifierContext name;
-		public Token name_spid;
-		public CidContext ns;
-		public IdentifierContext identifier() {
-			return getRuleContext(IdentifierContext.class,0);
-		}
-		public TerminalNode SPID() { return getToken(scillaParser.SPID, 0); }
-		public TerminalNode PERIOD() { return getToken(scillaParser.PERIOD, 0); }
-		public CidContext cid() {
-			return getRuleContext(CidContext.class,0);
-		}
 		public SidContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_sid; }
+	 
+		public SidContext() { }
+		public void copyFrom(SidContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class SidNameContext extends SidContext {
+		public IdentifierContext name;
+		public IdentifierContext identifier() {
+			return getRuleContext(IdentifierContext.class,0);
+		}
+		public SidNameContext(SidContext ctx) { copyFrom(ctx); }
+	}
+	public static class SidCidContext extends SidContext {
+		public CidContext ns;
+		public IdentifierContext name;
+		public TerminalNode PERIOD() { return getToken(scillaParser.PERIOD, 0); }
+		public CidContext cid() {
+			return getRuleContext(CidContext.class,0);
+		}
+		public IdentifierContext identifier() {
+			return getRuleContext(IdentifierContext.class,0);
+		}
+		public SidCidContext(SidContext ctx) { copyFrom(ctx); }
+	}
+	public static class SidSPIDContext extends SidContext {
+		public Token name_spid;
+		public TerminalNode SPID() { return getToken(scillaParser.SPID, 0); }
+		public SidSPIDContext(SidContext ctx) { copyFrom(ctx); }
 	}
 
 	public final SidContext sid() throws RecognitionException {
@@ -2274,29 +2343,32 @@ public class scillaParser extends Parser {
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ID:
+				_localctx = new SidNameContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(420);
-				((SidContext)_localctx).name = identifier();
+				((SidNameContext)_localctx).name = identifier();
 				}
 				break;
 			case SPID:
+				_localctx = new SidSPIDContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(421);
-				((SidContext)_localctx).name_spid = match(SPID);
+				((SidSPIDContext)_localctx).name_spid = match(SPID);
 				}
 				break;
 			case BYSTR:
 			case CID:
+				_localctx = new SidCidContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(422);
-				((SidContext)_localctx).ns = cid();
+				((SidCidContext)_localctx).ns = cid();
 				setState(423);
 				match(PERIOD);
 				setState(424);
-				((SidContext)_localctx).name = identifier();
+				((SidCidContext)_localctx).name = identifier();
 				}
 				break;
 			default:

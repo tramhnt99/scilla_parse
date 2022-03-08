@@ -1,10 +1,11 @@
 // test.js
 import antlr4 from 'antlr4';
 import fs from 'fs';
-import MyGrammarLexer from './scillaLexer.js';
-import MyGrammarParser from './scillaParser.js';
+import ScillaLexer from './scillaLexer.js';
+import ScillaParser from './scillaParser.js';
 
-const exp_files = [
+
+const expressions = [
     'ackermann.scilexp',
     'addr.scilexp',
     'app.scilexp',
@@ -147,19 +148,6 @@ const exp_files = [
     'uint_conversions.scilexp'
 ]
 
-for (let i = 0; i < exp_files.length; i++) {
-    const input = fs.readFileSync('scilexp/'.concat(exp_files[i])).toString();
-    const chars = new antlr4.InputStream(input);
-    const lexer = new MyGrammarLexer(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    const parser = new MyGrammarParser(tokens);
-    const tree = parser.simple_exp();
-    console.log(exp_files[i]);
-    console.log(tree.toString(parser.ruleNames));
-}
-
-
-
 const contracts = [
     'Polynetwork.scilla',
     'UintParam.scilla',
@@ -225,26 +213,46 @@ const contracts = [
     'zil-game.scilla'
 ]
 
-for (let i = 0; i < contracts.length; i++) {
-    const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
-    const chars = new antlr4.InputStream(input);
-    const lexer = new MyGrammarLexer(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    const parser = new MyGrammarParser(tokens);
-    const tree = parser.cmodule();
-    console.log(contracts[i]);
-    console.log(tree.toString(parser.ruleNames));
-}
+
+// for (let i = 0; i < expressions.length; i++) {
+//     const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
+//     const chars = new antlr4.InputStream(input);
+//     const lexer = new MyGrammarLexer(chars);
+//     const tokens = new antlr4.CommonTokenStream(lexer);
+//     const parser = new MyGrammarParser(tokens);
+//     const tree = parser.simple_exp();
+//     console.log(expressions[i]);
+//     console.log(tree.toString(parser.ruleNames));
+// }
+
+// for (let i = 0; i < contracts.length; i++) {
+//     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
+//     const chars = new antlr4.InputStream(input);
+//     const lexer = new MyGrammarLexer(chars);
+//     const tokens = new antlr4.CommonTokenStream(lexer);
+//     const parser = new MyGrammarParser(tokens);
+//     const tree = parser.cmodule();
+//     console.log(contracts[i]);
+//     console.log(tree.toString(parser.ruleNames));
+// }
 
 
 // Single test debugging
-// const input = fs.readFileSync('app.scilexp').toString();
-// const chars = new antlr4.InputStream(input);
-// const lexer = new MyGrammarLexer(chars);
-// const tokens = new antlr4.CommonTokenStream(lexer);
-// const parser = new MyGrammarParser(tokens);
-// const tree = parser.simple_exp();
-// console.log(tree.toStringTree(parser.ruleNames));
-// console.log(tree.toString(parser.literalNames));
-// console.log(tree.toString(parser.symbolicNames));
+const input = fs.readFileSync('scilexp/app.scilexp').toString();
+const chars = new antlr4.InputStream(input);
+const lexer = new ScillaLexer(chars);
+const tokens = new antlr4.CommonTokenStream(lexer);
+export const parser = new ScillaParser(tokens);
+const tree = parser.simple_exp();
+// export class Visitor {}
+// export const visitor = new Visitor();
+
+import EvalVisitor from './eval.js';
+
+tree.accept(new EvalVisitor({}));
+// console.log(tree.accept(new EvalVisitor()));
+// console.log(new Visitor());
+
+
+
 

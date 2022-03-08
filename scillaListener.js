@@ -194,21 +194,93 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#atomic_exp.
-	enterAtomic_exp(ctx) {
+	// Enter a parse tree produced by scillaParser#AtomicSid.
+	enterAtomicSid(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#atomic_exp.
-	exitAtomic_exp(ctx) {
+	// Exit a parse tree produced by scillaParser#AtomicSid.
+	exitAtomicSid(ctx) {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#lit.
-	enterLit(ctx) {
+	// Enter a parse tree produced by scillaParser#AtomicLit.
+	enterAtomicLit(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#lit.
-	exitLit(ctx) {
+	// Exit a parse tree produced by scillaParser#AtomicLit.
+	exitAtomicLit(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LitCid.
+	enterLitCid(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LitCid.
+	exitLitCid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LitInt.
+	enterLitInt(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LitInt.
+	exitLitInt(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LitBNum.
+	enterLitBNum(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LitBNum.
+	exitLitBNum(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LitNum.
+	enterLitNum(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LitNum.
+	exitLitNum(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LitHex.
+	enterLitHex(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LitHex.
+	exitLitHex(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LitString.
+	enterLitString(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LitString.
+	exitLitString(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LitEmp.
+	enterLitEmp(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LitEmp.
+	exitLitEmp(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LitBool.
+	enterLitBool(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LitBool.
+	exitLitBool(ctx) {
 	}
 
 
@@ -320,12 +392,30 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#sid.
-	enterSid(ctx) {
+	// Enter a parse tree produced by scillaParser#SidName.
+	enterSidName(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#sid.
-	exitSid(ctx) {
+	// Exit a parse tree produced by scillaParser#SidName.
+	exitSidName(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#SidSPID.
+	enterSidSPID(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#SidSPID.
+	exitSidSPID(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#SidCid.
+	enterSidCid(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#SidCid.
+	exitSidCid(ctx) {
 	}
 
 
