@@ -53,6 +53,16 @@ export default class EvalVisitor {
         return undefined;
     }
 
+    //Takes in a context that can become a type
+    //or if already turned into ST, then just return
+    antlrTypetoScillaType(ctx){
+        if (ctx instanceof ST) {return ctx;}
+        else {
+
+        }
+
+    }
+
     substTypeInLit(tvar, type, lit) {
         //TODO: Handles only Map and ADT literals
         //Update the context - global
