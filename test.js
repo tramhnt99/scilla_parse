@@ -238,7 +238,7 @@ const contracts = [
 
 
 // Single test debugging
-const input = fs.readFileSync('scilexp/app.scilexp').toString();
+const input = fs.readFileSync('scilexp/id.scilexp').toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);

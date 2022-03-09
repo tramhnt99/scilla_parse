@@ -115,22 +115,22 @@ address_typ
     ;
 
 typ
-    : d=scid (targs+=targ)*
-    | MAP k=t_map_key v=t_map_value 
-    | t1=typ TARROW t2=typ 
-    | LPAREN t=typ RPAREN
-    | t_to_map=address_typ
-    | FORALL tv=TID PERIOD t=typ
-    | t_var=TID
-    | prim_types
+    : d=scid (targs+=targ)* #PrimorADTType
+    | MAP k=t_map_key v=t_map_value #MapType
+    | t1=typ TARROW t2=typ #FunType
+    | LPAREN t=typ RPAREN #ParenType
+    | t_to_map=address_typ #AddrType
+    | FORALL tv=TID PERIOD t=typ #PolyFunTy
+    | t_var=TID #TypeVarType
+    | prim_types #PrimType
     ;
 
 targ 
-    : LPAREN t=typ RPAREN
-    | d=scid
-    | t_var=TID
-    | t_to_map=address_typ
-    | MAP k=t_map_key v=t_map_value
+    : LPAREN t=typ RPAREN #TypTarg
+    | d=scid #ScidTarg
+    | t_var=TID #TvarTarg
+    | t_to_map=address_typ #AddrTarg
+    | MAP k=t_map_key v=t_map_value #MapTarg
     ;
 
 address_type_field
@@ -153,7 +153,7 @@ simple_exp
     | a=atomic_exp #Atomic
     | BUILTIN b=identifier (targs+=ctargs)* xs=builtin_args #Builtin
     | LBRACE es+=msg_entry (SEMICOLON es+=msg_entry)* RBRACE #Message
-    | MATCH x_sid=sid WITH cs=exp_pm_clause* END #Match
+    | MATCH x_sid=sid WITH (cs+=exp_pm_clause)* END #Match
     | c=scid ts=ctargs? (args+=sid)* #DataConstructorApp
     | TFUN i=TID ARROW e=exp #TFun
     | AT f=sid (targs+=targ)+ #TApp
@@ -244,8 +244,8 @@ scid
     ;
 
 cid 
-    : CID
-    | BYSTR
+    : id=CID #CidCid
+    | bystr=BYSTR #CidBystr
     ;
 
 // //TODO: See how to build types and ADTs
