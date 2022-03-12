@@ -109,9 +109,10 @@ t_map_value_allow_targs
     ;
 
 address_typ 
-    : d=cid WITH END
-    | d=cid WITH CONTRACT (fs+=address_type_field (COMMA fs+=address_type_field)*)* END
-    | d=cid WITH CONTRACT LPAREN ps+=param_pair (COMMA ps+=param_pair)* LPAREN fs+=address_type_field (COMMA fs+=address_type_field)* END
+    : d=cid WITH END #AnyAdress
+    | d=cid WITH CONTRACT fs+=address_type_field (COMMA fs+=address_type_field)* END #ContrAddr
+    | d=cid WITH LIBRARY END #LibAddr
+    | d=cid WITH CONTRACT c=SPID END #CodeAddr
     ;
 
 typ
