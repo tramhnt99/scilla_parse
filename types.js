@@ -1,5 +1,6 @@
 //Types that exist in Scilla
 import SP from './scillaParser.js'; //short for ScillaParser
+import ScillaExpr from './syntax.js';
 
 export default class ScillaType {
     parseStringToPrimType(str) {
@@ -20,11 +21,21 @@ export default class ScillaType {
             : str === 'Uint256'
             ? new Uint256()
             : str === 'Bystr'
-            ? console.log("TODO bystr")
+            ? new ByStr()
             : str === 'Bool'
             ? new Bool()
             : str === 'String'
             ? new String()
+            : str === 'BNum'
+            ? new BNum()
+            : str === 'Message'
+            ? new Message()
+            : str === 'Event'
+            ? new Event()
+            : str === 'Exception'
+            ? new Exception
+            : str.indexOf("ByStr") !== -1 && str.length() > 5
+            ? new ByStrX(parseInt(str.substr(5, str.length() - 1)))
             : console.log("parseStringToPrimType: Couldn't match Prim Type");
     }
 
@@ -74,6 +85,25 @@ export default class ScillaType {
             : console.log("resolveTArg: Couldn't resolve TArg");
     }
 
+    //return ScillaType
+    resolveAddressTyp(ctx) {
+        if (ctx instanceof SP.AnyAdressContext) {
+            return new AnyAddr();
+        }
+        if (ctx instanceof SP.LibAddrContext) {
+            return new LibAddr();
+        }
+        if (ctx instanceof SP.CodeAddrContext) {
+            return new CodeAddr();
+        }
+        if (ctx instanceof SP.ContrAddrContext) {
+            const fields = ctx.fs.map(field => 
+                    {id: field.id.getText(); typ: this.generateSType(field.ty)}
+                );
+            return new ContrAddr(fields);
+        }
+    }
+
     generateSType(ctx) {
         if (ctx instanceof SP.PrimorADTTypeContext) {
             if (this.parseStringToPrimType(ctx.d.getText()) !== undefined) {
@@ -85,9 +115,26 @@ export default class ScillaType {
                 return new ADT(ctx.d.getText(), argTList);
             }
         }
-        // skip a few
+        if (ctx instanceof SP.MapTypeContext) {
+            return new MapType(generateSType(ctx.v), this.generateSType(ctx.k));
+        }
+        if (ctx instanceof SP.FunType) {
+            return new FunType(this.generateSType(ctx.t1), this.generateSType(ctx.t2));
+        }
+        if (ctx instanceof SP.ParenTypeContext) {
+            return this.generateSType(ctx.t)
+        }
+        if (ctx instanceof SP.AddrTypeContext) {
+            return this.resolveAddressTyp(ctx.t_to_map)
+        }
+        if (ctx instanceof SP.PolyFunTyContext) {
+            return new PolyFun(ctx.tv.getText(), this.generateSType(ctx.t));
+        }
         if (ctx instanceof SP.TypeVarTypeContext) {
             return new TypeVar(ctx.getText());
+        }
+        if (ctx instanceof SP.PrimTypeContext()) {
+            return parseStringToPrimType(ctx.getText());
         }
     }
 }
@@ -111,15 +158,27 @@ class Uint128 extends PrimType {}
 
 class Uint256 extends PrimType {}
 
-class Bystr extends PrimType {}
+class ByStr extends PrimType {}
+
+class ByStrX extends PrimType {
+    constructor(i) {
+        this.i = i; //Bystr20 then i = 20;
+    }
+}
 
 class Bool extends PrimType {}
 
 class String extends PrimType {}
 
-class AddressType extends PrimType {
-    //TODO: Understand how to build
-}
+class BNum extends PrimType {}
+
+class Message extends PrimType {}
+
+class Event extends PrimType {}
+
+class Exception extends PrimType {}
+
+
 
 //Unit
 class Unit extends ScillaType {}
@@ -165,4 +224,26 @@ class ADT extends ScillaType {
     }
 }
 
-//Address : TODO
+//AddressType
+    // The types of addresses we care about.
+    // Lattice:
+    //      AnyAddr
+    //         |
+    //      CodeAddr
+    //        / \
+    //  LibAddr ContrAddr
+class AddressType extends ScillaType {}
+
+class AnyAddr extends AddressType {}
+
+class ContrAddr extends AddressType {
+    //Contains addresses of other contract
+    //@fs: list of fields in contract
+    constructor(fs) {
+        this.fs = fs;
+    }
+}
+
+class LibAddr extends AddressType {}
+
+class CodeAddr extends AddressType {}

@@ -59,12 +59,39 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#address_typ.
-	enterAddress_typ(ctx) {
+	// Enter a parse tree produced by scillaParser#AnyAdress.
+	enterAnyAdress(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#address_typ.
-	exitAddress_typ(ctx) {
+	// Exit a parse tree produced by scillaParser#AnyAdress.
+	exitAnyAdress(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ContrAddr.
+	enterContrAddr(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ContrAddr.
+	exitContrAddr(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LibAddr.
+	enterLibAddr(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LibAddr.
+	exitLibAddr(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#CodeAddr.
+	enterCodeAddr(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#CodeAddr.
+	exitCodeAddr(ctx) {
 	}
 
 
