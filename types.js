@@ -87,7 +87,7 @@ export default class ScillaType {
         }
         // skip a few
         if (ctx instanceof SP.TypeVarTypeContext) {
-            return new TypeVar(ctx.t_var.getText());
+            return new TypeVar(ctx.getText());
         }
     }
 }
@@ -143,6 +143,7 @@ class FunType extends ScillaType {
 //TypeVar string
 class TypeVar extends ScillaType {
     constructor(name) {
+        super();
         this.name = name;
     }
 }

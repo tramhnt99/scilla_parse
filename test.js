@@ -238,7 +238,7 @@ const contracts = [
 
 
 // Single test debugging
-const input = fs.readFileSync('scilexp/id.scilexp').toString();
+const input = fs.readFileSync('scilexp/builtin_type_args.scilexp').toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);
@@ -247,9 +247,11 @@ const tree = parser.simple_exp();
 // export class Visitor {}
 // export const visitor = new Visitor();
 
-import EvalVisitor from './eval.js';
+// import EvalVisitor from './eval.js';
+import EvalSyntax from "./evalSyntax.js";
 
-tree.accept(new EvalVisitor({}));
+tree.accept(new EvalSyntax);
+// tree.accept(new EvalVisitor({}));
 // console.log(tree.accept(new EvalVisitor()));
 // console.log(new Visitor());
 
