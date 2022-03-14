@@ -118,7 +118,7 @@ export default class ScillaType {
         if (ctx instanceof SP.MapTypeContext) {
             return new MapType(generateSType(ctx.v), this.generateSType(ctx.k));
         }
-        if (ctx instanceof SP.FunType) {
+        if (ctx instanceof SP.FunTypeContext) {
             return new FunType(this.generateSType(ctx.t1), this.generateSType(ctx.t2));
         }
         if (ctx instanceof SP.ParenTypeContext) {
@@ -194,6 +194,7 @@ class MapType extends ScillaType {
 //FunType t -> t
 class FunType extends ScillaType {
     constructor(t1, t2) {
+        super();
         this.t1 = t1;
         this.t2 = t2;
     }

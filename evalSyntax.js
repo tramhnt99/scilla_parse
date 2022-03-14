@@ -268,7 +268,7 @@ export default class EvalVisitor {
 
     visitBuiltin(ctx) {
         const id = this.visitID(ctx.b);
-        const typeArgs = ctx.targs.map(targ => ST.resolveTArg(targ));
+        const typeArgs = ctx.targs.map(targ => targ.ts !== null ? ST.resolveTArg(targ) : targ.getText());
         const builtinArgs = this.visitBuiltinArgs(ctx.xs);
 
         return new syntax.Builtin(id, typeArgs, builtinArgs);
@@ -377,7 +377,7 @@ export default class EvalVisitor {
         if (!ctx) {return;}
         const syntaxTree = {}
         syntaxTree['program'] = this.visitSimpleExp(ctx)
-        // console.log(syntaxTree.program.rhs.rhs.rhs.rhs.rhs.lhs)
+        // console.log(syntaxTree.program.rhs.rhs.targs)
         return ctx instanceof SP.Simple_expContext
             ? console.log(
                 //this.visitSimpleExp(ctx, {}), 
