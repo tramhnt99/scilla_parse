@@ -182,6 +182,14 @@ export default class EvalVisitor {
             : this.printError("visitID", "Couldn't match ID");
     }
 
+    visitWildcard(ctx) {
+        return ctx.getText();
+    }
+
+    visitArgPattern(ctx) {
+        console.log("TO DO")
+    }
+
     visitBuiltinArgs(ctx) {
         // console.log(ctx.xs)
         // console.log(this.visitSid(ctx.args))
@@ -197,11 +205,15 @@ export default class EvalVisitor {
     }
 
     visitPattern(ctx) {
-        return ctx.getText() === 'True'
-        ? true
-        : ctx.getText() === 'False'
-        ? false
-        : undefined
+        if (ctx instanceof SP.WildcardContext) {
+            return this.visitWildcard(ctx)
+        } else if (ctx instanceof SP.BinderContext) {
+            return this.visitID(ctx)
+        } else if (ctx instanceof SP.ConstructorContext) {
+            const c = this.visitScid(ctx.c)
+            const ps = ctx.ps !== null ? this.visitArgPattern(ctx.ps) : null;
+            return {c: c, ps: ps}
+        }
     }
 
     visitLet(ctx) {
@@ -377,7 +389,7 @@ export default class EvalVisitor {
         if (!ctx) {return;}
         const syntaxTree = {}
         syntaxTree['program'] = this.visitSimpleExp(ctx)
-        // console.log(syntaxTree.program.rhs.rhs.targs)
+        console.log(syntaxTree.program.rhs.rhs.rhs.rhs.rhs.cs[0].p)
         return ctx instanceof SP.Simple_expContext
             ? console.log(
                 //this.visitSimpleExp(ctx, {}), 
