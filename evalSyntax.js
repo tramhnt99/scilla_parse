@@ -389,7 +389,7 @@ export default class EvalVisitor {
         if (!ctx) {return;}
         const syntaxTree = {}
         syntaxTree['program'] = this.visitSimpleExp(ctx)
-        console.log(syntaxTree.program.rhs.rhs.rhs.rhs.rhs.cs[0].p)
+        console.log(syntaxTree.program.rhs.rhs.rhs.constructor.name)
         return ctx instanceof SP.Simple_expContext
             ? console.log(
                 //this.visitSimpleExp(ctx, {}), 
