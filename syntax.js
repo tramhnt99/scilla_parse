@@ -1,13 +1,14 @@
 //Syntax of Scilla programs
 
+class ScillaProgram {}
 
 //Scilla expressions
-export default class ScillaExpr {}
-
+// export default class ScillaExpr {}
+class ScillaExpr extends ScillaProgram {}
 //@x: String
 //@f: ScillaExpr
 //@e: ScillaExpr
-class Let extends ScillaExpr {
+export class Let extends ScillaExpr {
     /**
      * 
      * @param {String} x
@@ -24,7 +25,7 @@ class Let extends ScillaExpr {
 }
 ScillaExpr.Let = Let;
 
-class Fun extends ScillaExpr {
+export class Fun extends ScillaExpr {
     /**
      * 
      * @param {String} id 
@@ -40,7 +41,7 @@ class Fun extends ScillaExpr {
 }
 ScillaExpr.Fun = Fun;
 
-class App extends ScillaExpr {
+export class App extends ScillaExpr {
     /**
      * 
      * @param {String} f_var 
@@ -54,7 +55,7 @@ class App extends ScillaExpr {
 }
 ScillaExpr.App = App;
 
-class Atomic extends ScillaExpr {
+export class Atomic extends ScillaExpr {
     /**
      * 
      * @param {AtomicExpr} a 
@@ -66,14 +67,14 @@ class Atomic extends ScillaExpr {
 }
 ScillaExpr.Atomic = Atomic;
 
-class Literal extends Atomic {
+export class Literal extends Atomic {
     constructor(a) {
         super(a);
     }
 }
 ScillaExpr.Literal = Literal;
 
-class Var extends Atomic {
+export class Var extends Atomic {
     constructor(a) {
         super(a);
     }
@@ -81,7 +82,7 @@ class Var extends Atomic {
 ScillaExpr.Var = Var;
 
 
-class Builtin extends ScillaExpr {
+export class Builtin extends ScillaExpr {
     /**
      * 
      * @param {String} b 
@@ -97,7 +98,7 @@ class Builtin extends ScillaExpr {
 }
 ScillaExpr.Builtin = Builtin;
 
-class Message extends ScillaExpr {
+export class Message extends ScillaExpr {
     constructor(es) {
         super();
         this.es = es;
@@ -105,7 +106,7 @@ class Message extends ScillaExpr {
 }
 ScillaExpr.Message = Message;
 
-class Match extends ScillaExpr {
+export class Match extends ScillaExpr {
     constructor(x_sid, cs) {
         super();
         this.x_sid = x_sid;
@@ -114,7 +115,7 @@ class Match extends ScillaExpr {
 }
 ScillaExpr.Match = Match;
 
-class DataConstructorApp extends ScillaExpr {
+export class DataConstructorApp extends ScillaExpr {
     constructor(c, ts, args) {
         super();
         this.c = c;
@@ -124,7 +125,7 @@ class DataConstructorApp extends ScillaExpr {
 }
 ScillaExpr.DataConstructorApp = DataConstructorApp;
 
-class TFun extends ScillaExpr {
+export class TFun extends ScillaExpr {
     /**
      * 
      * @param {String} i 
@@ -138,7 +139,7 @@ class TFun extends ScillaExpr {
 }
 ScillaExpr.TFun = TFun;
 
-class TApp extends ScillaExpr {
+export class TApp extends ScillaExpr {
     /**
      * 
      * @param {String} f 
@@ -151,3 +152,9 @@ class TApp extends ScillaExpr {
     }
 }
 ScillaExpr.TApp = TApp;
+
+export class Pattern extends ScillaProgram {
+    constructor(x, c, ps) {
+        super();
+    }
+}

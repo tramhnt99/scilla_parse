@@ -1,6 +1,6 @@
 //Types that exist in Scilla
 import SP from './scillaParser.js'; //short for ScillaParser
-import ScillaExpr from './syntax.js';
+// import ScillaExpr from './syntax.js';
 
 export default class ScillaType {
     parseStringToPrimType(str) {

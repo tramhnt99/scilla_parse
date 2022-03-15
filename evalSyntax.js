@@ -7,7 +7,9 @@ import SP from './scillaParser.js'; //short for ScillaParser
 import ScillaType from './types.js';
 import {parser} from './test.js';
 import { get } from 'http';
-import syntax from "./syntax.js";
+// import syntax from "./syntax.js";
+import { Let, Fun, App, Atomic, Literal, Var, Builtin, Message, Match,
+DataConstructorApp, TFun, TApp, Pattern } from './syntax.js';
 import exp from 'constants';
 import {inspect} from "util";
 
@@ -221,7 +223,7 @@ export default class EvalVisitor {
         const x = ctx.x.getText();
         const type = ctx.ty !== null ? ST.generateSType(ctx.ty) : null;
         const value = this.visitSimpleExp(ctx.f);
-        return new syntax.Let(x, type, value, this.visitExp(ctx.e));
+        return new Let(x, type, value, this.visitExp(ctx.e));
     }
 
     //Returns a closure
@@ -239,7 +241,7 @@ export default class EvalVisitor {
         //         return newVisitor.visitExp(ctx.e, env_);
         //     };
         // return this.wrap(clo, env);
-        return new syntax.Fun(param, type, expr);
+        return new Fun(param, type, expr);
     }
 
     //Note, this is written in a slightly convoluted way because the keyword
@@ -255,15 +257,15 @@ export default class EvalVisitor {
         //     }, func);
         // return fullyAppliedRes;
         const argsLit = ctx.args.map(arg => this.visitSid(arg))
-        return new syntax.App(func, argsLit);
+        return new App(func, argsLit);
     }
 
     visitAtomic(ctx) {
         // console.log("oh atomic exp!");
         return ctx.a instanceof SP.AtomicLitContext //Literal
-            ? new syntax.Literal(this.visitLiteral(ctx.a.l))
+            ? new Literal(this.visitLiteral(ctx.a.l))
             : ctx.a instanceof SP.AtomicSidContext //Indentifier TODO
-            ? new syntax.Var(this.visitSid(ctx.a.i))
+            ? new Var(this.visitSid(ctx.a.i))
             : this.printError("visitAtomic", "Couldn't match atomic expression.")
     }
 
@@ -275,7 +277,7 @@ export default class EvalVisitor {
             ? {i: this.visitSid(pair.i), v: this.visitSid(pair.v)}
             : this.printError("visitMessage", "Message not defined correctly.")
         })
-        return new syntax.Message(es);
+        return new Message(es);
     }
 
     visitBuiltin(ctx) {
@@ -283,7 +285,7 @@ export default class EvalVisitor {
         const typeArgs = ctx.targs.map(targ => targ.ts !== null ? ST.resolveTArg(targ) : targ.getText());
         const builtinArgs = this.visitBuiltinArgs(ctx.xs);
 
-        return new syntax.Builtin(id, typeArgs, builtinArgs);
+        return new Builtin(id, typeArgs, builtinArgs);
     }
 
     visitDataConstructorApp(ctx) {
@@ -291,7 +293,7 @@ export default class EvalVisitor {
         const targ =ctx.ts.getText();
         const args = ctx.args.map((arg) => this.visitSid(arg));
         
-        return new syntax.DataConstructorApp(c, targ, args);
+        return new DataConstructorApp(c, targ, args);
     }
 
     visitMatchExp(ctx) {
@@ -304,7 +306,7 @@ export default class EvalVisitor {
             }
             return pattern
         });
-        return new syntax.Match(x_sid,cs)
+        return new Match(x_sid,cs)
     }
 
     visitTFun(ctx) {
@@ -316,7 +318,7 @@ export default class EvalVisitor {
         //         return newVisitor.visitSimpleExp(exp, env);
         //     }
         //return this.wrap(clo, env);
-        return new syntax.TFun(tvar, this.visitSimpleExp(ctx.e.f));
+        return new TFun(tvar, this.visitSimpleExp(ctx.e.f));
     }
 
     visitTApp(ctx) {
@@ -331,7 +333,7 @@ export default class EvalVisitor {
         // }, tfunc);
 
         // return fullyAppliedTRes;
-        return new syntax.TApp(tfunc, argsLit);
+        return new TApp(tfunc, argsLit);
     }
 
     visitLiteral(ctx) {
