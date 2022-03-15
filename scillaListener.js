@@ -779,12 +779,21 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#component.
-	enterComponent(ctx) {
+	// Enter a parse tree produced by scillaParser#TransitionComp.
+	enterTransitionComp(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#component.
-	exitComponent(ctx) {
+	// Exit a parse tree produced by scillaParser#TransitionComp.
+	exitTransitionComp(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ProcedureComp.
+	enterProcedureComp(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ProcedureComp.
+	exitProcedureComp(ctx) {
 	}
 
 
@@ -869,12 +878,30 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#libentry.
-	enterLibentry(ctx) {
+	// Enter a parse tree produced by scillaParser#LibVar.
+	enterLibVar(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#libentry.
-	exitLibentry(ctx) {
+	// Exit a parse tree produced by scillaParser#LibVar.
+	exitLibVar(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LibTypEmpt.
+	enterLibTypEmpt(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LibTypEmpt.
+	exitLibTypEmpt(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LibTyp.
+	enterLibTyp(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LibTyp.
+	exitLibTyp(ctx) {
 	}
 
 
@@ -896,12 +923,21 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#importname.
-	enterImportname(ctx) {
+	// Enter a parse tree produced by scillaParser#NoShadowELib.
+	enterNoShadowELib(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#importname.
-	exitImportname(ctx) {
+	// Exit a parse tree produced by scillaParser#NoShadowELib.
+	exitNoShadowELib(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ShadowELib.
+	enterShadowELib(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ShadowELib.
+	exitShadowELib(ctx) {
 	}
 
 

@@ -997,7 +997,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.d = this.scid();
 	            this.state = 189;
 	            this._errHandler.sync(this);
-	            var _alt = this._interp.adaptivePredict(this._input,8,this._ctx)
+	            let _alt = this._interp.adaptivePredict(this._input,8,this._ctx)
 	            while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	                if(_alt===1) {
 	                    this.state = 186;
@@ -1077,7 +1077,7 @@ export default class scillaParser extends antlr4.Parser {
 	        this._ctx.stop = this._input.LT(-1);
 	        this.state = 214;
 	        this._errHandler.sync(this);
-	        var _alt = this._interp.adaptivePredict(this._input,10,this._ctx)
+	        let _alt = this._interp.adaptivePredict(this._input,10,this._ctx)
 	        while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	            if(_alt===1) {
 	                if(this._parseListeners!==null) {
@@ -1301,7 +1301,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.f_var = this.sid();
 	            this.state = 259; 
 	            this._errHandler.sync(this);
-	            var _alt = 1;
+	            let _alt = 1;
 	            do {
 	            	switch (_alt) {
 	            	case 1:
@@ -1411,7 +1411,7 @@ export default class scillaParser extends antlr4.Parser {
 
 	            this.state = 303;
 	            this._errHandler.sync(this);
-	            var _alt = this._interp.adaptivePredict(this._input,18,this._ctx)
+	            let _alt = this._interp.adaptivePredict(this._input,18,this._ctx)
 	            while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	                if(_alt===1) {
 	                    this.state = 300;
@@ -1447,7 +1447,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.f = this.sid();
 	            this.state = 313; 
 	            this._errHandler.sync(this);
-	            var _alt = 1;
+	            let _alt = 1;
 	            do {
 	            	switch (_alt) {
 	            	case 1:
@@ -1875,7 +1875,7 @@ export default class scillaParser extends antlr4.Parser {
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 387; 
 	            this._errHandler.sync(this);
-	            var _alt = 1;
+	            let _alt = 1;
 	            do {
 	            	switch (_alt) {
 	            	case 1:
@@ -2416,7 +2416,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.p = this.component_id();
 	            this.state = 508;
 	            this._errHandler.sync(this);
-	            var _alt = this._interp.adaptivePredict(this._input,39,this._ctx)
+	            let _alt = this._interp.adaptivePredict(this._input,39,this._ctx)
 	            while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	                if(_alt===1) {
 	                    this.state = 505;
@@ -2754,11 +2754,13 @@ export default class scillaParser extends antlr4.Parser {
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
 	        case scillaParser.TRANSITION:
+	            localctx = new TransitionCompContext(this, localctx);
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 601;
 	            localctx.t = this.transition();
 	            break;
 	        case scillaParser.PROCEDURE:
+	            localctx = new ProcedureCompContext(this, localctx);
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 602;
 	            localctx.p = this.procedure();
@@ -3164,6 +3166,7 @@ export default class scillaParser extends antlr4.Parser {
 	        var la_ = this._interp.adaptivePredict(this._input,61,this._ctx);
 	        switch(la_) {
 	        case 1:
+	            localctx = new LibVarContext(this, localctx);
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 693;
 	            this.match(scillaParser.LET);
@@ -3184,6 +3187,7 @@ export default class scillaParser extends antlr4.Parser {
 	            break;
 
 	        case 2:
+	            localctx = new LibTypEmptContext(this, localctx);
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 701;
 	            this.match(scillaParser.TYPE);
@@ -3192,6 +3196,7 @@ export default class scillaParser extends antlr4.Parser {
 	            break;
 
 	        case 3:
+	            localctx = new LibTypContext(this, localctx);
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 703;
 	            this.match(scillaParser.TYPE);
@@ -3306,12 +3311,14 @@ export default class scillaParser extends antlr4.Parser {
 	        var la_ = this._interp.adaptivePredict(this._input,63,this._ctx);
 	        switch(la_) {
 	        case 1:
+	            localctx = new NoShadowELibContext(this, localctx);
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 727;
 	            localctx.c = this.cid();
 	            break;
 
 	        case 2:
+	            localctx = new ShadowELibContext(this, localctx);
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 728;
 	            localctx.c1 = this.cid();
@@ -7405,13 +7412,53 @@ class ComponentContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_component;
-        this.t = null; // TransitionContext
-        this.p = null; // ProcedureContext
+    }
+
+
+	 
+		copyFrom(ctx) {
+			super.copyFrom(ctx);
+		}
+
+}
+
+
+class TransitionCompContext extends ComponentContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.t = null; // TransitionContext;
+        super.copyFrom(ctx);
     }
 
 	transition() {
 	    return this.getTypedRuleContext(TransitionContext,0);
 	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterTransitionComp(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitTransitionComp(this);
+		}
+	}
+
+
+}
+
+scillaParser.TransitionCompContext = TransitionCompContext;
+
+class ProcedureCompContext extends ComponentContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.p = null; // ProcedureContext;
+        super.copyFrom(ctx);
+    }
 
 	procedure() {
 	    return this.getTypedRuleContext(ProcedureContext,0);
@@ -7419,20 +7466,20 @@ class ComponentContext extends antlr4.ParserRuleContext {
 
 	enterRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.enterComponent(this);
+	        listener.enterProcedureComp(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.exitComponent(this);
+	        listener.exitProcedureComp(this);
 		}
 	}
 
 
 }
 
-
+scillaParser.ProcedureCompContext = ProcedureCompContext;
 
 class ProcedureContext extends antlr4.ParserRuleContext {
 
@@ -7945,12 +7992,108 @@ class LibentryContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_libentry;
-        this.ns = null; // IdentifierContext
-        this.t = null; // Type_annotContext
-        this.e = null; // ExpContext
-        this.tname = null; // CidContext
-        this._tconstr = null; // TconstrContext
-        this.constrs = []; // of TconstrContexts
+    }
+
+
+	 
+		copyFrom(ctx) {
+			super.copyFrom(ctx);
+		}
+
+}
+
+
+class LibTypEmptContext extends LibentryContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.tname = null; // CidContext;
+        super.copyFrom(ctx);
+    }
+
+	TYPE() {
+	    return this.getToken(scillaParser.TYPE, 0);
+	};
+
+	cid() {
+	    return this.getTypedRuleContext(CidContext,0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterLibTypEmpt(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitLibTypEmpt(this);
+		}
+	}
+
+
+}
+
+scillaParser.LibTypEmptContext = LibTypEmptContext;
+
+class LibTypContext extends LibentryContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.tname = null; // CidContext;
+        this._tconstr = null; // TconstrContext;
+        this.constrs = []; // of TconstrContexts;
+        super.copyFrom(ctx);
+    }
+
+	TYPE() {
+	    return this.getToken(scillaParser.TYPE, 0);
+	};
+
+	EQ() {
+	    return this.getToken(scillaParser.EQ, 0);
+	};
+
+	cid() {
+	    return this.getTypedRuleContext(CidContext,0);
+	};
+
+	tconstr = function(i) {
+	    if(i===undefined) {
+	        i = null;
+	    }
+	    if(i===null) {
+	        return this.getTypedRuleContexts(TconstrContext);
+	    } else {
+	        return this.getTypedRuleContext(TconstrContext,i);
+	    }
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterLibTyp(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitLibTyp(this);
+		}
+	}
+
+
+}
+
+scillaParser.LibTypContext = LibTypContext;
+
+class LibVarContext extends LibentryContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.ns = null; // IdentifierContext;
+        this.t = null; // Type_annotContext;
+        this.e = null; // ExpContext;
+        super.copyFrom(ctx);
     }
 
 	LET() {
@@ -7973,41 +8116,22 @@ class LibentryContext extends antlr4.ParserRuleContext {
 	    return this.getTypedRuleContext(Type_annotContext,0);
 	};
 
-	TYPE() {
-	    return this.getToken(scillaParser.TYPE, 0);
-	};
-
-	cid() {
-	    return this.getTypedRuleContext(CidContext,0);
-	};
-
-	tconstr = function(i) {
-	    if(i===undefined) {
-	        i = null;
-	    }
-	    if(i===null) {
-	        return this.getTypedRuleContexts(TconstrContext);
-	    } else {
-	        return this.getTypedRuleContext(TconstrContext,i);
-	    }
-	};
-
 	enterRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.enterLibentry(this);
+	        listener.enterLibVar(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.exitLibentry(this);
+	        listener.exitLibVar(this);
 		}
 	}
 
 
 }
 
-
+scillaParser.LibVarContext = LibVarContext;
 
 class LibraryContext extends antlr4.ParserRuleContext {
 
@@ -8128,10 +8252,29 @@ class ImportnameContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_importname;
-        this.c = null; // CidContext
-        this.c1 = null; // CidContext
-        this.c2 = null; // CidContext
     }
+
+
+	 
+		copyFrom(ctx) {
+			super.copyFrom(ctx);
+		}
+
+}
+
+
+class ShadowELibContext extends ImportnameContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.c1 = null; // CidContext;
+        this.c2 = null; // CidContext;
+        super.copyFrom(ctx);
+    }
+
+	AS() {
+	    return this.getToken(scillaParser.AS, 0);
+	};
 
 	cid = function(i) {
 	    if(i===undefined) {
@@ -8144,26 +8287,51 @@ class ImportnameContext extends antlr4.ParserRuleContext {
 	    }
 	};
 
-	AS() {
-	    return this.getToken(scillaParser.AS, 0);
-	};
-
 	enterRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.enterImportname(this);
+	        listener.enterShadowELib(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.exitImportname(this);
+	        listener.exitShadowELib(this);
 		}
 	}
 
 
 }
 
+scillaParser.ShadowELibContext = ShadowELibContext;
 
+class NoShadowELibContext extends ImportnameContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.c = null; // CidContext;
+        super.copyFrom(ctx);
+    }
+
+	cid() {
+	    return this.getTypedRuleContext(CidContext,0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterNoShadowELib(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitNoShadowELib(this);
+		}
+	}
+
+
+}
+
+scillaParser.NoShadowELibContext = NoShadowELibContext;
 
 class ImportsContext extends antlr4.ParserRuleContext {
 

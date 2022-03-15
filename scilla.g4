@@ -249,7 +249,6 @@ cid
     | bystr=BYSTR #CidBystr
     ;
 
-// //TODO: See how to build types and ADTs
 type_annot
     : COLON t=typ
     ;
@@ -313,8 +312,8 @@ param_pair
     ;
 
 component
-    : t=transition
-    | p=procedure 
+    : t=transition #TransitionComp
+    | p=procedure  #ProcedureComp
     ;
 
 procedure 
@@ -356,9 +355,9 @@ tconstr
     ;
 
 libentry
-    : LET ns=identifier t=type_annot? EQ e=exp 
-    | TYPE tname=cid 
-    | TYPE tname=cid EQ (constrs+=tconstr)+
+    : LET ns=identifier t=type_annot? EQ e=exp #LibVar 
+    | TYPE tname=cid #LibTypEmpt
+    | TYPE tname=cid EQ (constrs+=tconstr)+ #LibTyp
     ; 
 
 library
@@ -370,8 +369,8 @@ lmodule
     ; //TODO: lookup EOF
 
 importname
-    : c=cid 
-    | c1=cid AS c2=cid 
+    : c=cid #NoShadowELib
+    | c1=cid AS c2=cid #ShadowELib
     ;
 
 imports

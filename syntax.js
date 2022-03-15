@@ -16,6 +16,12 @@ class Let extends ScillaExpr{
     }
 }
 
+/* ******************************************************
+ *
+ * Scilla Statements
+ *
+ ****************************************************** */
+
 export class ScillaStmt {}
 
 class Load extends ScillaStmt {
@@ -192,5 +198,157 @@ class Throw extends ScillaStmt {
      */
     constructor(eopt) {
         this.eopt = eopt;
+    }
+}
+
+/* ******************************************************
+ *
+ * Scilla Contracts
+ *
+ ****************************************************** */
+
+class Field {
+    /**
+     * @param {String} name;
+     * @param {SType} type;
+     * @param {ScillaExpr} e;
+     */
+    constructor(name, type, e) {
+        this.name = name;
+        this.type = type;
+        this.e = e;
+    }
+}
+
+class ComponentType {}
+
+//Transition component
+class CompTrans extends ComponentType {}
+
+//Procedure component 
+class CompProc extends ComponentType {}
+
+class Component {
+    /**
+     * @param {ComponentType} compType;
+     * @param {String} compName;
+     * @param {(String * SType)[]} compParams;
+     * @param {ScillaStmt[]} compBody;
+     */
+    constructor(compType, compName, compParams, compBody) {
+        this.compType = compType;
+        this.compName = compName;
+        this.compParams = compParams;
+        this.compBody = compBody;
+    }
+}
+
+class ContractDef {
+    /**
+     * @param {String} cname
+     * @param {SType[]} cArgTypes
+     */
+    constructor(cname, cArgTypes) {
+        this.cname = cname;
+        this.cArgTypes = cArgTypes;
+    }
+}
+
+class LibEntry {}
+
+class LibVar extends LibEntry {
+    /**
+     * @param {String} x
+     * @param {Option SType} tyopt
+     * @param {ScillaExpr} e
+     */
+    constructor(x, tyopt, e) {
+        this.x = x;
+        this.tyopt = tyopt;
+        this.e = e;
+    }
+}
+
+class LibType extends LibEntry {
+    /**
+     * @param {String} x
+     * @param {ContractDef[]} c
+     */
+    constructor(x, c) {
+        this.x = x;
+        this.c = c;
+    }
+}
+
+class Library {
+    /**
+     * @param {String} lname
+     * @param {LibEntry[]} lentries
+     */
+    constructor(lname, lentries) {
+        this.lname = lname;
+        this.lentries = lentries;
+    }
+}
+
+class Contract {
+    /**
+     * @param {String} cname
+     * @param {(Strign * SType)[]} cparams
+     * @param {ScillaExpr} cconstraint
+     * @param {Fields[]} cfields
+     * @param {Component[]} ccomps
+     */
+    constructor(cname, cparams, cconstraint, cfields, ccomps) {
+        this.cname = cname;
+        this.cparams = cparams;
+        this.cconstraint = cconstraint;
+        this.cfields = cfields;
+        this.ccomps = ccomps;
+    }
+}
+
+//Contract module: library + contract definition
+class Cmodule {
+    /**
+     * @param {Int} smver
+     * @param {Option Library} libs 
+     * @param {(String * Option String)[]} elibs;
+     * @param {Contract} contr
+     */
+    constructor(smver, libs, elibs, contr) {
+        this.smver = smver;
+        //Scilla major version of the contract.
+        this.libs = libs;
+        //lib functions defined in the module
+        this.elibs = elibs;
+        //List of imports / external libs with an optional namespace.
+        this.contr = contr;
+    }
+}
+
+//Library module: 
+class Lmodule {
+    /**
+     * @param {Int} smver
+     * @param {Option Library} libs 
+     * @param {(String * Option String)[]} elibs;
+     * @param {Contract} contr
+     */
+    constructor(smver, libs, elibs, contr) {
+        this.smver = smver;
+        this.libs = libs;
+        this.elibs = elibs;
+    }
+}
+
+class LibTree {
+    /**
+     * @param {Library} libn
+     * @param {LibTree[]} deps
+     */
+    constructor(libn, deps) {
+        this.libn = libn;
+        this.deps = deps;
     }
 }

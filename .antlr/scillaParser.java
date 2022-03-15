@@ -3622,18 +3622,29 @@ public class scillaParser extends Parser {
 	}
 
 	public static class ComponentContext extends ParserRuleContext {
-		public TransitionContext t;
-		public ProcedureContext p;
-		public TransitionContext transition() {
-			return getRuleContext(TransitionContext.class,0);
-		}
-		public ProcedureContext procedure() {
-			return getRuleContext(ProcedureContext.class,0);
-		}
 		public ComponentContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_component; }
+	 
+		public ComponentContext() { }
+		public void copyFrom(ComponentContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class TransitionCompContext extends ComponentContext {
+		public TransitionContext t;
+		public TransitionContext transition() {
+			return getRuleContext(TransitionContext.class,0);
+		}
+		public TransitionCompContext(ComponentContext ctx) { copyFrom(ctx); }
+	}
+	public static class ProcedureCompContext extends ComponentContext {
+		public ProcedureContext p;
+		public ProcedureContext procedure() {
+			return getRuleContext(ProcedureContext.class,0);
+		}
+		public ProcedureCompContext(ComponentContext ctx) { copyFrom(ctx); }
 	}
 
 	public final ComponentContext component() throws RecognitionException {
@@ -3644,17 +3655,19 @@ public class scillaParser extends Parser {
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case TRANSITION:
+				_localctx = new TransitionCompContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(601);
-				((ComponentContext)_localctx).t = transition();
+				((TransitionCompContext)_localctx).t = transition();
 				}
 				break;
 			case PROCEDURE:
+				_localctx = new ProcedureCompContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(602);
-				((ComponentContext)_localctx).p = procedure();
+				((ProcedureCompContext)_localctx).p = procedure();
 				}
 				break;
 			default:
@@ -4245,12 +4258,45 @@ public class scillaParser extends Parser {
 	}
 
 	public static class LibentryContext extends ParserRuleContext {
-		public IdentifierContext ns;
-		public Type_annotContext t;
-		public ExpContext e;
+		public LibentryContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_libentry; }
+	 
+		public LibentryContext() { }
+		public void copyFrom(LibentryContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class LibTypEmptContext extends LibentryContext {
+		public CidContext tname;
+		public TerminalNode TYPE() { return getToken(scillaParser.TYPE, 0); }
+		public CidContext cid() {
+			return getRuleContext(CidContext.class,0);
+		}
+		public LibTypEmptContext(LibentryContext ctx) { copyFrom(ctx); }
+	}
+	public static class LibTypContext extends LibentryContext {
 		public CidContext tname;
 		public TconstrContext tconstr;
 		public List<TconstrContext> constrs = new ArrayList<TconstrContext>();
+		public TerminalNode TYPE() { return getToken(scillaParser.TYPE, 0); }
+		public TerminalNode EQ() { return getToken(scillaParser.EQ, 0); }
+		public CidContext cid() {
+			return getRuleContext(CidContext.class,0);
+		}
+		public List<TconstrContext> tconstr() {
+			return getRuleContexts(TconstrContext.class);
+		}
+		public TconstrContext tconstr(int i) {
+			return getRuleContext(TconstrContext.class,i);
+		}
+		public LibTypContext(LibentryContext ctx) { copyFrom(ctx); }
+	}
+	public static class LibVarContext extends LibentryContext {
+		public IdentifierContext ns;
+		public Type_annotContext t;
+		public ExpContext e;
 		public TerminalNode LET() { return getToken(scillaParser.LET, 0); }
 		public TerminalNode EQ() { return getToken(scillaParser.EQ, 0); }
 		public IdentifierContext identifier() {
@@ -4262,20 +4308,7 @@ public class scillaParser extends Parser {
 		public Type_annotContext type_annot() {
 			return getRuleContext(Type_annotContext.class,0);
 		}
-		public TerminalNode TYPE() { return getToken(scillaParser.TYPE, 0); }
-		public CidContext cid() {
-			return getRuleContext(CidContext.class,0);
-		}
-		public List<TconstrContext> tconstr() {
-			return getRuleContexts(TconstrContext.class);
-		}
-		public TconstrContext tconstr(int i) {
-			return getRuleContext(TconstrContext.class,i);
-		}
-		public LibentryContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_libentry; }
+		public LibVarContext(LibentryContext ctx) { copyFrom(ctx); }
 	}
 
 	public final LibentryContext libentry() throws RecognitionException {
@@ -4287,44 +4320,47 @@ public class scillaParser extends Parser {
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,61,_ctx) ) {
 			case 1:
+				_localctx = new LibVarContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(693);
 				match(LET);
 				setState(694);
-				((LibentryContext)_localctx).ns = identifier();
+				((LibVarContext)_localctx).ns = identifier();
 				setState(696);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==COLON) {
 					{
 					setState(695);
-					((LibentryContext)_localctx).t = type_annot();
+					((LibVarContext)_localctx).t = type_annot();
 					}
 				}
 
 				setState(698);
 				match(EQ);
 				setState(699);
-				((LibentryContext)_localctx).e = exp();
+				((LibVarContext)_localctx).e = exp();
 				}
 				break;
 			case 2:
+				_localctx = new LibTypEmptContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(701);
 				match(TYPE);
 				setState(702);
-				((LibentryContext)_localctx).tname = cid();
+				((LibTypEmptContext)_localctx).tname = cid();
 				}
 				break;
 			case 3:
+				_localctx = new LibTypContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(703);
 				match(TYPE);
 				setState(704);
-				((LibentryContext)_localctx).tname = cid();
+				((LibTypContext)_localctx).tname = cid();
 				setState(705);
 				match(EQ);
 				setState(707); 
@@ -4334,8 +4370,8 @@ public class scillaParser extends Parser {
 					{
 					{
 					setState(706);
-					((LibentryContext)_localctx).tconstr = tconstr();
-					((LibentryContext)_localctx).constrs.add(((LibentryContext)_localctx).tconstr);
+					((LibTypContext)_localctx).tconstr = tconstr();
+					((LibTypContext)_localctx).constrs.add(((LibTypContext)_localctx).tconstr);
 					}
 					}
 					setState(709); 
@@ -4465,20 +4501,34 @@ public class scillaParser extends Parser {
 	}
 
 	public static class ImportnameContext extends ParserRuleContext {
-		public CidContext c;
+		public ImportnameContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_importname; }
+	 
+		public ImportnameContext() { }
+		public void copyFrom(ImportnameContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class ShadowELibContext extends ImportnameContext {
 		public CidContext c1;
 		public CidContext c2;
+		public TerminalNode AS() { return getToken(scillaParser.AS, 0); }
 		public List<CidContext> cid() {
 			return getRuleContexts(CidContext.class);
 		}
 		public CidContext cid(int i) {
 			return getRuleContext(CidContext.class,i);
 		}
-		public TerminalNode AS() { return getToken(scillaParser.AS, 0); }
-		public ImportnameContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
+		public ShadowELibContext(ImportnameContext ctx) { copyFrom(ctx); }
+	}
+	public static class NoShadowELibContext extends ImportnameContext {
+		public CidContext c;
+		public CidContext cid() {
+			return getRuleContext(CidContext.class,0);
 		}
-		@Override public int getRuleIndex() { return RULE_importname; }
+		public NoShadowELibContext(ImportnameContext ctx) { copyFrom(ctx); }
 	}
 
 	public final ImportnameContext importname() throws RecognitionException {
@@ -4489,21 +4539,23 @@ public class scillaParser extends Parser {
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,63,_ctx) ) {
 			case 1:
+				_localctx = new NoShadowELibContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(727);
-				((ImportnameContext)_localctx).c = cid();
+				((NoShadowELibContext)_localctx).c = cid();
 				}
 				break;
 			case 2:
+				_localctx = new ShadowELibContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(728);
-				((ImportnameContext)_localctx).c1 = cid();
+				((ShadowELibContext)_localctx).c1 = cid();
 				setState(729);
 				match(AS);
 				setState(730);
-				((ImportnameContext)_localctx).c2 = cid();
+				((ShadowELibContext)_localctx).c2 = cid();
 				}
 				break;
 			}
