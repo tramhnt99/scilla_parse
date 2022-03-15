@@ -23,7 +23,33 @@ export default class Translatetranslateor{
             return new Load(x ,r);
         }
         if (ctx instanceof SP.RemoteFetchContext){
-            //TODO
+            if (ctx.r instanceof SP.RemoteLoadSidContext ||
+                ctx.r instanceof SP.RemoteLoadSidContext) {
+                const x = ctx.r.l.getText();
+                const adr = ctx.r.adr_id.getText();
+                const r = ctx.r.r.getText();
+                return new RemoteLoad(x, adr, r);
+            }
+            if (ctx.r instanceof SP.RemoteMapGetTrueContext) {
+                const x = ctx.r.l.getText();
+                const adr = ctx.r.adr_id.getText();
+                const m = ctx.r.r_id.getText();
+                const klist = ctx.r.keys.map(key => key.getText());
+                return new RemoteMapGet(x, adr, m, klist, true);
+            }
+            if (ctx.r instanceof SP.RemoteMapGetFalseContext) {
+                const x = ctx.r.l.getText();
+                const adr = ctx.r.adr_id.getText();
+                const m = ctx.r.r_id.getText();
+                const klist = ctx.r.keys.map(key => key.getText());
+                return new RemoteMapGet(x, adr, m, klist, false);
+            }
+            if (ctx.r instanceof SP.TypeCastContext) {
+                const x = ctx.r.l.getText();
+                const r = ctx.r.adr.getText();
+                const t = ctx.r.t.getText();
+                return new TypeCast(x, r, t);
+            }
         }
 
         if (ctx instanceof SP.StoreContext) {
@@ -101,8 +127,7 @@ export default class Translatetranslateor{
             const eopt = ctx.mopt === null ? undefined : ctx.mopt.getText();
             return new Throw(eopt);
         }
-        //TODO: RemoteMapGet, TypeCast, MatchStmt, 
-
+        //TODO: MatchStmt
     }
 
     translateStmts(ctx) {

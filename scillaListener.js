@@ -734,12 +734,48 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#remote_fetch_stmt.
-	enterRemote_fetch_stmt(ctx) {
+	// Enter a parse tree produced by scillaParser#RemoteLoadSid.
+	enterRemoteLoadSid(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#remote_fetch_stmt.
-	exitRemote_fetch_stmt(ctx) {
+	// Exit a parse tree produced by scillaParser#RemoteLoadSid.
+	exitRemoteLoadSid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#RemoteLoadSpid.
+	enterRemoteLoadSpid(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#RemoteLoadSpid.
+	exitRemoteLoadSpid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#RemoteMapGetTrue.
+	enterRemoteMapGetTrue(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#RemoteMapGetTrue.
+	exitRemoteMapGetTrue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#RemoteMapGetFalse.
+	enterRemoteMapGetFalse(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#RemoteMapGetFalse.
+	exitRemoteMapGetFalse(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#TypeCast.
+	enterTypeCast(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#TypeCast.
+	exitTypeCast(ctx) {
 	}
 
 

@@ -281,12 +281,11 @@ stmt
     ;
 
 remote_fetch_stmt 
-    : l=identifier FETCH AND adr_id=identifier PERIOD r=sid
-    | l=identifier FETCH AND adr_spid=SPID PERIOD SPID 
-    | l=identifier FETCH AND adr_id=identifier PERIOD LPAREN r=sid RPAREN
-    | l=identifier FETCH AND adr_id=identifier PERIOD r_id=identifier (keys+=map_access)+
-    | l=identifier FETCH AND EXISTS adr_id=identifier PERIOD r_id=identifier (keys+=map_access)+
-    | l=identifier FETCH AND adr=sid AS t=address_typ
+    : l=identifier FETCH AND adr_id=identifier PERIOD r=sid #RemoteLoadSid
+    | l=identifier FETCH AND adr_id=SPID PERIOD r=SPID #RemoteLoadSpid
+    | l=identifier FETCH AND adr_id=identifier PERIOD r_id=identifier (keys+=map_access)+ #RemoteMapGetTrue
+    | l=identifier FETCH AND EXISTS adr_id=identifier PERIOD r_id=identifier (keys+=map_access)+ #RemoteMapGetFalse
+    | l=identifier FETCH AND adr=sid AS t=address_typ #TypeCast
     ;
 
 stmt_pm_clause
