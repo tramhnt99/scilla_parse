@@ -177,7 +177,7 @@ lit
     ;
 
 ctargs
-    : LBRACE ts=targ* RBRACE
+    : LBRACE (ts+=targ)* RBRACE
     ;
 
 

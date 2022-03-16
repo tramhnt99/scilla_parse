@@ -1611,7 +1611,8 @@ export default class scillaParser extends antlr4.Parser {
 	        _la = this._input.LA(1);
 	        while(_la===scillaParser.MAP || ((((_la - 37)) & ~0x1f) == 0 && ((1 << (_la - 37)) & ((1 << (scillaParser.LPAREN - 37)) | (1 << (scillaParser.BOOLEAN - 37)) | (1 << (scillaParser.OPTION - 37)) | (1 << (scillaParser.HEX - 37)) | (1 << (scillaParser.INTTY - 37)) | (1 << (scillaParser.BYSTR - 37)) | (1 << (scillaParser.BNUM - 37)) | (1 << (scillaParser.MESSAGE - 37)) | (1 << (scillaParser.EVENT_TY - 37)) | (1 << (scillaParser.CID - 37)) | (1 << (scillaParser.TID - 37)))) !== 0)) {
 	            this.state = 339;
-	            localctx.ts = this.targ();
+	            localctx._targ = this.targ();
+	            localctx.ts.push(localctx._targ);
 	            this.state = 344;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
@@ -5525,7 +5526,8 @@ class CtargsContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_ctargs;
-        this.ts = null; // TargContext
+        this._targ = null; // TargContext
+        this.ts = []; // of TargContexts
     }
 
 	LBRACE() {

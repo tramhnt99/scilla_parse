@@ -1812,7 +1812,8 @@ public class scillaParser extends Parser {
 	}
 
 	public static class CtargsContext extends ParserRuleContext {
-		public TargContext ts;
+		public TargContext targ;
+		public List<TargContext> ts = new ArrayList<TargContext>();
 		public TerminalNode LBRACE() { return getToken(scillaParser.LBRACE, 0); }
 		public TerminalNode RBRACE() { return getToken(scillaParser.RBRACE, 0); }
 		public List<TargContext> targ() {
@@ -1843,7 +1844,8 @@ public class scillaParser extends Parser {
 				{
 				{
 				setState(339);
-				((CtargsContext)_localctx).ts = targ();
+				((CtargsContext)_localctx).targ = targ();
+				((CtargsContext)_localctx).ts.add(((CtargsContext)_localctx).targ);
 				}
 				}
 				setState(344);
