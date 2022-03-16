@@ -224,18 +224,18 @@ const contracts = [
 //     console.log(expressions[i]);
 //     console.log(tree.toString(parser.ruleNames));
 // }
-import TranslateVisitor from './translate.js';
-for (let i = 0; i < contracts.length; i++) {
-    const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
-    const chars = new antlr4.InputStream(input);
-    const lexer = new ScillaLexer(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    const parser = new ScillaParser(tokens);
-    const tree = parser.cmodule();
-    tree.accept(new TranslateVisitor({}));
-    // console.log(contracts[i]);
-    // console.log(tree.toString(parser.ruleNames));
-}
+// import TranslateVisitor from './translate.js';
+// for (let i = 0; i < contracts.length; i++) {
+//     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
+//     const chars = new antlr4.InputStream(input);
+//     const lexer = new ScillaLexer(chars);
+//     const tokens = new antlr4.CommonTokenStream(lexer);
+//     const parser = new ScillaParser(tokens);
+//     const tree = parser.cmodule();
+//     tree.accept(new TranslateVisitor({}));
+//     // console.log(contracts[i]);
+//     // console.log(tree.toString(parser.ruleNames));
+// }
 
 
 // Single test debugging
@@ -251,8 +251,8 @@ for (let i = 0; i < contracts.length; i++) {
 // tree.accept(new EvalVisitor({}));
 // console.log(tree.accept(new EvalVisitor()));
 // console.log(new Visitor());
-
-const input = fs.readFileSync('contracts/addfunds.scilla').toString();
+import TranslateVisitor from './translate.js';
+const input = fs.readFileSync('contracts/type_casts.scilla').toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);

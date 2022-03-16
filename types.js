@@ -36,7 +36,7 @@ export default class ScillaType {
             ? new Exception
             : str.indexOf("ByStr") !== -1 && str.length > 5
             ? new ByStrX(parseInt(str.substr(5, str.length - 1)))
-            : console.log("parseStringToPrimType: Couldn't match Prim Type: " + str);
+            : console.log("[ERROR]parseStringToPrimType: Couldn't match Prim Type: " + str);
     }
 
     //@n: string
