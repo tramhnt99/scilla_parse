@@ -1,4 +1,4 @@
-// Generated from scilla.g4 by ANTLR 4.9.3
+// Generated from scilla.g4 by ANTLR 4.9
 // jshint ignore: start
 import antlr4 from 'antlr4';
 
@@ -455,39 +455,39 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#ArgPatternWildcard.
-	enterArgPatternWildcard(ctx) {
+	// Enter a parse tree produced by scillaParser#WildcardArg.
+	enterWildcardArg(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#ArgPatternWildcard.
-	exitArgPatternWildcard(ctx) {
-	}
-
-
-	// Enter a parse tree produced by scillaParser#ArgPatternBinder.
-	enterArgPatternBinder(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#ArgPatternBinder.
-	exitArgPatternBinder(ctx) {
+	// Exit a parse tree produced by scillaParser#WildcardArg.
+	exitWildcardArg(ctx) {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#ArgPatternConstructor.
-	enterArgPatternConstructor(ctx) {
+	// Enter a parse tree produced by scillaParser#BinderArg.
+	enterBinderArg(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#ArgPatternConstructor.
-	exitArgPatternConstructor(ctx) {
+	// Exit a parse tree produced by scillaParser#BinderArg.
+	exitBinderArg(ctx) {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#ArgPatternPattern.
-	enterArgPatternPattern(ctx) {
+	// Enter a parse tree produced by scillaParser#ConstructorArg.
+	enterConstructorArg(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#ArgPatternPattern.
-	exitArgPatternPattern(ctx) {
+	// Exit a parse tree produced by scillaParser#ConstructorArg.
+	exitConstructorArg(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#PatternArg.
+	enterPatternArg(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#PatternArg.
+	exitPatternArg(ctx) {
 	}
 
 
@@ -815,12 +815,48 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#remote_fetch_stmt.
-	enterRemote_fetch_stmt(ctx) {
+	// Enter a parse tree produced by scillaParser#RemoteLoadSid.
+	enterRemoteLoadSid(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#remote_fetch_stmt.
-	exitRemote_fetch_stmt(ctx) {
+	// Exit a parse tree produced by scillaParser#RemoteLoadSid.
+	exitRemoteLoadSid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#RemoteLoadSpid.
+	enterRemoteLoadSpid(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#RemoteLoadSpid.
+	exitRemoteLoadSpid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#RemoteMapGetTrue.
+	enterRemoteMapGetTrue(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#RemoteMapGetTrue.
+	exitRemoteMapGetTrue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#RemoteMapGetFalse.
+	enterRemoteMapGetFalse(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#RemoteMapGetFalse.
+	exitRemoteMapGetFalse(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#TypeCast.
+	enterTypeCast(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#TypeCast.
+	exitTypeCast(ctx) {
 	}
 
 
@@ -860,12 +896,21 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#component.
-	enterComponent(ctx) {
+	// Enter a parse tree produced by scillaParser#TransitionComp.
+	enterTransitionComp(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#component.
-	exitComponent(ctx) {
+	// Exit a parse tree produced by scillaParser#TransitionComp.
+	exitTransitionComp(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ProcedureComp.
+	enterProcedureComp(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ProcedureComp.
+	exitProcedureComp(ctx) {
 	}
 
 
@@ -950,12 +995,30 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#libentry.
-	enterLibentry(ctx) {
+	// Enter a parse tree produced by scillaParser#LibVar.
+	enterLibVar(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#libentry.
-	exitLibentry(ctx) {
+	// Exit a parse tree produced by scillaParser#LibVar.
+	exitLibVar(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LibTypEmpt.
+	enterLibTypEmpt(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LibTypEmpt.
+	exitLibTypEmpt(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#LibTyp.
+	enterLibTyp(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#LibTyp.
+	exitLibTyp(ctx) {
 	}
 
 
@@ -977,12 +1040,21 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#importname.
-	enterImportname(ctx) {
+	// Enter a parse tree produced by scillaParser#NoShadowELib.
+	enterNoShadowELib(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#importname.
-	exitImportname(ctx) {
+	// Exit a parse tree produced by scillaParser#NoShadowELib.
+	exitNoShadowELib(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ShadowELib.
+	enterShadowELib(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ShadowELib.
+	exitShadowELib(ctx) {
 	}
 
 

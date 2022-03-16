@@ -188,14 +188,14 @@ map_access
 pattern
     : UNDERSCORE #Wildcard
     | x=identifier #Binder
-    | c=scid ps=arg_pattern* #Constructor
+    | c=scid (ps+=arg_pattern)* #Constructor
     ;
 
 arg_pattern
-    : UNDERSCORE #ArgPatternWildcard
-    | x=identifier #ArgPatternBinder
-    | c=scid #ArgPatternConstructor
-    | LPAREN p=pattern RPAREN #ArgPatternPattern
+    : UNDERSCORE #WildcardArg
+    | x=identifier #BinderArg
+    | c=scid #ConstructorArg
+    | LPAREN p=pattern RPAREN #PatternArg
     ;
 
 exp_pm_clause
@@ -249,7 +249,6 @@ cid
     | bystr=BYSTR #CidBystr
     ;
 
-// //TODO: See how to build types and ADTs
 type_annot
     : COLON t=typ
     ;
@@ -282,12 +281,11 @@ stmt
     ;
 
 remote_fetch_stmt 
-    : l=identifier FETCH AND adr_id=identifier PERIOD r=sid
-    | l=identifier FETCH AND adr_spid=SPID PERIOD SPID 
-    | l=identifier FETCH AND adr_id=identifier PERIOD LPAREN r=sid RPAREN
-    | l=identifier FETCH AND adr_id=identifier PERIOD r_id=identifier (keys+=map_access)+
-    | l=identifier FETCH AND EXISTS adr_id=identifier PERIOD r_id=identifier (keys+=map_access)+
-    | l=identifier FETCH AND adr=sid AS t=address_typ
+    : l=identifier FETCH AND adr_id=identifier PERIOD r=sid #RemoteLoadSid
+    | l=identifier FETCH AND adr_id=SPID PERIOD r=SPID #RemoteLoadSpid
+    | l=identifier FETCH AND adr_id=identifier PERIOD r_id=identifier (keys+=map_access)+ #RemoteMapGetTrue
+    | l=identifier FETCH AND EXISTS adr_id=identifier PERIOD r_id=identifier (keys+=map_access)+ #RemoteMapGetFalse
+    | l=identifier FETCH AND adr=sid AS t=address_typ #TypeCast
     ;
 
 stmt_pm_clause
@@ -313,8 +311,8 @@ param_pair
     ;
 
 component
-    : t=transition
-    | p=procedure 
+    : t=transition #TransitionComp
+    | p=procedure  #ProcedureComp
     ;
 
 procedure 
@@ -356,9 +354,9 @@ tconstr
     ;
 
 libentry
-    : LET ns=identifier t=type_annot? EQ e=exp 
-    | TYPE tname=cid 
-    | TYPE tname=cid EQ (constrs+=tconstr)+
+    : LET ns=identifier t=type_annot? EQ e=exp #LibVar 
+    | TYPE tname=cid #LibTypEmpt
+    | TYPE tname=cid EQ (constrs+=tconstr)+ #LibTyp
     ; 
 
 library
@@ -370,8 +368,8 @@ lmodule
     ; //TODO: lookup EOF
 
 importname
-    : c=cid 
-    | c1=cid AS c2=cid 
+    : c=cid #NoShadowELib
+    | c1=cid AS c2=cid #ShadowELib
     ;
 
 imports
