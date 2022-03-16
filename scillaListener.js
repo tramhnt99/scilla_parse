@@ -1,4 +1,4 @@
-// Generated from scilla.g4 by ANTLR 4.9
+// Generated from scilla.g4 by ANTLR 4.9.3
 // jshint ignore: start
 import antlr4 from 'antlr4';
 
@@ -455,12 +455,39 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#arg_pattern.
-	enterArg_pattern(ctx) {
+	// Enter a parse tree produced by scillaParser#ArgPatternWildcard.
+	enterArgPatternWildcard(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#arg_pattern.
-	exitArg_pattern(ctx) {
+	// Exit a parse tree produced by scillaParser#ArgPatternWildcard.
+	exitArgPatternWildcard(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ArgPatternBinder.
+	enterArgPatternBinder(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ArgPatternBinder.
+	exitArgPatternBinder(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ArgPatternConstructor.
+	enterArgPatternConstructor(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ArgPatternConstructor.
+	exitArgPatternConstructor(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ArgPatternPattern.
+	enterArgPatternPattern(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ArgPatternPattern.
+	exitArgPatternPattern(ctx) {
 	}
 
 

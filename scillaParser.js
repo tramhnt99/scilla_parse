@@ -1,4 +1,4 @@
-// Generated from scilla.g4 by ANTLR 4.9
+// Generated from scilla.g4 by ANTLR 4.9.3
 // jshint ignore: start
 import antlr4 from 'antlr4';
 import scillaListener from './scillaListener.js';
@@ -1737,11 +1737,13 @@ export default class scillaParser extends antlr4.Parser {
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
 	        case scillaParser.UNDERSCORE:
+	            localctx = new ArgPatternWildcardContext(this, localctx);
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 362;
 	            this.match(scillaParser.UNDERSCORE);
 	            break;
 	        case scillaParser.ID:
+	            localctx = new ArgPatternBinderContext(this, localctx);
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 363;
 	            localctx.x = this.identifier();
@@ -1755,11 +1757,13 @@ export default class scillaParser extends antlr4.Parser {
 	        case scillaParser.MESSAGE:
 	        case scillaParser.EVENT_TY:
 	        case scillaParser.CID:
+	            localctx = new ArgPatternConstructorContext(this, localctx);
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 364;
 	            localctx.c = this.scid();
 	            break;
 	        case scillaParser.LPAREN:
+	            localctx = new ArgPatternPatternContext(this, localctx);
 	            this.enterOuterAlt(localctx, 4);
 	            this.state = 365;
 	            this.match(scillaParser.LPAREN);
@@ -5741,22 +5745,110 @@ class Arg_patternContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_arg_pattern;
-        this.x = null; // IdentifierContext
-        this.c = null; // ScidContext
-        this.p = null; // PatternContext
+    }
+
+
+	 
+		copyFrom(ctx) {
+			super.copyFrom(ctx);
+		}
+
+}
+
+
+class ArgPatternBinderContext extends Arg_patternContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.x = null; // IdentifierContext;
+        super.copyFrom(ctx);
+    }
+
+	identifier() {
+	    return this.getTypedRuleContext(IdentifierContext,0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterArgPatternBinder(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitArgPatternBinder(this);
+		}
+	}
+
+
+}
+
+scillaParser.ArgPatternBinderContext = ArgPatternBinderContext;
+
+class ArgPatternConstructorContext extends Arg_patternContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.c = null; // ScidContext;
+        super.copyFrom(ctx);
+    }
+
+	scid() {
+	    return this.getTypedRuleContext(ScidContext,0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterArgPatternConstructor(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitArgPatternConstructor(this);
+		}
+	}
+
+
+}
+
+scillaParser.ArgPatternConstructorContext = ArgPatternConstructorContext;
+
+class ArgPatternWildcardContext extends Arg_patternContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        super.copyFrom(ctx);
     }
 
 	UNDERSCORE() {
 	    return this.getToken(scillaParser.UNDERSCORE, 0);
 	};
 
-	identifier() {
-	    return this.getTypedRuleContext(IdentifierContext,0);
-	};
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterArgPatternWildcard(this);
+		}
+	}
 
-	scid() {
-	    return this.getTypedRuleContext(ScidContext,0);
-	};
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitArgPatternWildcard(this);
+		}
+	}
+
+
+}
+
+scillaParser.ArgPatternWildcardContext = ArgPatternWildcardContext;
+
+class ArgPatternPatternContext extends Arg_patternContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.p = null; // PatternContext;
+        super.copyFrom(ctx);
+    }
 
 	LPAREN() {
 	    return this.getToken(scillaParser.LPAREN, 0);
@@ -5772,20 +5864,20 @@ class Arg_patternContext extends antlr4.ParserRuleContext {
 
 	enterRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.enterArg_pattern(this);
+	        listener.enterArgPatternPattern(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.exitArg_pattern(this);
+	        listener.exitArgPatternPattern(this);
 		}
 	}
 
 
 }
 
-
+scillaParser.ArgPatternPatternContext = ArgPatternPatternContext;
 
 class Exp_pm_clauseContext extends antlr4.ParserRuleContext {
 

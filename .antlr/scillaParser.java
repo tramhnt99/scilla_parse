@@ -1,4 +1,4 @@
-// Generated from /Users/tramhoang/Desktop/Y5/cs4215/scilla_parse/scilla.g4 by ANTLR 4.8
+// Generated from /Users/ulysseskee/Documents/NUS/CS4215/project/scilla_parse/scilla.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
@@ -2010,25 +2010,42 @@ public class scillaParser extends Parser {
 	}
 
 	public static class Arg_patternContext extends ParserRuleContext {
+		public Arg_patternContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_arg_pattern; }
+	 
+		public Arg_patternContext() { }
+		public void copyFrom(Arg_patternContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class ArgPatternBinderContext extends Arg_patternContext {
 		public IdentifierContext x;
-		public ScidContext c;
-		public PatternContext p;
-		public TerminalNode UNDERSCORE() { return getToken(scillaParser.UNDERSCORE, 0); }
 		public IdentifierContext identifier() {
 			return getRuleContext(IdentifierContext.class,0);
 		}
+		public ArgPatternBinderContext(Arg_patternContext ctx) { copyFrom(ctx); }
+	}
+	public static class ArgPatternConstructorContext extends Arg_patternContext {
+		public ScidContext c;
 		public ScidContext scid() {
 			return getRuleContext(ScidContext.class,0);
 		}
+		public ArgPatternConstructorContext(Arg_patternContext ctx) { copyFrom(ctx); }
+	}
+	public static class ArgPatternWildcardContext extends Arg_patternContext {
+		public TerminalNode UNDERSCORE() { return getToken(scillaParser.UNDERSCORE, 0); }
+		public ArgPatternWildcardContext(Arg_patternContext ctx) { copyFrom(ctx); }
+	}
+	public static class ArgPatternPatternContext extends Arg_patternContext {
+		public PatternContext p;
 		public TerminalNode LPAREN() { return getToken(scillaParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(scillaParser.RPAREN, 0); }
 		public PatternContext pattern() {
 			return getRuleContext(PatternContext.class,0);
 		}
-		public Arg_patternContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_arg_pattern; }
+		public ArgPatternPatternContext(Arg_patternContext ctx) { copyFrom(ctx); }
 	}
 
 	public final Arg_patternContext arg_pattern() throws RecognitionException {
@@ -2039,6 +2056,7 @@ public class scillaParser extends Parser {
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case UNDERSCORE:
+				_localctx = new ArgPatternWildcardContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(362);
@@ -2046,10 +2064,11 @@ public class scillaParser extends Parser {
 				}
 				break;
 			case ID:
+				_localctx = new ArgPatternBinderContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(363);
-				((Arg_patternContext)_localctx).x = identifier();
+				((ArgPatternBinderContext)_localctx).x = identifier();
 				}
 				break;
 			case BOOLEAN:
@@ -2061,19 +2080,21 @@ public class scillaParser extends Parser {
 			case MESSAGE:
 			case EVENT_TY:
 			case CID:
+				_localctx = new ArgPatternConstructorContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(364);
-				((Arg_patternContext)_localctx).c = scid();
+				((ArgPatternConstructorContext)_localctx).c = scid();
 				}
 				break;
 			case LPAREN:
+				_localctx = new ArgPatternPatternContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(365);
 				match(LPAREN);
 				setState(366);
-				((Arg_patternContext)_localctx).p = pattern();
+				((ArgPatternPatternContext)_localctx).p = pattern();
 				setState(367);
 				match(RPAREN);
 				}

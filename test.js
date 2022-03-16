@@ -249,8 +249,9 @@ const tree = parser.simple_exp();
 
 // import EvalVisitor from './eval.js';
 import EvalSyntax from "./evalSyntax.js";
+import SyntaxVisitor from './syntaxVisitor.js';
 
-tree.accept(new EvalSyntax);
+tree.accept(new SyntaxVisitor);
 // tree.accept(new EvalVisitor({}));
 // console.log(tree.accept(new EvalVisitor()));
 // console.log(new Visitor());

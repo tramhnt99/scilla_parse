@@ -192,10 +192,10 @@ pattern
     ;
 
 arg_pattern
-    : UNDERSCORE
-    | x=identifier 
-    | c=scid 
-    | LPAREN p=pattern RPAREN
+    : UNDERSCORE #ArgPatternWildcard
+    | x=identifier #ArgPatternBinder
+    | c=scid #ArgPatternConstructor
+    | LPAREN p=pattern RPAREN #ArgPatternPattern
     ;
 
 exp_pm_clause
