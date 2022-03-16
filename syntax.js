@@ -16,18 +16,21 @@ class Let extends ScillaExpr{
     }
 }
 
-class Pattern {}
+export class Pattern {}
 
 class WildCard extends Pattern {}
+Pattern.WildCard = WildCard;
 
 class Binder extends Pattern {
     /**
      * @param {String} x
      */
     constructor(x) {
+        super();
         this.x = x;
     }
 }
+Pattern.Binder = Binder;
 
 class ConstructorPat extends Pattern {
     /**
@@ -35,10 +38,12 @@ class ConstructorPat extends Pattern {
      * @param {Pattern[]} ps
      */
     constructor(c, ps) {
+        super();
         this.c = c;
         this.ps = ps;
     }
 }
+Pattern.ConstructorPat = ConstructorPat;
 
 /* ******************************************************
  *
@@ -54,10 +59,12 @@ class Load extends ScillaStmt {
      * @param {String} r
      */
     constructor(x, r) {
+        super();
         this.x = x;
         this.r = r;
     }
 }
+ScillaStmt.Load = Load;
 
 class RemoteLoad extends ScillaStmt {
     /**
@@ -66,11 +73,14 @@ class RemoteLoad extends ScillaStmt {
      * @param {String} r
      */
     constructor(x, r, addr) {
+        super();
         this.x = x;
         this.r = r;
         this.addr = addr;
     }
 }
+ScillaStmt.RemoteLoad = RemoteLoad;
+
 
 class Store extends ScillaStmt {
     /**
@@ -78,10 +88,12 @@ class Store extends ScillaStmt {
      * @param {String} r
      */
     constructor(x, r) {
+        super();
         this.x = x;
         this.r = r;
     }
 }
+ScillaStmt.Store = Store;
 
 class Bind extends ScillaStmt {
     /**
@@ -89,10 +101,12 @@ class Bind extends ScillaStmt {
      * @param {ScillaExpr} e
      */
     constructor(x, e) {
+        super();
         this.x = x;
         this.e = e;
     }
 }
+ScillaStmt.Bind = Bind;
 
 class MapUpdate extends ScillaStmt {
     /**
@@ -101,11 +115,13 @@ class MapUpdate extends ScillaStmt {
      * @param {Option String} ropt
      */
     constructor(x, klist, ropt) {
+        super();
         this.x = x;
         this.klist = klist;
         this.ropt = ropt;
     }
 }
+ScillaStmt.MapUpdate = MapUpdate;
 
 class MapGet extends ScillaStmt{
     /**
@@ -115,12 +131,14 @@ class MapGet extends ScillaStmt{
      * @param {Bool} fetchval
      */
     constructor(x, m, klist, fetchval) {
+        super();
         this.x = x;
         this.m = m;
         this.klist = klist;
         this.fetchval = fetchval;
     }
 }
+ScillaStmt.MapGet = MapGet;
 
 class RemoteMapGet extends ScillaStmt {
     /**
@@ -131,6 +149,7 @@ class RemoteMapGet extends ScillaStmt {
      * @param {Bool} fetchval
      */
     constructor(x, adr, m, list, fetchval) {
+        super();
         this.x = x;
         this.adr = adr; 
         this.m = m;
@@ -138,6 +157,7 @@ class RemoteMapGet extends ScillaStmt {
         this.fetchval = fetchval;
     }
 }
+ScillaStmt.RemoteMapGet = RemoteMapGet;
 
 class ReadFromBC extends ScillaStmt {
     /**
@@ -145,10 +165,12 @@ class ReadFromBC extends ScillaStmt {
      * @param {BCInfoQuery} bf
      */
     constructor(x, bf) {
+        super();
         this.x = x;
         this.bf = bf;
     }
 }
+ScillaStmt.ReadFromBC = ReadFromBC;
 
 class TypeCast extends ScillaStmt {
     /**
@@ -157,13 +179,15 @@ class TypeCast extends ScillaStmt {
      * @param {Stype} t
      */
     constructor(x, r, t) {
+        super();
         this.x = x;
         this.r = r;
         this.t = t;
     }
 }
+ScillaStmt.TypeCast = TypeCast;
 
-class Clause {
+export class Clause {
     /**
      * 
      * @param {Pattern} pat 
@@ -174,6 +198,7 @@ class Clause {
         this.stmts = stmts;
     }
 }
+ScillaStmt.Clause = Clause;
 
 class MatchStmt extends ScillaStmt {
     /**
@@ -181,30 +206,39 @@ class MatchStmt extends ScillaStmt {
      * @param {Clause[]} clauses
      */
     constructor(x, clauses) {
+        super();
         this.x = x;
         this.clauses = clauses;
     }
 }
+ScillaStmt.MatchStmt = MatchStmt;
+
 
 class AcceptPayment extends ScillaStmt {}
+ScillaStmt.AcceptPayment = AcceptPayment;
 
 class SendMsgs extends ScillaStmt {
     /**
      * @param {String} ms
      */
     constructor(ms) {
+        super();
         this.ms = ms;
     }
 }
+ScillaStmt.SendMsgs = SendMsgs;
 
 class CreateEvnt extends ScillaStmt {
     /**
      * @param {String} params
      */
     constructor(params) {
+        super();
         this.params = params;
     }
 }
+ScillaStmt.CreateEvnt = CreateEvnt;
+
 
 class CallProc extends ScillaStmt {
     /**
@@ -212,10 +246,12 @@ class CallProc extends ScillaStmt {
      * @param {String[]} actuals
      */
     constructor(p, actuals) {
+        super();
         this.p = p;
         this.actuals = actuals;
     }
 }
+ScillaStmt.CallProc = CallProc;
 
 class Iterate extends ScillaStmt {
     /**
@@ -223,19 +259,23 @@ class Iterate extends ScillaStmt {
      * @param {String} p
      */
     constructor(l, p) {
+        super();
         this.l = l;
         this.p = p;
     }
 }
+ScillaStmt.Iterate = Iterate;
 
 class Throw extends ScillaStmt {
     /**
      * @param {Option String} eopt
      */
     constructor(eopt) {
+        super();
         this.eopt = eopt;
     }
 }
+ScillaStmt.Throw = Throw;
 
 /* ******************************************************
  *
@@ -243,7 +283,7 @@ class Throw extends ScillaStmt {
  *
  ****************************************************** */
 
-class Field {
+export class Field {
     /**
      * @param {String} name;
      * @param {SType} type;
@@ -256,15 +296,17 @@ class Field {
     }
 }
 
-class ComponentType {}
+export class ComponentType {}
 
 //Transition component
-class CompTrans extends ComponentType {}
+export class CompTrans extends ComponentType {}
+ComponentType.CompTrans = CompTrans;
 
 //Procedure component 
-class CompProc extends ComponentType {}
+export class CompProc extends ComponentType {}
+ComponentType.CompProc = CompProc;
 
-class Component {
+export class Component {
     /**
      * @param {ComponentType} compType;
      * @param {String} compName;
@@ -279,7 +321,7 @@ class Component {
     }
 }
 
-class ContractDef {
+export class ContractDef {
     /**
      * @param {String} cname
      * @param {SType[]} cArgTypes
@@ -290,7 +332,7 @@ class ContractDef {
     }
 }
 
-class LibEntry {}
+export class LibEntry {}
 
 class LibVar extends LibEntry {
     /**
@@ -299,11 +341,13 @@ class LibVar extends LibEntry {
      * @param {ScillaExpr} e
      */
     constructor(x, tyopt, e) {
+        super();
         this.x = x;
         this.tyopt = tyopt;
         this.e = e;
     }
 }
+LibEntry.LibVar = LibVar;
 
 class LibType extends LibEntry {
     /**
@@ -311,12 +355,14 @@ class LibType extends LibEntry {
      * @param {ContractDef[]} c
      */
     constructor(x, c) {
+        super();
         this.x = x;
         this.c = c;
     }
 }
+LibEntry.LibType = LibType;
 
-class Library {
+export class Library {
     /**
      * @param {String} lname
      * @param {LibEntry[]} lentries
@@ -327,7 +373,7 @@ class Library {
     }
 }
 
-class Contract {
+export class Contract {
     /**
      * @param {String} cname
      * @param {(Strign * SType)[]} cparams
@@ -345,7 +391,7 @@ class Contract {
 }
 
 //Contract module: library + contract definition
-class Cmodule {
+export class Cmodule {
     /**
      * @param {Int} smver
      * @param {Option Library} libs 
@@ -364,7 +410,7 @@ class Cmodule {
 }
 
 //Library module: 
-class Lmodule {
+export class Lmodule {
     /**
      * @param {Int} smver
      * @param {Option Library} libs 
@@ -378,7 +424,7 @@ class Lmodule {
     }
 }
 
-class LibTree {
+export class LibTree {
     /**
      * @param {Library} libn
      * @param {LibTree[]} deps

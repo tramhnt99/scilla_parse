@@ -992,7 +992,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.d = this.scid();
 	            this.state = 189;
 	            this._errHandler.sync(this);
-	            let _alt = this._interp.adaptivePredict(this._input,8,this._ctx)
+	            var _alt = this._interp.adaptivePredict(this._input,8,this._ctx)
 	            while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	                if(_alt===1) {
 	                    this.state = 186;
@@ -1072,7 +1072,7 @@ export default class scillaParser extends antlr4.Parser {
 	        this._ctx.stop = this._input.LT(-1);
 	        this.state = 214;
 	        this._errHandler.sync(this);
-	        let _alt = this._interp.adaptivePredict(this._input,10,this._ctx)
+	        var _alt = this._interp.adaptivePredict(this._input,10,this._ctx)
 	        while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	            if(_alt===1) {
 	                if(this._parseListeners!==null) {
@@ -1296,7 +1296,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.f_var = this.sid();
 	            this.state = 259; 
 	            this._errHandler.sync(this);
-	            let _alt = 1;
+	            var _alt = 1;
 	            do {
 	            	switch (_alt) {
 	            	case 1:
@@ -1406,7 +1406,7 @@ export default class scillaParser extends antlr4.Parser {
 
 	            this.state = 303;
 	            this._errHandler.sync(this);
-	            let _alt = this._interp.adaptivePredict(this._input,18,this._ctx)
+	            var _alt = this._interp.adaptivePredict(this._input,18,this._ctx)
 	            while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	                if(_alt===1) {
 	                    this.state = 300;
@@ -1442,7 +1442,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.f = this.sid();
 	            this.state = 313; 
 	            this._errHandler.sync(this);
-	            let _alt = 1;
+	            var _alt = 1;
 	            do {
 	            	switch (_alt) {
 	            	case 1:
@@ -1875,7 +1875,7 @@ export default class scillaParser extends antlr4.Parser {
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 387; 
 	            this._errHandler.sync(this);
-	            let _alt = 1;
+	            var _alt = 1;
 	            do {
 	            	switch (_alt) {
 	            	case 1:
@@ -2416,7 +2416,7 @@ export default class scillaParser extends antlr4.Parser {
 	            localctx.p = this.component_id();
 	            this.state = 508;
 	            this._errHandler.sync(this);
-	            let _alt = this._interp.adaptivePredict(this._input,39,this._ctx)
+	            var _alt = this._interp.adaptivePredict(this._input,39,this._ctx)
 	            while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	                if(_alt===1) {
 	                    this.state = 505;
