@@ -3,3 +3,6 @@ To regenerate the Scilla Parser and Lexer in JS run
 
 To run the tests
 `node test.js`
+
+To install on macOS using Homebrew
+`brew install antlr`
