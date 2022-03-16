@@ -1927,7 +1927,8 @@ public class scillaParser extends Parser {
 	}
 	public static class ConstructorContext extends PatternContext {
 		public ScidContext c;
-		public Arg_patternContext ps;
+		public Arg_patternContext arg_pattern;
+		public List<Arg_patternContext> ps = new ArrayList<Arg_patternContext>();
 		public ScidContext scid() {
 			return getRuleContext(ScidContext.class,0);
 		}
@@ -1985,7 +1986,8 @@ public class scillaParser extends Parser {
 					{
 					{
 					setState(354);
-					((ConstructorContext)_localctx).ps = arg_pattern();
+					((ConstructorContext)_localctx).arg_pattern = arg_pattern();
+					((ConstructorContext)_localctx).ps.add(((ConstructorContext)_localctx).arg_pattern);
 					}
 					}
 					setState(359);
@@ -2010,25 +2012,42 @@ public class scillaParser extends Parser {
 	}
 
 	public static class Arg_patternContext extends ParserRuleContext {
-		public IdentifierContext x;
-		public ScidContext c;
+		public Arg_patternContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_arg_pattern; }
+	 
+		public Arg_patternContext() { }
+		public void copyFrom(Arg_patternContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class PatternArgContext extends Arg_patternContext {
 		public PatternContext p;
-		public TerminalNode UNDERSCORE() { return getToken(scillaParser.UNDERSCORE, 0); }
-		public IdentifierContext identifier() {
-			return getRuleContext(IdentifierContext.class,0);
-		}
-		public ScidContext scid() {
-			return getRuleContext(ScidContext.class,0);
-		}
 		public TerminalNode LPAREN() { return getToken(scillaParser.LPAREN, 0); }
 		public TerminalNode RPAREN() { return getToken(scillaParser.RPAREN, 0); }
 		public PatternContext pattern() {
 			return getRuleContext(PatternContext.class,0);
 		}
-		public Arg_patternContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
+		public PatternArgContext(Arg_patternContext ctx) { copyFrom(ctx); }
+	}
+	public static class BinderArgContext extends Arg_patternContext {
+		public IdentifierContext x;
+		public IdentifierContext identifier() {
+			return getRuleContext(IdentifierContext.class,0);
 		}
-		@Override public int getRuleIndex() { return RULE_arg_pattern; }
+		public BinderArgContext(Arg_patternContext ctx) { copyFrom(ctx); }
+	}
+	public static class WildcardArgContext extends Arg_patternContext {
+		public TerminalNode UNDERSCORE() { return getToken(scillaParser.UNDERSCORE, 0); }
+		public WildcardArgContext(Arg_patternContext ctx) { copyFrom(ctx); }
+	}
+	public static class ConstructorArgContext extends Arg_patternContext {
+		public ScidContext c;
+		public ScidContext scid() {
+			return getRuleContext(ScidContext.class,0);
+		}
+		public ConstructorArgContext(Arg_patternContext ctx) { copyFrom(ctx); }
 	}
 
 	public final Arg_patternContext arg_pattern() throws RecognitionException {
@@ -2039,6 +2058,7 @@ public class scillaParser extends Parser {
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case UNDERSCORE:
+				_localctx = new WildcardArgContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(362);
@@ -2046,10 +2066,11 @@ public class scillaParser extends Parser {
 				}
 				break;
 			case ID:
+				_localctx = new BinderArgContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(363);
-				((Arg_patternContext)_localctx).x = identifier();
+				((BinderArgContext)_localctx).x = identifier();
 				}
 				break;
 			case BOOLEAN:
@@ -2061,19 +2082,21 @@ public class scillaParser extends Parser {
 			case MESSAGE:
 			case EVENT_TY:
 			case CID:
+				_localctx = new ConstructorArgContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(364);
-				((Arg_patternContext)_localctx).c = scid();
+				((ConstructorArgContext)_localctx).c = scid();
 				}
 				break;
 			case LPAREN:
+				_localctx = new PatternArgContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(365);
 				match(LPAREN);
 				setState(366);
-				((Arg_patternContext)_localctx).p = pattern();
+				((PatternArgContext)_localctx).p = pattern();
 				setState(367);
 				match(RPAREN);
 				}

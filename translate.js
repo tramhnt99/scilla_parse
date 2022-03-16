@@ -6,9 +6,8 @@
 
 import SP from './scillaParser.js'; //short for ScillaParser
 import ST from './types.js'; //ScillaTypes
-import { Cmodule, Library, LibEntry, Field, ComponentType, Component,
-
-} from './syntax.js';
+import { Cmodule, Library, LibEntry, 
+        Field, ComponentType, Component, Clause} from './syntax.js';
 
 export default class Translatetranslateor{
 
@@ -127,7 +126,48 @@ export default class Translatetranslateor{
             const eopt = ctx.mopt === null ? undefined : ctx.mopt.getText();
             return new Throw(eopt);
         }
-        //TODO: MatchStmt
+        
+        if (ctx instanceof SP.MatchStmtContext) {
+            const x = ctx.x.getText();
+            const clauses = ctx.cs.map(c => translateStmtPattern(c));
+            return new MatchStmt(x, clauses);
+        }
+    }
+
+    translateStmtPattern(ctx) {
+        const pat = translatePatern(ctx.p);
+        const stmts = translateStmts(stmts);
+        return new Clause(pat, stmts);
+    }
+
+    translatePattern(ctx) {
+        if (ctx instanceof SP.WildcardContext) {
+            return new WildCard();
+        }
+        if (ctx instanceof SP.BinderContext) {
+            return new Binder(ctx.x.getText());
+        }
+        if (ctx instanceof SP.ConstructorContext) {
+            const c = ctx.c.getText();
+            const ps = ctx.ps.map(p => this.translateArgPattern(p));
+            return new ConstructorPat(c, ps);
+        }
+    }
+
+    translateArgPattern(ctx) {
+        if (ctx instanceof SP.WildcardArgContext) {
+            return new WildCard();
+        }
+        if (ctx instanceof SP.BinderArgContext) {
+            return new Binder(ctx.x.getText());
+        }
+        if (ctx instanceof SP.ConstructorArgContext) {
+            return new ConstructorPat(ctx.c.getText(), []);
+        }
+        if (ctx instanceof SP.PatternArgContext) {
+            return this.translatePattern(ctx.p);
+        }
+        this.printError("translateArgPattern", "Couldn't match Context");
     }
 
     translateStmts(ctx) {
@@ -147,15 +187,13 @@ export default class Translatetranslateor{
     }
 
     translateComponentParams(ctx) {
-        return params === [] 
-            ? []
-            : ctx.params.map(param => translateIdWithType(param.iwt));
+        return ctx.params.map(param => translateIdWithType(param.iwt));
     }
 
     translateComp(ctx) {
         const compName = ctx.t.t.getText();
         const compParams = translateComponentParams(ctx.t.params);
-        const compBody = ctx.ss.ss === [] ? [] : translateStmts(ctx.ss.ss);
+        const compBody = translateStmts(ctx.ss.ss);
 
         if (ctx instanceof TransitionComp) {
             const compType = new CompTrans;
@@ -171,20 +209,16 @@ export default class Translatetranslateor{
 
     translateContract(ctx){
         const cname = ctx.c.getText();
-        const cparams = ctx.params === [] ? [] :
-            ctx.params.map(param => this.translateIdWithType(param.iwt));
+        const cparams = ctx.params.map(param => this.translateIdWithType(param.iwt));
         const cconstraint = undefined; //TODO: use translate expr
-        const cfields = ctx.fs === [] ? [] : 
-            ctx.fs.map(field => translateField(field));
-        const ccomps = ctx.comps === [] ? [] :
-            ctx.comps.map(comp => translateComp(comp));
+        const cfields = ctx.fs.map(field => translateField(field));
+        const ccomps = ctx.comps.map(comp => translateComp(comp));
         return new Contract(cname, cparams, cconstraint, cfields, ccomps);
     }
 
     translateContractDef(ctx) {
         const cname = ctx.tn.getText();
-        const cArgTypes = ctx.t === [] ? [] : 
-            ctx.t.map(targ => ST.resolveTArg(targ));
+        const cArgTypes = ctx.t.map(targ => ST.resolveTArg(targ));
         return new this.translateContractDef(cname, cArgTypes);
     }
 

@@ -455,12 +455,39 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#arg_pattern.
-	enterArg_pattern(ctx) {
+	// Enter a parse tree produced by scillaParser#WildcardArg.
+	enterWildcardArg(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#arg_pattern.
-	exitArg_pattern(ctx) {
+	// Exit a parse tree produced by scillaParser#WildcardArg.
+	exitWildcardArg(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#BinderArg.
+	enterBinderArg(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#BinderArg.
+	exitBinderArg(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ConstructorArg.
+	enterConstructorArg(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ConstructorArg.
+	exitConstructorArg(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#PatternArg.
+	enterPatternArg(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#PatternArg.
+	exitPatternArg(ctx) {
 	}
 
 

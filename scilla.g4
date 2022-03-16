@@ -188,14 +188,14 @@ map_access
 pattern
     : UNDERSCORE #Wildcard
     | x=identifier #Binder
-    | c=scid ps=arg_pattern* #Constructor
+    | c=scid (ps+=arg_pattern)* #Constructor
     ;
 
 arg_pattern
-    : UNDERSCORE
-    | x=identifier 
-    | c=scid 
-    | LPAREN p=pattern RPAREN
+    : UNDERSCORE #WildcardArg
+    | x=identifier #BinderArg
+    | c=scid #ConstructorArg
+    | LPAREN p=pattern RPAREN #PatternArg
     ;
 
 exp_pm_clause

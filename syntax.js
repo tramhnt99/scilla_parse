@@ -16,6 +16,30 @@ class Let extends ScillaExpr{
     }
 }
 
+class Pattern {}
+
+class WildCard extends Pattern {}
+
+class Binder extends Pattern {
+    /**
+     * @param {String} x
+     */
+    constructor(x) {
+        this.x = x;
+    }
+}
+
+class ConstructorPat extends Pattern {
+    /**
+     * @param {String} c
+     * @param {Pattern[]} ps
+     */
+    constructor(c, ps) {
+        this.c = c;
+        this.ps = ps;
+    }
+}
+
 /* ******************************************************
  *
  * Scilla Statements
@@ -139,10 +163,22 @@ class TypeCast extends ScillaStmt {
     }
 }
 
+class Clause {
+    /**
+     * 
+     * @param {Pattern} pat 
+     * @param {ScillaStmt[]} stmts 
+     */
+    constructor(pat, stmts) {
+        this.pat = pat;
+        this.stmts = stmts;
+    }
+}
+
 class MatchStmt extends ScillaStmt {
     /**
      * @param {String} x
-     * @param {(StmtPattern * ScillaStmt[])[]} clauses
+     * @param {Clause[]} clauses
      */
     constructor(x, clauses) {
         this.x = x;
