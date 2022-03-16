@@ -509,12 +509,21 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#builtin_args.
-	enterBuiltin_args(ctx) {
+	// Enter a parse tree produced by scillaParser#BuiltinArgsSid.
+	enterBuiltinArgsSid(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#builtin_args.
-	exitBuiltin_args(ctx) {
+	// Exit a parse tree produced by scillaParser#BuiltinArgsSid.
+	exitBuiltinArgsSid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#BuildinArgsParen.
+	enterBuildinArgsParen(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#BuildinArgsParen.
+	exitBuildinArgsParen(ctx) {
 	}
 
 
@@ -572,12 +581,57 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#scid.
-	enterScid(ctx) {
+	// Enter a parse tree produced by scillaParser#ScidName.
+	enterScidName(ctx) {
 	}
 
-	// Exit a parse tree produced by scillaParser#scid.
-	exitScid(ctx) {
+	// Exit a parse tree produced by scillaParser#ScidName.
+	exitScidName(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ScidCid.
+	enterScidCid(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ScidCid.
+	exitScidCid(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ScidHex.
+	enterScidHex(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ScidHex.
+	exitScidHex(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ScidBool.
+	enterScidBool(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ScidBool.
+	exitScidBool(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ScidOption.
+	enterScidOption(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ScidOption.
+	exitScidOption(ctx) {
+	}
+
+
+	// Enter a parse tree produced by scillaParser#ScidPrim.
+	enterScidPrim(ctx) {
+	}
+
+	// Exit a parse tree produced by scillaParser#ScidPrim.
+	exitScidPrim(ctx) {
 	}
 
 

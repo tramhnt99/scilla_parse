@@ -180,3 +180,11 @@ export class ArgPattern extends ScillaProgram {
         this.underscore = und;
     }
 }
+
+export class BuiltinArgs extends ScillaProgram {
+    constructor(args) {
+        this.args = args;
+        this.lParen = '(';
+        this.rParen = ')';
+    }
+}

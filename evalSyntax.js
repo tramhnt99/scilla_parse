@@ -20,126 +20,126 @@ export default class EvalVisitor {
         this.globalEnv = env;
     }
 
-    // lookup(x, env) {
-    //     return env[x]
-    //         ? env[x]
-    //         : this.printError("lookup", "didn't find " + x);
-    // }
+    lookup(x, env) {
+        return env[x]
+            ? env[x]
+            : this.printError("lookup", "didn't find " + x);
+    }
 
-    // setEnv(k, v, env) {
-    //     // console.log("Binding " + k + " with " + v);
-    //     env[k] = v;
-    //     return env;
-    // }
+    setEnv(k, v, env) {
+        // console.log("Binding " + k + " with " + v);
+        env[k] = v;
+        return env;
+    }
 
-    // getGlobalEnv() {
-    //     return this.globalEnv;
-    // }
+    getGlobalEnv() {
+        return this.globalEnv;
+    }
 
-    // wrap(value, env) {
-    //     // console.log("Wrapping value " + value);
-    //     return {value: value, env: env};
-    // }
+    wrap(value, env) {
+        // console.log("Wrapping value " + value);
+        return {value: value, env: env};
+    }
 
-    // printError(funcname, msg) {
-    //     console.log("[ERROR]" + funcname + ": " + msg);
-    // }
+    printError(funcname, msg) {
+        console.log("[ERROR]" + funcname + ": " + msg);
+    }
 
-    // //Returns bindings
-    // matchClause(v, p) {
-    //     if (p instanceof SP.WildcardContext) {
-    //         return {};
-    //     } 
-    //     if (p instanceof SP.BinderContext) {
-    //         const x = p.x;
-    //         return {x : v}
-    //     }
-    //     if (p instanceof SP.ConstructorContext) {
-    //         return; //TODO
-    //     }
-    //     this.printError("matchClause", "Didn't match match clause.");
-    //     return undefined;
-    // }
+    //Returns bindings
+    matchClause(v, p) {
+        if (p instanceof SP.WildcardContext) {
+            return {};
+        } 
+        if (p instanceof SP.BinderContext) {
+            const x = p.x;
+            return {x : v}
+        }
+        if (p instanceof SP.ConstructorContext) {
+            return; //TODO
+        }
+        this.printError("matchClause", "Didn't match match clause.");
+        return undefined;
+    }
 
-    // //Takes in a context that can become a type
-    // //or if already turned into ST, then just return
-    // antlrTypetoScillaType(ctx){
-    //     if (ctx instanceof ST) {return ctx;}
-    //     else {
+    //Takes in a context that can become a type
+    //or if already turned into ST, then just return
+    antlrTypetoScillaType(ctx){
+        if (ctx instanceof ST) {return ctx;}
+        else {
 
-    //     }
+        }
 
-    // }
+    }
 
-    // substTypeInLit(tvar, type, lit) {
-    //     //TODO: Handles only Map and ADT literals
-    //     //Update the context - global
-    //     return;
-    // }
+    substTypeInLit(tvar, type, lit) {
+        //TODO: Handles only Map and ADT literals
+        //Update the context - global
+        return;
+    }
 
-    // substTypeInType(tvar, type, t) {
-    //     //TODO: substitite type in type
-    //     //Update the context t - returns unit.
-    //     return;
-    // }
+    substTypeInType(tvar, type, t) {
+        //TODO: substitite type in type
+        //Update the context t - returns unit.
+        return;
+    }
 
-    // //Since we will be returning updated contex in this case,
-    // //we must only use constructor fields instead of methods like identifier()
-    // //in the rest of the code
-    // //Return updated Expr
-    // substTypeInExpr(tvar, tp, expr) {
-    //     if (expr instanceof SP.AtomicContext) {
-    //         //If Var, change nothing
-    //         if (expr.a instanceof SP.AtomicSidContext) {return expr;} 
+    //Since we will be returning updated contex in this case,
+    //we must only use constructor fields instead of methods like identifier()
+    //in the rest of the code
+    //Return updated Expr
+    substTypeInExpr(tvar, tp, expr) {
+        if (expr instanceof SP.AtomicContext) {
+            //If Var, change nothing
+            if (expr.a instanceof SP.AtomicSidContext) {return expr;} 
 
-    //         //If Lit, update the lit
-    //         if (expr.a instanceof SP.AtomicLitContext) {
-    //             substTypeInLit(tvar, tp, expr.a.l);
-    //             return expr;
-    //         }
-    //         this.printError("substTypeInExpr", "Couldn't match Atomic");
-    //         return expr;
-    //     }
+            //If Lit, update the lit
+            if (expr.a instanceof SP.AtomicLitContext) {
+                substTypeInLit(tvar, tp, expr.a.l);
+                return expr;
+            }
+            this.printError("substTypeInExpr", "Couldn't match Atomic");
+            return expr;
+        }
 
-    //     if (expr instanceof SP.FunContext) {
-    //         //Update type in fun type - Note: doesn't do anything yet
-    //         this.substTypeInType(tvar, tp, expr.ty);
-    //         this.substTypeInExpr(tvar, tp, expr.e);
-    //         return expr;
-    //     }
+        if (expr instanceof SP.FunContext) {
+            //Update type in fun type - Note: doesn't do anything yet
+            this.substTypeInType(tvar, tp, expr.ty);
+            this.substTypeInExpr(tvar, tp, expr.e);
+            return expr;
+        }
 
-    //     if (expr instanceof SP.TFunContext) {
-    //         if (expr.i.getText() === tvar) {
-    //             return expr;
-    //         }
-    //         else {
-    //            this.substTypeInExpr(tvar, tv, expr.e); 
-    //            return expr;
-    //         }
-    //     }
+        if (expr instanceof SP.TFunContext) {
+            if (expr.i.getText() === tvar) {
+                return expr;
+            }
+            else {
+               this.substTypeInExpr(tvar, tv, expr.e); 
+               return expr;
+            }
+        }
 
-    //     if (expr instanceof SP.ConstructorContext) {
-    //         return expr; //TODO: implement constructors
-    //     }
+        if (expr instanceof SP.ConstructorContext) {
+            return expr; //TODO: implement constructors
+        }
 
-    //     if (expr instanceof SP.AppContext) {return expr;}
-    //     if (expr instanceof SP.BuiltinContext) {return expr;}
-    //     if (expr instanceof SP.MessageContext) {return expr;}
+        if (expr instanceof SP.AppContext) {return expr;}
+        if (expr instanceof SP.BuiltinContext) {return expr;}
+        if (expr instanceof SP.MessageContext) {return expr;}
 
-    //     if (expr instanceof SP.LetContext) {
-    //         if (expr.ty !== undefined) {
-    //             this.substTypeInType(tvar, tp, expr,ty);
-    //         }
-    //         this.substTypeInExpr(tvar, tp, expr.f); //lhs
-    //         this.substTypeInExpr(tvar, tp, expr.e.f); //rhs
-    //         return expr;
-    //     }
+        if (expr instanceof SP.LetContext) {
+            if (expr.ty !== undefined) {
+                this.substTypeInType(tvar, tp, expr,ty);
+            }
+            this.substTypeInExpr(tvar, tp, expr.f); //lhs
+            this.substTypeInExpr(tvar, tp, expr.e.f); //rhs
+            return expr;
+        }
 
-    //     if (expr instanceof SP.TAppContext) {
-    //         this.substTypeInType(tvar, tp, expr.f);
-    //         return expr;
-    //     }
-    // }
+        if (expr instanceof SP.TAppContext) {
+            this.substTypeInType(tvar, tp, expr.f);
+            return expr;
+        }
+    }
 
     visitCid(ctx) {
         return ctx instanceof SP.CidCidContext
@@ -400,7 +400,7 @@ export default class EvalVisitor {
         if (!ctx) {return;}
         const syntaxTree = {}
         syntaxTree['program'] = this.visitSimpleExp(ctx)
-        console.log(syntaxTree.program.rhs.rhs.rhs.constructor.name)
+        // console.log(syntaxTree.program.rhs.rhs.rhs.constructor.name)
         return ctx instanceof SP.Simple_expContext
             ? console.log(
                 //this.visitSimpleExp(ctx, {}), 

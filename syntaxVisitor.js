@@ -4,7 +4,7 @@
 import SP from './scillaParser.js'; //short for ScillaParser
 import ScillaType from './types.js';
 import { Let, Fun, App, Atomic, Literal, Var, Builtin, Message, Match,
-DataConstructorApp, TFun, TApp, Pattern, ExpPmClause, ArgPattern } from './syntax.js';
+DataConstructorApp, TFun, TApp, Pattern, ExpPmClause, ArgPattern, BuiltinArgs } from './syntax.js';
 
 const ST = new ScillaType();
 
@@ -28,8 +28,21 @@ export default class SyntaxVisitor {
     }
 
     visitScid(ctx) {
-        // need to check for context?
-        return ctx.getText();
+        return ctx instanceof SP.ScidNameContext
+            ? this.this.visitID(ctx.name)
+            : ctx instanceof SP.ScidCidContext
+            ? console.log("TODO: ScidCid")
+            : ctx instanceof SP.ScidHexContext
+            ? console.log("TODO: ScidHex")
+            : ctx instanceof SP.ScidBoolContext
+            ? ctx.BOOLEAN().getText() === "True"
+                ? true
+                : false
+            : ctx instanceof SP.ScidOptionContext
+            ? ctx.OPTION().getText()
+            : ctx instanceof SP.ScidPrimContext
+            ? console.log("TODO: ScidPrim")
+            : this.printError("visitScid", "Couldn't match Scid")
     }
 
     visitCIDBystr(ctx) {
@@ -68,6 +81,10 @@ export default class SyntaxVisitor {
     }
 
     visitBuiltinArgs(ctx) {
+        console.log(ctx.args.name.getText())
+        // console.log(ctx.args.map((a)=>"hi"))
+        // return ctx instanceof SP.BuiltinArgsSidContext
+        //     ? new BuiltinArgs(this.visitSid(ctx.args))
         // console.log(ctx.xs)
         // console.log(this.visitSid(ctx.args))
         return this.visitSid(ctx.args)
@@ -158,12 +175,13 @@ export default class SyntaxVisitor {
     visitMatchExp(ctx) {
         const x_sid = this.visitSid(ctx.x_sid);
         const cs = ctx.cs.map((clause) => {
-            const { p, e } = this.visitExpPmClause(clause)
-            const pattern = {
-                p: p,
-                e: e,
-            }
-            return pattern
+            return this.visitExpPmClause(clause)
+            // const { p, e } = this.visitExpPmClause(clause)
+            // const pattern = {
+            //     p: p,
+            //     e: e,
+            // }
+            // return pattern
         });
         return new Match(x_sid,cs)
     }
@@ -235,7 +253,8 @@ export default class SyntaxVisitor {
         if (!ctx) {return;}
         const syntaxTree = {}
         syntaxTree['program'] = this.visitSimpleExp(ctx)
-        console.log(syntaxTree.program.rhs.rhs.rhs.constructor.name)
+        // console.log(syntaxTree.program.rhs.rhs.rhs.constructor.name)
+        console.log(syntaxTree.program.rhs.rhs.rhs.rhs.rhs.cs)
         return ctx instanceof SP.Simple_expContext
             ? console.log(
                 //this.visitSimpleExp(ctx, {}), 

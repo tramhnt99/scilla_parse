@@ -2221,6 +2221,22 @@ public class scillaParser extends Parser {
 	}
 
 	public static class Builtin_argsContext extends ParserRuleContext {
+		public Builtin_argsContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_builtin_args; }
+	 
+		public Builtin_argsContext() { }
+		public void copyFrom(Builtin_argsContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class BuildinArgsParenContext extends Builtin_argsContext {
+		public TerminalNode LPAREN() { return getToken(scillaParser.LPAREN, 0); }
+		public TerminalNode RPAREN() { return getToken(scillaParser.RPAREN, 0); }
+		public BuildinArgsParenContext(Builtin_argsContext ctx) { copyFrom(ctx); }
+	}
+	public static class BuiltinArgsSidContext extends Builtin_argsContext {
 		public SidContext args;
 		public List<SidContext> sid() {
 			return getRuleContexts(SidContext.class);
@@ -2228,12 +2244,7 @@ public class scillaParser extends Parser {
 		public SidContext sid(int i) {
 			return getRuleContext(SidContext.class,i);
 		}
-		public TerminalNode LPAREN() { return getToken(scillaParser.LPAREN, 0); }
-		public TerminalNode RPAREN() { return getToken(scillaParser.RPAREN, 0); }
-		public Builtin_argsContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_builtin_args; }
+		public BuiltinArgsSidContext(Builtin_argsContext ctx) { copyFrom(ctx); }
 	}
 
 	public final Builtin_argsContext builtin_args() throws RecognitionException {
@@ -2248,6 +2259,7 @@ public class scillaParser extends Parser {
 			case ID:
 			case SPID:
 			case CID:
+				_localctx = new BuiltinArgsSidContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(387); 
@@ -2259,7 +2271,7 @@ public class scillaParser extends Parser {
 						{
 						{
 						setState(386);
-						((Builtin_argsContext)_localctx).args = sid();
+						((BuiltinArgsSidContext)_localctx).args = sid();
 						}
 						}
 						break;
@@ -2273,6 +2285,7 @@ public class scillaParser extends Parser {
 				}
 				break;
 			case LPAREN:
+				_localctx = new BuildinArgsParenContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(391);

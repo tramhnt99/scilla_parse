@@ -208,8 +208,8 @@ msg_entry
     ;
 
 builtin_args 
-    : args=sid+
-    | LPAREN RPAREN
+    : args=sid+ #BuiltinArgsSid
+    | LPAREN RPAREN #BuildinArgsParen
     ;
 
 exp_term

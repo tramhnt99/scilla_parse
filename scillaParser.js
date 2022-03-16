@@ -1876,6 +1876,7 @@ export default class scillaParser extends antlr4.Parser {
 	        case scillaParser.ID:
 	        case scillaParser.SPID:
 	        case scillaParser.CID:
+	            localctx = new BuiltinArgsSidContext(this, localctx);
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 387; 
 	            this._errHandler.sync(this);
@@ -1895,6 +1896,7 @@ export default class scillaParser extends antlr4.Parser {
 	            } while ( _alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER );
 	            break;
 	        case scillaParser.LPAREN:
+	            localctx = new BuildinArgsParenContext(this, localctx);
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 391;
 	            this.match(scillaParser.LPAREN);
@@ -2051,12 +2053,14 @@ export default class scillaParser extends antlr4.Parser {
 	        var la_ = this._interp.adaptivePredict(this._input,31,this._ctx);
 	        switch(la_) {
 	        case 1:
+	            localctx = new ScidNameContext(this, localctx);
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 411;
 	            localctx.name = this.cid();
 	            break;
 
 	        case 2:
+	            localctx = new ScidCidContext(this, localctx);
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 412;
 	            localctx.ns = this.cid();
@@ -2067,6 +2071,7 @@ export default class scillaParser extends antlr4.Parser {
 	            break;
 
 	        case 3:
+	            localctx = new ScidHexContext(this, localctx);
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 416;
 	            localctx.ns_hex = this.match(scillaParser.HEX);
@@ -2077,18 +2082,21 @@ export default class scillaParser extends antlr4.Parser {
 	            break;
 
 	        case 4:
+	            localctx = new ScidBoolContext(this, localctx);
 	            this.enterOuterAlt(localctx, 4);
 	            this.state = 419;
 	            localctx.bool = this.match(scillaParser.BOOLEAN);
 	            break;
 
 	        case 5:
+	            localctx = new ScidOptionContext(this, localctx);
 	            this.enterOuterAlt(localctx, 5);
 	            this.state = 420;
 	            localctx.option = this.match(scillaParser.OPTION);
 	            break;
 
 	        case 6:
+	            localctx = new ScidPrimContext(this, localctx);
 	            this.enterOuterAlt(localctx, 6);
 	            this.state = 421;
 	            localctx.prim = this.prim_types();
@@ -5993,7 +6001,55 @@ class Builtin_argsContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_builtin_args;
-        this.args = null; // SidContext
+    }
+
+
+	 
+		copyFrom(ctx) {
+			super.copyFrom(ctx);
+		}
+
+}
+
+
+class BuildinArgsParenContext extends Builtin_argsContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        super.copyFrom(ctx);
+    }
+
+	LPAREN() {
+	    return this.getToken(scillaParser.LPAREN, 0);
+	};
+
+	RPAREN() {
+	    return this.getToken(scillaParser.RPAREN, 0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterBuildinArgsParen(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitBuildinArgsParen(this);
+		}
+	}
+
+
+}
+
+scillaParser.BuildinArgsParenContext = BuildinArgsParenContext;
+
+class BuiltinArgsSidContext extends Builtin_argsContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.args = null; // SidContext;
+        super.copyFrom(ctx);
     }
 
 	sid = function(i) {
@@ -6007,30 +6063,22 @@ class Builtin_argsContext extends antlr4.ParserRuleContext {
 	    }
 	};
 
-	LPAREN() {
-	    return this.getToken(scillaParser.LPAREN, 0);
-	};
-
-	RPAREN() {
-	    return this.getToken(scillaParser.RPAREN, 0);
-	};
-
 	enterRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.enterBuiltin_args(this);
+	        listener.enterBuiltinArgsSid(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.exitBuiltin_args(this);
+	        listener.exitBuiltinArgsSid(this);
 		}
 	}
 
 
 }
 
-
+scillaParser.BuiltinArgsSidContext = BuiltinArgsSidContext;
 
 class Exp_termContext extends antlr4.ParserRuleContext {
 
@@ -6278,13 +6326,58 @@ class ScidContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = scillaParser.RULE_scid;
-        this.name = null; // CidContext
-        this.ns = null; // CidContext
-        this.ns_hex = null; // Token
-        this.bool = null; // Token
-        this.option = null; // Token
-        this.prim = null; // Prim_typesContext
     }
+
+
+	 
+		copyFrom(ctx) {
+			super.copyFrom(ctx);
+		}
+
+}
+
+
+class ScidOptionContext extends ScidContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.option = null; // Token;
+        super.copyFrom(ctx);
+    }
+
+	OPTION() {
+	    return this.getToken(scillaParser.OPTION, 0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterScidOption(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitScidOption(this);
+		}
+	}
+
+
+}
+
+scillaParser.ScidOptionContext = ScidOptionContext;
+
+class ScidCidContext extends ScidContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.ns = null; // CidContext;
+        this.name = null; // CidContext;
+        super.copyFrom(ctx);
+    }
+
+	PERIOD() {
+	    return this.getToken(scillaParser.PERIOD, 0);
+	};
 
 	cid = function(i) {
 	    if(i===undefined) {
@@ -6297,6 +6390,61 @@ class ScidContext extends antlr4.ParserRuleContext {
 	    }
 	};
 
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterScidCid(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitScidCid(this);
+		}
+	}
+
+
+}
+
+scillaParser.ScidCidContext = ScidCidContext;
+
+class ScidNameContext extends ScidContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.name = null; // CidContext;
+        super.copyFrom(ctx);
+    }
+
+	cid() {
+	    return this.getTypedRuleContext(CidContext,0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterScidName(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitScidName(this);
+		}
+	}
+
+
+}
+
+scillaParser.ScidNameContext = ScidNameContext;
+
+class ScidHexContext extends ScidContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.ns_hex = null; // Token;
+        this.name = null; // CidContext;
+        super.copyFrom(ctx);
+    }
+
 	PERIOD() {
 	    return this.getToken(scillaParser.PERIOD, 0);
 	};
@@ -6305,13 +6453,63 @@ class ScidContext extends antlr4.ParserRuleContext {
 	    return this.getToken(scillaParser.HEX, 0);
 	};
 
+	cid() {
+	    return this.getTypedRuleContext(CidContext,0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterScidHex(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitScidHex(this);
+		}
+	}
+
+
+}
+
+scillaParser.ScidHexContext = ScidHexContext;
+
+class ScidBoolContext extends ScidContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.bool = null; // Token;
+        super.copyFrom(ctx);
+    }
+
 	BOOLEAN() {
 	    return this.getToken(scillaParser.BOOLEAN, 0);
 	};
 
-	OPTION() {
-	    return this.getToken(scillaParser.OPTION, 0);
-	};
+	enterRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.enterScidBool(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof scillaListener ) {
+	        listener.exitScidBool(this);
+		}
+	}
+
+
+}
+
+scillaParser.ScidBoolContext = ScidBoolContext;
+
+class ScidPrimContext extends ScidContext {
+
+    constructor(parser, ctx) {
+        super(parser);
+        this.prim = null; // Prim_typesContext;
+        super.copyFrom(ctx);
+    }
 
 	prim_types() {
 	    return this.getTypedRuleContext(Prim_typesContext,0);
@@ -6319,20 +6517,20 @@ class ScidContext extends antlr4.ParserRuleContext {
 
 	enterRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.enterScid(this);
+	        listener.enterScidPrim(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof scillaListener ) {
-	        listener.exitScid(this);
+	        listener.exitScidPrim(this);
 		}
 	}
 
 
 }
 
-
+scillaParser.ScidPrimContext = ScidPrimContext;
 
 class CidContext extends antlr4.ParserRuleContext {
 
