@@ -208,7 +208,7 @@ msg_entry
     ;
 
 builtin_args 
-    : args=sid+ #BuiltinArgsSid
+    : (args+=sid)+ #BuiltinArgsSid
     | LPAREN RPAREN #BuildinArgsParen
     ;
 

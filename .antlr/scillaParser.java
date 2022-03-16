@@ -2241,7 +2241,8 @@ public class scillaParser extends Parser {
 		public BuildinArgsParenContext(Builtin_argsContext ctx) { copyFrom(ctx); }
 	}
 	public static class BuiltinArgsSidContext extends Builtin_argsContext {
-		public SidContext args;
+		public SidContext sid;
+		public List<SidContext> args = new ArrayList<SidContext>();
 		public List<SidContext> sid() {
 			return getRuleContexts(SidContext.class);
 		}
@@ -2275,7 +2276,8 @@ public class scillaParser extends Parser {
 						{
 						{
 						setState(386);
-						((BuiltinArgsSidContext)_localctx).args = sid();
+						((BuiltinArgsSidContext)_localctx).sid = sid();
+						((BuiltinArgsSidContext)_localctx).args.add(((BuiltinArgsSidContext)_localctx).sid);
 						}
 						}
 						break;
