@@ -2483,29 +2483,61 @@ public class scillaParser extends Parser {
 	}
 
 	public static class ScidContext extends ParserRuleContext {
-		public CidContext name;
-		public CidContext ns;
-		public Token ns_hex;
-		public Token bool;
+		public ScidContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_scid; }
+	 
+		public ScidContext() { }
+		public void copyFrom(ScidContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class ScidOptionContext extends ScidContext {
 		public Token option;
-		public Prim_typesContext prim;
+		public TerminalNode OPTION() { return getToken(scillaParser.OPTION, 0); }
+		public ScidOptionContext(ScidContext ctx) { copyFrom(ctx); }
+	}
+	public static class ScidCidContext extends ScidContext {
+		public CidContext ns;
+		public CidContext name;
+		public TerminalNode PERIOD() { return getToken(scillaParser.PERIOD, 0); }
 		public List<CidContext> cid() {
 			return getRuleContexts(CidContext.class);
 		}
 		public CidContext cid(int i) {
 			return getRuleContext(CidContext.class,i);
 		}
+		public ScidCidContext(ScidContext ctx) { copyFrom(ctx); }
+	}
+	public static class ScidNameContext extends ScidContext {
+		public CidContext name;
+		public CidContext cid() {
+			return getRuleContext(CidContext.class,0);
+		}
+		public ScidNameContext(ScidContext ctx) { copyFrom(ctx); }
+	}
+	public static class ScidHexContext extends ScidContext {
+		public Token ns_hex;
+		public CidContext name;
 		public TerminalNode PERIOD() { return getToken(scillaParser.PERIOD, 0); }
 		public TerminalNode HEX() { return getToken(scillaParser.HEX, 0); }
+		public CidContext cid() {
+			return getRuleContext(CidContext.class,0);
+		}
+		public ScidHexContext(ScidContext ctx) { copyFrom(ctx); }
+	}
+	public static class ScidBoolContext extends ScidContext {
+		public Token bool;
 		public TerminalNode BOOLEAN() { return getToken(scillaParser.BOOLEAN, 0); }
-		public TerminalNode OPTION() { return getToken(scillaParser.OPTION, 0); }
+		public ScidBoolContext(ScidContext ctx) { copyFrom(ctx); }
+	}
+	public static class ScidPrimContext extends ScidContext {
+		public Prim_typesContext prim;
 		public Prim_typesContext prim_types() {
 			return getRuleContext(Prim_typesContext.class,0);
 		}
-		public ScidContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_scid; }
+		public ScidPrimContext(ScidContext ctx) { copyFrom(ctx); }
 	}
 
 	public final ScidContext scid() throws RecognitionException {
@@ -2516,53 +2548,59 @@ public class scillaParser extends Parser {
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,31,_ctx) ) {
 			case 1:
+				_localctx = new ScidNameContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(411);
-				((ScidContext)_localctx).name = cid();
+				((ScidNameContext)_localctx).name = cid();
 				}
 				break;
 			case 2:
+				_localctx = new ScidCidContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(412);
-				((ScidContext)_localctx).ns = cid();
+				((ScidCidContext)_localctx).ns = cid();
 				setState(413);
 				match(PERIOD);
 				setState(414);
-				((ScidContext)_localctx).name = cid();
+				((ScidCidContext)_localctx).name = cid();
 				}
 				break;
 			case 3:
+				_localctx = new ScidHexContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(416);
-				((ScidContext)_localctx).ns_hex = match(HEX);
+				((ScidHexContext)_localctx).ns_hex = match(HEX);
 				setState(417);
 				match(PERIOD);
 				setState(418);
-				((ScidContext)_localctx).name = cid();
+				((ScidHexContext)_localctx).name = cid();
 				}
 				break;
 			case 4:
+				_localctx = new ScidBoolContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(419);
-				((ScidContext)_localctx).bool = match(BOOLEAN);
+				((ScidBoolContext)_localctx).bool = match(BOOLEAN);
 				}
 				break;
 			case 5:
+				_localctx = new ScidOptionContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(420);
-				((ScidContext)_localctx).option = match(OPTION);
+				((ScidOptionContext)_localctx).option = match(OPTION);
 				}
 				break;
 			case 6:
+				_localctx = new ScidPrimContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(421);
-				((ScidContext)_localctx).prim = prim_types();
+				((ScidPrimContext)_localctx).prim = prim_types();
 				}
 				break;
 			}

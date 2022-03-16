@@ -236,12 +236,12 @@ sid
     ;
 
 scid 
-    : name=cid
-    | ns=cid PERIOD name=cid
-    | ns_hex=HEX PERIOD name=cid
-    | bool=BOOLEAN
-    | option=OPTION
-    | prim=prim_types
+    : name=cid #ScidName
+    | ns=cid PERIOD name=cid #ScidCid
+    | ns_hex=HEX PERIOD name=cid #ScidHex
+    | bool=BOOLEAN #ScidBool
+    | option=OPTION #ScidOption
+    | prim=prim_types #ScidPrim
     ;
 
 cid 
