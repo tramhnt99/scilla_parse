@@ -153,39 +153,41 @@ export class TApp extends ScillaExpr {
 }
 ScillaExpr.TApp = TApp;
 
-export class Pattern extends ScillaProgram {
-    constructor(und, x, c, ps) {
-        super();
-        this.x = x;
-        this.c = c;
-        this.ps = ps;
-        this.underscore = und;
-    }
-}
+// export class Pattern extends ScillaProgram {
+//     constructor(und, x, c, ps) {
+//         super();
+//         this.x = x;
+//         this.c = c;
+//         this.ps = ps;
+//         this.underscore = und;
+//     }
+// }
 
-export class ExpPmClause extends ScillaProgram {
-    constructor(p, e) {
-        super();
-        this.p = p;
-        this.e = e;
-    }
-}
+// export class ExpPmClause extends ScillaProgram {
+//     constructor(p, e) {
+//         super();
+//         this.p = p;
+//         this.e = e;
+//     }
+// }
 
-export class ArgPattern extends ScillaProgram {
-    constructor(und, x, c, p) {
-        super();
-        this.x = x;
-        this.c = c;
-        this.p = p;
-        this.underscore = und;
-    }
-}
+// export class ArgPattern extends ScillaProgram {
+//     constructor(und, x, c, p) {
+//         super();
+//         this.x = x;
+//         this.c = c;
+//         this.p = p;
+//         this.underscore = und;
+//     }
+// }
 
-export class BuiltinArgs extends ScillaProgram {
-    constructor(args) {
-        this.args = args;
-        this.lParen = '(';
-        this.rParen = ')';
+// export class BuiltinArgs extends ScillaProgram {
+//     constructor(args) {
+//         this.args = args;
+//         this.lParen = '(';
+//         this.rParen = ')';
+//     }
+// }
 export class Pattern {}
 
 /* ******************************************************
