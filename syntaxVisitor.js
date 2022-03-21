@@ -89,7 +89,7 @@ export default class SyntaxVisitor {
     //Returns a closure
     translateFun(ctx) {
         if (ctx === undefined) {
-            this.translateExpprintError("translateFun", "Ctx is undefined.");
+            this.printError("translateFun", "Ctx is undefined.");
         }
         const param = ctx.id.getText();
         const type = ST.generateSType(ctx.ty)
