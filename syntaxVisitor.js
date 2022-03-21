@@ -4,7 +4,8 @@
 import SP from './scillaParser.js'; //short for ScillaParser
 import ScillaType from './types.js';
 import { ScillaExpr as SE, Pattern, ClauseExp } from './syntax.js';
-import { Map } from './literals.js'; //Scilla Literals
+// import { Map } from './literals.js'; //Scilla Literals
+import * as SL from './literals.js';
 
 const ST = new ScillaType();
 
@@ -178,7 +179,7 @@ export default class SyntaxVisitor {
             : ctx instanceof SP.LitStringContext
             ? ctx.getText() //string
             : ctx instanceof SP.LitEmpContext
-            ? new Map([]) //empty map
+            ? new SL.Map({}) //empty map
             : ctx instanceof SP.LitBoolContext
             ? ctx.getText()//(ctx.b.getText() === "True")
             : this.printError("translateLiteral", "Couldn't match literal.");
