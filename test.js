@@ -239,7 +239,7 @@ for (let i = 0; i < contracts.length; i++) {
 
 
 // Single test debugging
-const input = fs.readFileSync('contracts/type_casts.scilla').toString();
+const input = fs.readFileSync('contracts/Polynetwork.scilla').toString();
 // const input = fs.readFileSync('scilexp/id.scilexp').toString();
 // const chars = new antlr4.InputStream(input);
 // const lexer = new ScillaLexer(chars);
@@ -252,7 +252,6 @@ const input = fs.readFileSync('contracts/type_casts.scilla').toString();
 // tree.accept(new EvalVisitor({}));
 // console.log(tree.accept(new EvalVisitor()));
 // console.log(new Visitor());
-// import TranslateVisitor from './translate.js';
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);

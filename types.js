@@ -38,13 +38,15 @@ export default class ScillaType {
             ? new ByStrX(parseInt(str.substr(5, str.length - 1)))
             : str.substr(0, 6) === "Option" 
             ? new Option(this.parseStringToPrimType(str.substr(7, str.length - 1)))
-            : console.log("[ERROR]parseStringToPrimType: Couldn't match Prim Type: " + str);
+            : undefined
+            // : console.log("[ERROR]parseStringToPrimType: Couldn't match Prim Type: " + str);
     }
 
     //@n: string
     //returns ScillaType
     to_type(n) {
         const is_prim = this.parseStringToPrimType(n);
+        // console.log("parseStringToPrimType error is okay.");
         if (is_prim !== undefined) {
             return is_prim;
         } else {

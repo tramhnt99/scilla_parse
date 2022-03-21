@@ -174,7 +174,6 @@ export default class TranslateVisitor{
             return new Pat.ConstructorPat(ctx.c.getText(), []);
         }
         if (ctx instanceof SP.PatternArgContext) {
-            console.log(ctx.p.getText());
             return this.translatePattern(ctx.p);
         }
         this.printError("translateArgPattern", "Couldn't match Context");
