@@ -237,7 +237,7 @@ export default class TranslateVisitor{
     translateLibEntry(ctx) {
         if (ctx instanceof SP.LibVarContext) {
             const x = ctx.ns.getText();
-            const tyopt = ctx.t === null ? undefined : this.ST.generateSType(ctx.t);
+            const tyopt = ctx.t === null ? undefined : this.ST.generateSType(ctx.t.t);
             const e = this.SV.translateExp(ctx.e);
             return new LE.LibVar(x, tyopt, e);
         } 

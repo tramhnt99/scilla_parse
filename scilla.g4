@@ -57,19 +57,14 @@ AT: '@';
 UNDERSCORE: '_';
 BlockComment: '(*' .*? '*)' -> skip;
 
+
 NUMBER: [0-9]+;
 int_: '-'? NUMBER;
 STRING: '"' ~[\r\n"]* '"';
 FLOAT: ('0'..'9')+ '.' ('0'..'9')*;
-BOOLEAN: 'True' | 'False';
-OPTION: 'None' | 'Some';
 HEX: [0][x]([a-fA-F0-9] [a-fA-F0-9])*;
-INTTY: 'Int32' | 'Int64' | 'Int128' | 'Int256' | 'Uint32' | 'Uint64' | 'Uint128' | 'Uint256';
 BYSTR: 'ByStr' [0-9]*;
-BNUM: 'BNum';
-MESSAGE: 'Message';
 EVENT_TY: 'Event';
-prim_types: (INTTY | BYSTR | BNUM | MESSAGE | EVENT_TY);
 WS: [ ]+ -> skip;
 TOSKIP: [\r\n\t]+ -> skip;
 
@@ -90,22 +85,21 @@ t_map_key
     ;
 
 t_map_value_args
-    : LPAREN t=t_map_value_allow_targs RPAREN
-    | d=scid
-    | MAP k=t_map_key v=t_map_value
+    : LPAREN t=t_map_value_allow_targs RPAREN #TMP3
+    | d=scid #TMP4
+    | MAP k=t_map_key v=t_map_value #TMP5
     ;
 
 t_map_value
-    : d=scid
-    | MAP k=t_map_key v=t_map_value 
-    | LPAREN t=t_map_value_allow_targs RPAREN
-    | vt=address_typ
-    | prim_types
+    : d=scid #TMPScid
+    | MAP k=t_map_key v=t_map_value #TMPMap
+    | LPAREN t=t_map_value_allow_targs RPAREN #TMPParen
+    | vt=address_typ #TMPAddr
     ;
 
 t_map_value_allow_targs
-    : d=scid t_map_value_args+
-    | t_map_value
+    : d=scid (t_args+=t_map_value_args)+ #TMP1
+    | t_map_value #TMP2
     ;
 
 address_typ 
@@ -123,7 +117,7 @@ typ
     | t_to_map=address_typ #AddrType
     | FORALL tv=TID PERIOD t=typ #PolyFunTy
     | t_var=TID #TypeVarType
-    | prim_types #PrimType
+    // | prim_types #PrimType
     ;
 
 targ 
@@ -152,7 +146,7 @@ simple_exp
     | FUN LPAREN id=identifier COLON ty=typ RPAREN ARROW e=exp #Fun
     | f_var=sid (args+=sid)+ #App
     | a=atomic_exp #Atomic
-    | BUILTIN b=identifier (targs+=ctargs)* xs=builtin_args #Builtin
+    | BUILTIN b=identifier targs=ctargs? xs=builtin_args #Builtin
     | LBRACE es+=msg_entry (SEMICOLON es+=msg_entry)* RBRACE #Message
     | MATCH x_sid=sid WITH (cs+=exp_pm_clause)* END #Match
     | c=scid ts=ctargs? (args+=sid)* #DataConstructorApp
@@ -166,14 +160,11 @@ atomic_exp
     ;
 
 lit
-    : i=cid #LitCid
-    | INTTY i_int=int_ #LitInt
-    | BNUM i_number=NUMBER #LitBNum
+    : i=cid i_int=int_ #LitInt
     | n=NUMBER #LitNum
     | h=HEX #LitHex
     | s=STRING #LitString
     | EMP kt=t_map_key vt=t_map_value #LitEmp
-    | b=BOOLEAN #LitBool
     ;
 
 ctargs
@@ -239,9 +230,6 @@ scid
     : name=cid #ScidName
     | ns=cid PERIOD name=cid #ScidCid
     | ns_hex=HEX PERIOD name=cid #ScidHex
-    | bool=BOOLEAN #ScidBool
-    | option=OPTION #ScidOption
-    | prim=prim_types #ScidPrim
     ;
 
 cid 

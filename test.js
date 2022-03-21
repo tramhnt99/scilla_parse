@@ -214,16 +214,16 @@ const contracts = [
 ]
 
 import SyntaxVisitor from './syntaxVisitor.js';
-for (let i = 0; i < expressions.length; i++) {
-    const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
-    console.log("Input: " + 'scilexp/'.concat(expressions[i]));
-    const chars = new antlr4.InputStream(input);
-    const lexer = new ScillaLexer(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    const parser = new ScillaParser(tokens);
-    const tree = parser.simple_exp();
-    tree.accept(new SyntaxVisitor());
-}
+// for (let i = 0; i < expressions.length; i++) {
+//     const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
+//     console.log("Input: " + 'scilexp/'.concat(expressions[i]));
+//     const chars = new antlr4.InputStream(input);
+//     const lexer = new ScillaLexer(chars);
+//     const tokens = new antlr4.CommonTokenStream(lexer);
+//     const parser = new ScillaParser(tokens);
+//     const tree = parser.simple_exp();
+//     tree.accept(new SyntaxVisitor());
+// }
 import TranslateVisitor from './translate.js';
 for (let i = 0; i < contracts.length; i++) {
     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
@@ -238,19 +238,21 @@ for (let i = 0; i < contracts.length; i++) {
 
 
 // Single test debugging
-const input = fs.readFileSync('contracts/shogi.scilla').toString();
+const input = fs.readFileSync('contracts/address_list_traversal.scilla').toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);
 export const parser = new ScillaParser(tokens);
+// const tree = parser.simple_exp();
 const tree = parser.cmodule();
+
 
 
 // import EvalSyntax from "./evalSyntax.js";
 // import SyntaxVisitor from './syntaxVisitor.js';
 
 // tree.accept(new SyntaxVisitor);
-tree.accept(new TranslateVisitor({}));
+tree.accept(new TranslateVisitor());
 
 
 

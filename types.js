@@ -85,7 +85,7 @@ export default class ScillaType {
             ? new AddressType()
             : ctx instanceof SP.MapTargContext
             ? new MapType(this.resolveTMapKey(ctx.k), this.resolveTMapValue(ctx.v))
-            : console.log("resolveTArg: Couldn't resolve TArg");
+            : console.log("resolveTArg: Couldn't resolve TArg " + ctx.getText());
     }
 
     //return ScillaType
@@ -107,6 +107,62 @@ export default class ScillaType {
         }
     }
 
+    resolveTMapValueTArgs(ctx) {
+        if (ctx.t instanceof SP.TMP1Context) {
+            if (ctx.targs === []) {
+                return this.to_type(ctx.d.getText());
+            } else {
+                const argTList = ctx.targs.map(targ =>
+                    this.resolveTMapValueArgs(targ)
+                );
+                return new ADT(ctx.d.getText(), argTList);
+            }
+        }
+        if (ctx.t instanceof SP.TMP2Context) {
+            return this.resolveTMapValue(ctx.t_map_value());
+        }
+    }
+
+    resolveTMapValueArgs(ctx){
+        if (ctx instanceof SP.TMP3Context) {
+            this.resolveTMapValueTArgs(ctx.t);
+        }
+        if (ctx instanceof SP.TMP4Context) {
+            return this.to_type(ctx.d.getText());
+        }
+        if (ctx instanceof SP.TMP5Context) {
+            return this.resolveMapType(ctx);
+        }
+    }
+
+    resolveTMapValue(ctx){
+        if (ctx instanceof SP.TMPScidContext) {
+            return this.to_type(ctx.d.getText());
+        }
+        if (ctx instanceof SP.TMPMapContext) {
+            return this.resolveMapType(ctx);
+        }
+        if (ctx instanceof SP.TMPParenContext) {
+            return this.resolveTMapValueTArgs(ctx.t);
+        }
+        if (ctx instanceof SP.TMPAddrContext) {
+            return this.resolveAddressTyp(ctx.vt);
+        }
+    }
+
+    resolveMapType(ctx) {
+        //Map keys can only be prim types (scid) or address types
+        const map_k_t = 
+            ctx.k.kt_to_map !== null 
+            ? this.to_type(ctx.k.kt_to_map.getText()) 
+            : this.resolveAddressTyp(ctx.k.kt.getText());
+        
+        //Map Value can only be another prim (scid), map, 
+        const map_v_t = this.resolveTMapValue(ctx.v);
+
+        return new MapType(map_k_t, map_v_t);
+    }
+
     generateSType(ctx) {
         if (ctx instanceof SP.PrimorADTTypeContext) {
             if (ctx.targs === []) {
@@ -119,7 +175,7 @@ export default class ScillaType {
             }
         }
         if (ctx instanceof SP.MapTypeContext) {
-            return new MapType(this.generateSType(ctx.v), this.generateSType(ctx.k));
+            return this.resolveMapType(ctx);
         }
         if (ctx instanceof SP.FunTypeContext) {
             return new FunType(this.generateSType(ctx.t1), this.generateSType(ctx.t2));
@@ -136,9 +192,8 @@ export default class ScillaType {
         if (ctx instanceof SP.TypeVarTypeContext) {
             return new TypeVar(ctx.getText());
         }
-        if (ctx instanceof SP.PrimTypeContext) {
-            return parseStringToPrimType(ctx.getText());
-        }
+        console.log("[ERROR]generateSType: Couldn't match type " + ctx.getText());
+        return undefined;
     }
 }
 

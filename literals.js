@@ -1,6 +1,3 @@
-import { DataConstructor } from "./syntax";
-
-
 export class ScillaLiterals {}
 
 /**

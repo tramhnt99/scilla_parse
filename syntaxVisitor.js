@@ -32,12 +32,6 @@ export default class SyntaxVisitor {
             ? console.log("TODO: ScidCid")
             : ctx instanceof SP.ScidHexContext
             ? console.log("TODO: ScidHex")
-            : ctx instanceof SP.ScidBoolContext
-            ? ctx.BOOLEAN().getText()
-            : ctx instanceof SP.ScidOptionContext
-            ? ctx.OPTION().getText()
-            : ctx instanceof SP.ScidPrimContext
-            ? ST.parseStringToPrimType(ctx.prim_types.getText()) 
             : this.printError("translateScid", "Couldn't match Scid")
     }
 
@@ -127,7 +121,7 @@ export default class SyntaxVisitor {
 
     translateBuiltin(ctx) {
         const id = ctx.b.getText();
-        const typeArgs = ctx.targs.map(targ => ST.resolveTArg(targ));
+        const typeArgs = ctx.targs === null ? undefined : ctx.targs.ts.map(targ => ST.resolveTArg(targ));
         const builtinArgs = this.translateBuiltinArgs(ctx.xs);
 
         return new SE.Builtin(id, typeArgs, builtinArgs);
@@ -166,12 +160,8 @@ export default class SyntaxVisitor {
     }
 
     translateLiteral(ctx) {
-        const val =  ctx instanceof SP.LitCidContext
-            ? ctx.i.getText()
-            : ctx instanceof SP.LitIntContext
-            ? parseInt(ctx.i_int.getText()) //integer
-            : ctx instanceof SP.LitBNumContext
-            ? parseInt(ctx.NUMBER().getText()) //BNUM number (> 0)
+        const val =  ctx instanceof SP.LitIntContext
+            ? parseInt(ctx.int_().getText())
             : ctx instanceof SP.LitNumContext
             ? parseInt(ctx.n.getText()) //number
             : ctx instanceof SP.LitHexContext
@@ -180,8 +170,6 @@ export default class SyntaxVisitor {
             ? ctx.getText() //string
             : ctx instanceof SP.LitEmpContext
             ? new SL.Map({}) //empty map
-            : ctx instanceof SP.LitBoolContext
-            ? ctx.getText()//(ctx.b.getText() === "True")
             : this.printError("translateLiteral", "Couldn't match literal.");
         return val
     }
