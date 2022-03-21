@@ -8,6 +8,7 @@ import { ScillaExpr as SE, Pattern, ClauseExp } from './syntax.js';
 import * as SL from './literals.js';
 
 const ST = new ScillaType();
+const SL_ = new SL.ScillaLiterals();
 
 export default class SyntaxVisitor {
 
@@ -160,18 +161,7 @@ export default class SyntaxVisitor {
     }
 
     translateLiteral(ctx) {
-        const val =  ctx instanceof SP.LitIntContext
-            ? parseInt(ctx.int_().getText())
-            : ctx instanceof SP.LitNumContext
-            ? parseInt(ctx.n.getText()) //number
-            : ctx instanceof SP.LitHexContext
-            ? undefined //hex TODO
-            : ctx instanceof SP.LitStringContext
-            ? ctx.getText() //string
-            : ctx instanceof SP.LitEmpContext
-            ? new SL.Map({}) //empty map
-            : this.printError("translateLiteral", "Couldn't match literal.");
-        return val
+        return SL_.generateLiteral(ctx);
     }
     
     translateSimpleExp(ctx) {

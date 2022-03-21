@@ -1,4 +1,50 @@
-export class ScillaLiterals {}
+import SP from './scillaParser.js';
+
+
+export class ScillaLiterals {
+
+    printError(funcname, msg) {
+        console.log("[ERROR]" + funcname + ": " + msg);
+    }
+
+    generateLiteral(ctx) {
+        if (ctx instanceof SP.LitIntContext) {
+            const i = parseInt(ctx.int_().getText());
+            return ctx.i.getText() === "Int32"
+            ? new Int32L(i)
+            : ctx.i.getText() === "Int64"
+            ? new Int64L(i)
+            : ctx.i.getText() === "Int128"
+            ? new Int128L(i)
+            : ctx.i.getText() === "Int256"
+            ? new Int256L(i)
+            : ctx.i.getText() === "Uint32"
+            ? new Uint32L(i)
+            : ctx.i.getText() === "Uint64"
+            ? new Uint64L(i)
+            : ctx.i.getText() === "Uint128"
+            ? new Uint128L(i)
+            : ctx.i.getText() === "Uint256"
+            ? new Uint256L(i)
+            : ctx.i.getText() === "BNum"
+            ? new BNumLit(i)
+            : this.printError("generateLiteral", "Couldn't match Int type: " + ctx.i.getText());
+        }
+        if (ctx instanceof SP.LitHexContext) {
+            return new BystrX(ctx.HEX().getText());
+        }
+        if (ctx instanceof SP.LitStringContext) {
+            return new StringLit(ctx.STRING().getText());
+        }
+        if (ctx instanceof SP.LitEmpContext) {
+            return new Map({});
+        }
+        this.printError("generateLiteral", "Couldn't match literal.");
+        return undefined;
+    }
+
+
+}
 
 /**
  * IntLit
@@ -32,26 +78,28 @@ export class UintLit extends ScillaLiterals{
     }
 }
 
-export class UInt32L extends UintLit {}
-export class UInt64L extends UintLit {}
-export class UInt128L extends UintLit {}
-export class UInt256L extends UintLit {}
-
-/**
- * StringLit
- */
-export class StringLit extends ScillaLiterals {
-    constructor(s) {
-        this.s = s;
-    }
-}
+export class Uint32L extends UintLit {}
+export class Uint64L extends UintLit {}
+export class Uint128L extends UintLit {}
+export class Uint256L extends UintLit {}
 
 /**
  * BNumLit
  */
 export class BNumLit extends ScillaLiterals {
     constructor(i) {
+        super();
         this.i = i;
+    }
+}
+
+/**
+ * StringLit
+ */
+export class StringLit extends ScillaLiterals {
+    constructor(s) {
+        super();
+        this.s = s;
     }
 }
 

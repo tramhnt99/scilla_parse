@@ -161,7 +161,6 @@ atomic_exp
 
 lit
     : i=cid i_int=int_ #LitInt
-    | n=NUMBER #LitNum
     | h=HEX #LitHex
     | s=STRING #LitString
     | EMP kt=t_map_key vt=t_map_value #LitEmp

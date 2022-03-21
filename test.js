@@ -214,16 +214,16 @@ const contracts = [
 ]
 
 import SyntaxVisitor from './syntaxVisitor.js';
-// for (let i = 0; i < expressions.length; i++) {
-//     const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
-//     console.log("Input: " + 'scilexp/'.concat(expressions[i]));
-//     const chars = new antlr4.InputStream(input);
-//     const lexer = new ScillaLexer(chars);
-//     const tokens = new antlr4.CommonTokenStream(lexer);
-//     const parser = new ScillaParser(tokens);
-//     const tree = parser.simple_exp();
-//     tree.accept(new SyntaxVisitor());
-// }
+for (let i = 0; i < expressions.length; i++) {
+    const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
+    console.log("Input: " + 'scilexp/'.concat(expressions[i]));
+    const chars = new antlr4.InputStream(input);
+    const lexer = new ScillaLexer(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    const parser = new ScillaParser(tokens);
+    const tree = parser.simple_exp();
+    tree.accept(new SyntaxVisitor());
+}
 import TranslateVisitor from './translate.js';
 for (let i = 0; i < contracts.length; i++) {
     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
