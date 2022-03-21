@@ -56,10 +56,10 @@ export default class ScillaType {
 
     //Returns ScillaType
     resolveTMapKey(ctx) {
-        if (ctx.scid() !== undefined) {
+        if (ctx.scid() !== null) {
             return this.to_type(ctx.scid().getText());
         }
-        if (ctx.address_typ() !== undefined) {
+        if (ctx.address_typ() !== null) {
             return new AddressType();
         }
         console.log("resolveTMapKey: Couldn't resolve type of map's key");
@@ -80,11 +80,11 @@ export default class ScillaType {
             : ctx instanceof SP.ScidTargContext
             ? this.to_type(ctx.d.getText())
             : ctx instanceof SP.TvarTargContext
-            ? new TypeVar(ctx.t_var.getText())
+            ? new TypeVar(ctx.TID().getText())
             : ctx instanceof SP.AddrTargContext
             ? new AddressType()
             : ctx instanceof SP.MapTargContext
-            ? new MapType(resolveTMapKey(ctx.k), resoleTMapValue(ctx.v))
+            ? new MapType(this.resolveTMapKey(ctx.k), this.resolveTMapValue(ctx.v))
             : console.log("resolveTArg: Couldn't resolve TArg");
     }
 
@@ -131,7 +131,7 @@ export default class ScillaType {
             return this.resolveAddressTyp(ctx.t_to_map)
         }
         if (ctx instanceof SP.PolyFunTyContext) {
-            return new PolyFun(ctx.tv.getText(), this.generateSType(ctx.t));
+            return new PolyFun(ctx.TID().getText(), this.generateSType(ctx.t));
         }
         if (ctx instanceof SP.TypeVarTypeContext) {
             return new TypeVar(ctx.getText());

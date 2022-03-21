@@ -213,45 +213,32 @@ const contracts = [
     'zil-game.scilla'
 ]
 
-
-// for (let i = 0; i < expressions.length; i++) {
-//     const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
-//     const chars = new antlr4.InputStream(input);
-//     const lexer = new MyGrammarLexer(chars);
-//     const tokens = new antlr4.CommonTokenStream(lexer);
-//     const parser = new MyGrammarParser(tokens);
-//     const tree = parser.simple_exp();
-//     console.log(expressions[i]);
-//     console.log(tree.toString(parser.ruleNames));
-// }
+import SyntaxVisitor from './syntaxVisitor.js';
+for (let i = 0; i < expressions.length; i++) {
+    const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
+    console.log("Input: " + 'scilexp/'.concat(expressions[i]));
+    const chars = new antlr4.InputStream(input);
+    const lexer = new ScillaLexer(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    const parser = new ScillaParser(tokens);
+    const tree = parser.simple_exp();
+    tree.accept(new SyntaxVisitor());
+}
 import TranslateVisitor from './translate.js';
 for (let i = 0; i < contracts.length; i++) {
     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
+    console.log("Input: " + 'contracts/'.concat(contracts[i]));
     const chars = new antlr4.InputStream(input);
     const lexer = new ScillaLexer(chars);
     const tokens = new antlr4.CommonTokenStream(lexer);
     const parser = new ScillaParser(tokens);
     const tree = parser.cmodule();
-    tree.accept(new TranslateVisitor({}));
-    // console.log(contracts[i]);
-    // console.log(tree.toString(parser.ruleNames));
+    tree.accept(new TranslateVisitor());
 }
 
 
 // Single test debugging
-const input = fs.readFileSync('contracts/Polynetwork.scilla').toString();
-// const input = fs.readFileSync('scilexp/id.scilexp').toString();
-// const chars = new antlr4.InputStream(input);
-// const lexer = new ScillaLexer(chars);
-// const tokens = new antlr4.CommonTokenStream(lexer);
-// export const parser = new ScillaParser(tokens);
-// const tree = parser.simple_exp();
-
-// import EvalVisitor from './eval.js';
-
-// tree.accept(new EvalVisitor({}));
-// console.log(tree.accept(new EvalVisitor()));
-// console.log(new Visitor());
+const input = fs.readFileSync('contracts/shogi.scilla').toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);

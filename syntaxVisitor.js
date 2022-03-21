@@ -3,209 +3,174 @@
 // https://medium.com/dailyjs/compiler-in-javascript-using-antlr-9ec53fd2780f
 import SP from './scillaParser.js'; //short for ScillaParser
 import ScillaType from './types.js';
-import { Let, Fun, App, Atomic, Literal, Var, Builtin, Message, Match,
-DataConstructorApp, TFun, TApp, Pattern, ExpPmClause, ArgPattern, BuiltinArgs } from './syntax.js';
+import { ScillaExpr as SE, Pattern, ClauseExp } from './syntax.js';
+import { Map } from './literals.js'; //Scilla Literals
 
 const ST = new ScillaType();
 
 export default class SyntaxVisitor {
-    visitCid(ctx) {
-        return ctx instanceof SP.CidCidContext
-            ? this.visitCID(ctx.id)
-            : ctx instanceof SP.CidBystrContext
-            ? this.visitCIDBystr(ctx.bystr)
-            : this.printError("visitCid", "Couldn't match cid type");
+
+    printError(funcname, msg) {
+        console.log("[ERROR]" + funcname + ": " + msg);
     }
 
-    visitSid(ctx) {
+    translateSid(ctx) {
         return ctx instanceof SP.SidNameContext
-            ? this.visitID(ctx.name)
+            ? ctx.name.getText()
             : ctx instanceof SP.SidSPIDContext
-            ? undefined 
+            ? ctx.SPID().getText()
             : ctx instanceof SP.SidCidContext
-            ? undefined 
-            : this.printError("visitSid", "Couldn't match sid");
+            ? console.log("[ERROR]SicCid") //TODO
+            : this.printError("translateSid", "Couldn't match sid " + ctx.getText());
     }
 
-    visitScid(ctx) {
+    translateScid(ctx) {
         return ctx instanceof SP.ScidNameContext
-            ? this.this.visitID(ctx.name)
+            ? ctx.name.getText()
             : ctx instanceof SP.ScidCidContext
             ? console.log("TODO: ScidCid")
             : ctx instanceof SP.ScidHexContext
             ? console.log("TODO: ScidHex")
             : ctx instanceof SP.ScidBoolContext
-            ? ctx.BOOLEAN().getText() === "True"
-                ? true
-                : false
+            ? ctx.BOOLEAN().getText()
             : ctx instanceof SP.ScidOptionContext
             ? ctx.OPTION().getText()
             : ctx instanceof SP.ScidPrimContext
-            ? console.log("TODO: ScidPrim")
-            : this.printError("visitScid", "Couldn't match Scid")
+            ? ST.parseStringToPrimType(ctx.prim_types.getText()) 
+            : this.printError("translateScid", "Couldn't match Scid")
     }
 
-    visitCIDBystr(ctx) {
-        return ctx.BYSTR().getText()
-            ? ctx.BYSTR().getText()
-            :  this.printError("visitCIDBystr", "Couldn't match CIDBystr");
-    }
-
-    visitCID(ctx) {
-        return ctx.CID().getText()
-            ? ctx.CID().getText()
-            : this.printError("visitCID", "Couldn't match CID");
-    }
-
-    visitID(ctx) {
-        // console.log("Looking for ID " + ctx.getText());
-        return ctx.ID().getText()
-            ? ctx.ID().getText()
-            : this.printError("visitID", "Couldn't match ID");
-    }
-
-    visitWildcard(ctx) {
-        return ctx.getText();
-    }
-
-    visitArgPattern(ctx) {
-        if (ctx instanceof SP.ArgPatternWildcardContext) {
-            return new ArgPattern(this.visitWildcard(ctx), null, null, null);
-        } else if (ctx instanceof SP.ArgPatternBinderContext) {
-            return new ArgPattern(null, this.visitID(ctx.x), null, null);
-        } else if (ctx instanceof SP.ArgPatternConstructorContext) {
-            return new ArgPattern(null, null, this.visitScid(ctx.c), null);
-        } else if (ctx instanceof SP.ArgPatternPatternContext) {
-            return new ArgPattern(null, null, null, this.visitPattern(ctx.p))
+    translateArgPattern(ctx) {
+        if (ctx instanceof SP.WildcardArgContext) {
+            return new Pattern.WildCard();
+        } else if (ctx instanceof SP.BinderArgContext) {
+            return new Pattern.Binder(ctx.x.getText());
+        } else if (ctx instanceof SP.ConstructorArgContext) {
+            return new Pattern.ConstructorPat(ctx.c.getText(), []);
+        } else if (ctx instanceof SP.PatternArgContext) {
+            return this.translatePattern(ctx.p);
         }
     }
 
-    visitBuiltinArgs(ctx) {
-        console.log(ctx.args.name.getText())
-        // console.log(ctx.args.map((a)=>"hi"))
-        // return ctx instanceof SP.BuiltinArgsSidContext
-        //     ? new BuiltinArgs(this.visitSid(ctx.args))
-        // console.log(ctx.xs)
-        // console.log(this.visitSid(ctx.args))
-        return this.visitSid(ctx.args)
-        // console.log(ctx.args.getText())
-        // console.log(ctx.LPAREN())
+    translateBuiltinArgs(ctx) {
+        if (ctx instanceof SP.BuiltinArgsSidContext) {
+            return ctx.args.map(arg => arg.getText());
+        }
+        
+        if (ctx instanceof SP.BuildinArgsParenContext) {
+            return [];
+        }
     }
 
-    visitExpPmClause(ctx) {
-        const p = this.visitPattern(ctx.p)
-        const e = this.visitExp(ctx.e)
-        return new ExpPmClause(p, e)
-    }
-
-    visitPattern(ctx) {
+    translatePattern(ctx) {
         if (ctx instanceof SP.WildcardContext) {
-            return new Pattern(this.visitWildcard(ctx), null, null, null);
-        } else if (ctx instanceof SP.BinderContext) {
-            return new Pattern(null, this.visitID(ctx.x), null, null);
-        } else if (ctx instanceof SP.ConstructorContext) {
-            const c = this.visitScid(ctx.c)
-            const ps = ctx.ps !== null ? this.visitArgPattern(ctx.ps) : null;
-            return new Pattern(null, null, c, ps);
+            return new Pattern.WildCard();
+        }
+        
+        if (ctx instanceof SP.BinderContext) {
+            return new Pattern.Binder(ctx.x.getText());
+        }
+        
+        if (ctx instanceof SP.ConstructorContext) {
+            const c = ctx.c.getText();
+            const ps = ctx.ps.map(p => this.translateArgPattern(p));
+            return new Pattern.ConstructorPat(c, ps);
         }
     }
 
-    visitLet(ctx) {
+    translateLet(ctx) {
         if (!ctx) {return;}
         const x = ctx.x.getText();
         const type = ctx.ty !== null ? ST.generateSType(ctx.ty) : null;
-        const value = this.visitSimpleExp(ctx.f);
-        return new Let(x, type, value, this.visitExp(ctx.e));
+        const value = this.translateSimpleExp(ctx.f);
+        return new SE.Let(x, type, value, this.translateExp(ctx.e));
     }
 
     //Returns a closure
-    visitFun(ctx) {
+    translateFun(ctx) {
         if (ctx === undefined) {
-            this.visitExpprintError("visitFun", "Ctx is undefined.");
+            this.translateExpprintError("translateFun", "Ctx is undefined.");
         }
         const param = ctx.id.getText();
         const type = ST.generateSType(ctx.ty)
-        const expr = this.visitExp(ctx.e)
+        const expr = this.translateExp(ctx.e)
 
-        return new Fun(param, type, expr);
+        return new SE.Fun(param, type, expr);
     }
 
-    visitApp(ctx) {
-        const func = this.visitSid(ctx.f_var);
-        const argsLit = ctx.args.map(arg => this.visitSid(arg))
+    translateApp(ctx) {
+        const func = this.translateSid(ctx.f_var);
+        const argsLit = ctx.args.map(arg => this.translateSid(arg))
 
-        return new App(func, argsLit);
+        return new SE.App(func, argsLit);
     }
 
-    visitAtomic(ctx) {
+    translateAtomic(ctx) {
         return ctx.a instanceof SP.AtomicLitContext
-            ? new Literal(this.visitLiteral(ctx.a.l))
+            ? new SE.Literal(this.translateLiteral(ctx.a.l))
             : ctx.a instanceof SP.AtomicSidContext
-            ? new Var(this.visitSid(ctx.a.i))
-            : this.printError("visitAtomic", "Couldn't match atomic expression.")
+            ? new SE.Var(this.translateSid(ctx.a.i))
+            : this.printError("translateAtomic", "Couldn't match atomic expression.")
     }
 
-    visitMessage(ctx) {
+    translateMessage(ctx) {
         const es = ctx.es.map((pair)=>{
             return pair.l !== null
-            ? {i: this.visitSid(pair.i), l: this.visitLiteral(pair.l)}
+            ? {i: this.translateSid(pair.i), l: this.translateLiteral(pair.l)}
             : pair.v !== null
-            ? {i: this.visitSid(pair.i), v: this.visitSid(pair.v)}
-            : this.printError("visitMessage", "Message not defined correctly.")
-        })
-        return new Message(es);
-    }
-
-    visitBuiltin(ctx) {
-        const id = this.visitID(ctx.b);
-        const typeArgs = ctx.targs.map(targ => targ.ts !== null ? ST.resolveTArg(targ) : targ.getText());
-        const builtinArgs = this.visitBuiltinArgs(ctx.xs);
-
-        return new Builtin(id, typeArgs, builtinArgs);
-    }
-
-    visitDataConstructorApp(ctx) {
-        const c = this.visitScid(ctx.c);
-        const targ =ctx.ts.getText();
-        const args = ctx.args.map((arg) => this.visitSid(arg));
-        
-        return new DataConstructorApp(c, targ, args);
-    }
-
-    visitMatchExp(ctx) {
-        const x_sid = this.visitSid(ctx.x_sid);
-        const cs = ctx.cs.map((clause) => {
-            return this.visitExpPmClause(clause)
-            // const { p, e } = this.visitExpPmClause(clause)
-            // const pattern = {
-            //     p: p,
-            //     e: e,
-            // }
-            // return pattern
+            ? {i: this.translateSid(pair.i), v: this.translateSid(pair.v)}
+            : this.printError("translateMessage", "Message not defined correctly.")
         });
-        return new Match(x_sid,cs)
+        return new SE.Message(es);
     }
 
-    visitTFun(ctx) {
+    translateBuiltin(ctx) {
+        const id = ctx.b.getText();
+        const typeArgs = ctx.targs.map(targ => ST.resolveTArg(targ));
+        const builtinArgs = this.translateBuiltinArgs(ctx.xs);
+
+        return new SE.Builtin(id, typeArgs, builtinArgs);
+    }
+
+    translateDataConstructor(ctx) {
+        const c = this.translateScid(ctx.c);
+        const targs = ctx.ts === null ? [] : ctx.ts.ts.map(t => ST.resolveTArg(t));
+        const args = ctx.args.map((arg) => this.translateSid(arg));
+        
+        return new SE.DataConstructor(c, targs, args);
+    }
+
+    translateMatchExp(ctx) {
+        const x = this.translateSid(ctx.x_sid);
+        const cs = ctx.cs.map(clause => this.translateExpPattern(clause));
+        return new SE.Match(x, cs);
+    }
+
+    translateExpPattern(ctx) {
+        const pat = this.translatePattern(ctx.p);
+        const exp = this.translateExp(ctx.e);
+        return new ClauseExp(pat, exp);
+    }
+
+    translateTFun(ctx) {
         const tvar = ctx.TID().getText();
-
-        return new TFun(tvar, this.visitSimpleExp(ctx.e.f));
+        return new SE.TFun(tvar, this.translateSimpleExp(ctx.e.f));
     }
 
-    visitTApp(ctx) {
-        const tfunc = this.visitSid(ctx.f);
+    translateTApp(ctx) {
+        const tfunc = this.translateSid(ctx.f);
         const argsLit = ctx.targs.map(targ => targ.getText());
 
-        return new TApp(tfunc, argsLit);
+        return new SE.TApp(tfunc, argsLit);
     }
 
-    visitLiteral(ctx) {
+    translateLiteral(ctx) {
         const val =  ctx instanceof SP.LitCidContext
-            ? this.visitCid(ctx.i, env)
+            ? ctx.i.getText()
             : ctx instanceof SP.LitIntContext
             ? parseInt(ctx.i_int.getText()) //integer
             : ctx instanceof SP.LitBNumContext
-            ? parseInt(ctx.i_number.getText()) //BNUM number (> 0)
+            ? parseInt(ctx.NUMBER().getText()) //BNUM number (> 0)
             : ctx instanceof SP.LitNumContext
             ? parseInt(ctx.n.getText()) //number
             : ctx instanceof SP.LitHexContext
@@ -213,53 +178,46 @@ export default class SyntaxVisitor {
             : ctx instanceof SP.LitStringContext
             ? ctx.getText() //string
             : ctx instanceof SP.LitEmpContext
-            ? undefined //empty map TODO
+            ? new Map([]) //empty map
             : ctx instanceof SP.LitBoolContext
             ? ctx.getText()//(ctx.b.getText() === "True")
-            : this.printError("visitLiteral", "Couldn't match literal.");
+            : this.printError("translateLiteral", "Couldn't match literal.");
         return val
     }
     
-    visitSimpleExp(ctx) {
+    translateSimpleExp(ctx) {
         if (!ctx) {return;}
         return ctx instanceof SP.LetContext
-            ? this.visitLet(ctx)
+            ? this.translateLet(ctx)
             : ctx instanceof SP.AtomicContext
-            ? this.visitAtomic(ctx)
+            ? this.translateAtomic(ctx)
             : ctx instanceof SP.FunContext
-            ? this.visitFun(ctx)
+            ? this.translateFun(ctx)
             : ctx instanceof SP.AppContext
-            ? this.visitApp(ctx)
+            ? this.translateApp(ctx)
             : ctx instanceof SP.MessageContext
-            ? this.visitMessage(ctx)
+            ? this.translateMessage(ctx)
             : ctx instanceof SP.BuiltinContext
-            ? this.visitBuiltin(ctx) //All builtins will be saved as closures
+            ? this.translateBuiltin(ctx)
             : ctx instanceof SP.DataConstructorAppContext
-            ? this.visitDataConstructorApp(ctx)
+            ? this.translateDataConstructor(ctx)
             : ctx instanceof SP.MatchContext
-            ? this.visitMatchExp(ctx)
+            ? this.translateMatchExp(ctx)
             : ctx instanceof SP.TFunContext
-            ? this.visitTFun(ctx)
+            ? this.translateTFun(ctx)
             : ctx instanceof SP.TAppContext
-            ? this.visitTApp(ctx)
+            ? this.translateTApp(ctx)
             : undefined;
     }
 
-    visitExp(ctx) {
-        return (this.visitSimpleExp(ctx.f));
+    translateExp(ctx) {
+        return (this.translateSimpleExp(ctx.f));
     }
 
     visitChildren(ctx) {
         if (!ctx) {return;}
-        const syntaxTree = {}
-        syntaxTree['program'] = this.visitSimpleExp(ctx)
-        // console.log(syntaxTree.program.rhs.rhs.rhs.constructor.name)
-        console.log(syntaxTree.program.rhs.rhs.rhs.rhs.rhs.cs)
         return ctx instanceof SP.Simple_expContext
-            ? console.log(
-                //this.visitSimpleExp(ctx, {}), 
-                syntaxTree['program'] = this.visitSimpleExp(ctx)
-                )
+            ? this.translateSimpleExp(ctx)
             : undefined;
 
     }

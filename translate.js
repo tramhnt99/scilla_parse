@@ -5,7 +5,6 @@
  */
 
 import SP from './scillaParser.js'; //short for ScillaParser
-import ScillaTypes from './types.js'; //ScillaTypes
 import { Cmodule, Library, ContractDef,
         Field, Component, Clause, Contract,
         Pattern as Pat,
@@ -13,11 +12,13 @@ import { Cmodule, Library, ContractDef,
         ScillaStmt as SS,
         LibEntry as LE} from './syntax.js';
 import ScillaType from './types.js';
+import SyntaxVisitor from './syntaxVisitor.js';
 
 export default class TranslateVisitor{
 
     constructor(){
         this.ST = new ScillaType();
+        this.SV = new SyntaxVisitor();
     }
 
     printError(funcname, msg) {
@@ -68,7 +69,7 @@ export default class TranslateVisitor{
 
         if (ctx instanceof SP.BindContext) {
             const x = ctx.l.getText();
-            const e = undefined; //TODO: expr
+            const e = this.SV.translateExp(ctx.r);
             return new SS.Bind(x, e);
         }
 
@@ -191,7 +192,7 @@ export default class TranslateVisitor{
 
     translateField(ctx) {
         const parampair = this.translateIdWithType(ctx.iwt);
-        const e = undefined; //TODO: expr
+        const e = this.SV.translateExp(ctx.rhs);
         return new Field(parampair[0], parampair[1], e);
     }
 
@@ -221,7 +222,7 @@ export default class TranslateVisitor{
     translateContract(ctx){
         const cname = ctx.c.getText();
         const cparams = ctx.params.map(param => this.translateIdWithType(param.iwt));
-        const cconstraint = undefined; //TODO: use translate expr
+        const cconstraint = ctx.ct === null ? undefined : this.SV.translateExp(ctx.ct.f); 
         const cfields = ctx.fs.map(field => this.translateField(field));
         const ccomps = ctx.comps.map(comp => this.translateComp(comp));
         return new Contract(cname, cparams, cconstraint, cfields, ccomps);
@@ -237,7 +238,7 @@ export default class TranslateVisitor{
         if (ctx instanceof SP.LibVarContext) {
             const x = ctx.ns.getText();
             const tyopt = ctx.t === null ? undefined : this.ST.generateSType(ctx.t);
-            const e = undefined;; //TODO: Use translate expression
+            const e = this.SV.translateExp(ctx.e);
             return new LE.LibVar(x, tyopt, e);
         } 
         
@@ -293,8 +294,7 @@ export default class TranslateVisitor{
     visitChildren(ctx) {
         if (!ctx) {return;}
         return ctx instanceof SP.CmoduleContext
-        ? console.log(
-            this.translateCModule(ctx))
+        ? this.translateCModule(ctx)
         : undefined;
     }
 
