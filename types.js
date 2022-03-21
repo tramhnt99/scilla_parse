@@ -36,6 +36,8 @@ export default class ScillaType {
             ? new Exception
             : str.indexOf("ByStr") !== -1 && str.length > 5
             ? new ByStrX(parseInt(str.substr(5, str.length - 1)))
+            : str.substr(0, 6) === "Option" 
+            ? new Option(this.parseStringToPrimType(str.substr(7, str.length - 1)))
             : console.log("[ERROR]parseStringToPrimType: Couldn't match Prim Type: " + str);
     }
 
@@ -55,7 +57,6 @@ export default class ScillaType {
         if (ctx.scid() !== undefined) {
             return this.to_type(ctx.scid().getText());
         }
-
         if (ctx.address_typ() !== undefined) {
             return new AddressType();
         }
@@ -106,8 +107,8 @@ export default class ScillaType {
 
     generateSType(ctx) {
         if (ctx instanceof SP.PrimorADTTypeContext) {
-            if (this.parseStringToPrimType(ctx.d.getText()) !== undefined) {
-                return this.parseStringToPrimType(ctx.d.getText());
+            if (ctx.targs === []) {
+                return this.to_type(ctx.d.getText());
             } else {
                 const argTList = ctx.targs.map(targ =>
                     this.resolveTArg(targ)

@@ -1,4 +1,4 @@
-// Generated from scilla.g4 by ANTLR 4.9.3
+// Generated from scilla.g4 by ANTLR 4.9
 // jshint ignore: start
 import antlr4 from 'antlr4';
 

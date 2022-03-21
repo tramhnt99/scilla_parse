@@ -224,22 +224,22 @@ const contracts = [
 //     console.log(expressions[i]);
 //     console.log(tree.toString(parser.ruleNames));
 // }
-// import TranslateVisitor from './translate.js';
-// for (let i = 0; i < contracts.length; i++) {
-//     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
-//     const chars = new antlr4.InputStream(input);
-//     const lexer = new ScillaLexer(chars);
-//     const tokens = new antlr4.CommonTokenStream(lexer);
-//     const parser = new ScillaParser(tokens);
-//     const tree = parser.cmodule();
-//     tree.accept(new TranslateVisitor({}));
-//     // console.log(contracts[i]);
-//     // console.log(tree.toString(parser.ruleNames));
-// }
+import TranslateVisitor from './translate.js';
+for (let i = 0; i < contracts.length; i++) {
+    const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
+    const chars = new antlr4.InputStream(input);
+    const lexer = new ScillaLexer(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    const parser = new ScillaParser(tokens);
+    const tree = parser.cmodule();
+    tree.accept(new TranslateVisitor({}));
+    // console.log(contracts[i]);
+    // console.log(tree.toString(parser.ruleNames));
+}
 
 
 // Single test debugging
-const input = fs.readFileSync('scilexp/pm3.scilexp').toString();
+const input = fs.readFileSync('contracts/type_casts.scilla').toString();
 // const input = fs.readFileSync('scilexp/id.scilexp').toString();
 // const chars = new antlr4.InputStream(input);
 // const lexer = new ScillaLexer(chars);
@@ -252,7 +252,7 @@ const input = fs.readFileSync('scilexp/pm3.scilexp').toString();
 // tree.accept(new EvalVisitor({}));
 // console.log(tree.accept(new EvalVisitor()));
 // console.log(new Visitor());
-import TranslateVisitor from './translate.js';
+// import TranslateVisitor from './translate.js';
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);
@@ -260,10 +260,10 @@ export const parser = new ScillaParser(tokens);
 const tree = parser.cmodule();
 
 
-import EvalSyntax from "./evalSyntax.js";
-import SyntaxVisitor from './syntaxVisitor.js';
+// import EvalSyntax from "./evalSyntax.js";
+// import SyntaxVisitor from './syntaxVisitor.js';
 
-tree.accept(new SyntaxVisitor);
+// tree.accept(new SyntaxVisitor);
 tree.accept(new TranslateVisitor({}));
 
 
