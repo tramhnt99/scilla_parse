@@ -1,5 +1,7 @@
 //Syntax of Scilla programs
 
+import { ErrorNode } from "antlr4/tree/Tree";
+
 class ScillaProgram {}
 
 //Scilla expressions
@@ -29,7 +31,7 @@ export class Fun extends ScillaExpr {
     /**
      * 
      * @param {String} id 
-     * @param {*} ty // should be from Types?
+     * @param {SType} ty
      * @param {ScillaExpr} e 
      */
     constructor(id, ty, e) {
@@ -45,7 +47,7 @@ export class App extends ScillaExpr {
     /**
      * 
      * @param {String} f_var 
-     * @param {*} args 
+     * @param {String[]} args 
      */
     constructor(f_var, args) {
         super();
@@ -55,28 +57,10 @@ export class App extends ScillaExpr {
 }
 ScillaExpr.App = App;
 
-export class Atomic extends ScillaExpr {
-    /**
-     * 
-     * @param {AtomicExpr} a 
-     */
-    constructor(a) {
+export class Var extends ScillaExpr {
+    constructor(s) {
         super();
-        this.a = a;
-    }
-}
-ScillaExpr.Atomic = Atomic;
-
-export class Literal extends Atomic {
-    constructor(a) {
-        super(a);
-    }
-}
-ScillaExpr.Literal = Literal;
-
-export class Var extends Atomic {
-    constructor(a) {
-        super(a);
+        this.s = s;
     }
 }
 ScillaExpr.Var = Var;
@@ -209,6 +193,13 @@ ScillaExpr.TApp = TApp;
  * General
  *
  ****************************************************** */
+
+//Can be returned as a result any functions
+export class Error{
+    constructor(error_msg) {
+        this.s = error_msg;
+    }
+}
 
 export class Pattern {}
 

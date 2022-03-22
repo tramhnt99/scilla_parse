@@ -5,10 +5,10 @@ import SP from './scillaParser.js'; //short for ScillaParser
 import ScillaType from './types.js';
 import { ScillaExpr as SE, Pattern, ClauseExp } from './syntax.js';
 // import { Map } from './literals.js'; //Scilla Literals
-import * as SL from './literals.js';
+import { ScillaLiterals } from './literals.js';
 
 const ST = new ScillaType();
-const SL_ = new SL.ScillaLiterals();
+const SL = new ScillaLiterals();
 
 export default class SyntaxVisitor {
 
@@ -103,7 +103,7 @@ export default class SyntaxVisitor {
 
     translateAtomic(ctx) {
         return ctx.a instanceof SP.AtomicLitContext
-            ? new SE.Literal(this.translateLiteral(ctx.a.l))
+            ? this.translateLiteral(ctx.a.l)
             : ctx.a instanceof SP.AtomicSidContext
             ? new SE.Var(this.translateSid(ctx.a.i))
             : this.printError("translateAtomic", "Couldn't match atomic expression.")
@@ -161,7 +161,7 @@ export default class SyntaxVisitor {
     }
 
     translateLiteral(ctx) {
-        return SL_.generateLiteral(ctx);
+        return SL.generateLiteral(ctx);
     }
     
     translateSimpleExp(ctx) {

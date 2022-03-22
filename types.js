@@ -21,7 +21,7 @@ export default class ScillaType {
             : str === 'Uint256'
             ? new Uint256()
             : str === 'Bystr'
-            ? new ByStr()
+            ? new ByStrTyp()
             : str === 'Bool'
             ? new Bool()
             : str === 'String'
@@ -35,7 +35,7 @@ export default class ScillaType {
             : str === 'Exception'
             ? new Exception
             : str.indexOf("ByStr") !== -1 && str.length > 5
-            ? new ByStrX(parseInt(str.substr(5, str.length - 1)))
+            ? new ByStrXTyp(parseInt(str.substr(5, str.length - 1)))
             : str.substr(0, 6) === "Option" 
             ? new Option(this.parseStringToPrimType(str.substr(7, str.length - 1)))
             : undefined
@@ -198,52 +198,52 @@ export default class ScillaType {
 }
 
 //Primitive Types
-class PrimType extends ScillaType {}
+export class PrimType extends ScillaType {}
 
-class Int64 extends PrimType {}
+export class Int64 extends PrimType {}
 
-class Int32 extends PrimType {}
+export class Int32 extends PrimType {}
 
-class Int128 extends PrimType {}
+export class Int128 extends PrimType {}
 
-class Int256 extends PrimType {}
+export class Int256 extends PrimType {}
 
-class Uint32 extends PrimType {}
+export class Uint32 extends PrimType {}
 
-class Uint64 extends PrimType {}
+export class Uint64 extends PrimType {}
 
-class Uint128 extends PrimType {}
+export class Uint128 extends PrimType {}
 
-class Uint256 extends PrimType {}
+export class Uint256 extends PrimType {}
 
-class ByStr extends PrimType {}
+export class ByStrTyp extends PrimType {}
 
-class ByStrX extends PrimType {
+export class ByStrXTyp extends PrimType {
     constructor(i) {
         super();
-        this.i = i; //Bystr20 then i = 20;
+        this.i = i; //Bystr20 then i = 20; i is the length
     }
 }
 
-class Bool extends PrimType {}
+export class Bool extends PrimType {}
 
-class String extends PrimType {}
+export class String extends PrimType {}
 
-class BNum extends PrimType {}
+export class BNum extends PrimType {}
 
-class Message extends PrimType {}
+export class Message extends PrimType {}
 
-class Event extends PrimType {}
+export class Event extends PrimType {}
 
-class Exception extends PrimType {}
+export class Exception extends PrimType {}
 
 
 
 //Unit
-class Unit extends ScillaType {}
+export class Unit extends ScillaType {}
 
 //MapType t * t
-class MapType extends ScillaType {
+export class MapType extends ScillaType {
     constructor(t1, t2) {
         super();
         this.t1 = t1;
@@ -252,7 +252,7 @@ class MapType extends ScillaType {
 }
 
 //FunType t -> t
-class FunType extends ScillaType {
+export class FunType extends ScillaType {
     constructor(t1, t2) {
         super();
         this.t1 = t1;
@@ -261,7 +261,7 @@ class FunType extends ScillaType {
 }
 
 //TypeVar string
-class TypeVar extends ScillaType {
+export class TypeVar extends ScillaType {
     constructor(name) {
         super();
         this.name = name;
@@ -269,7 +269,7 @@ class TypeVar extends ScillaType {
 }
 
 //PolyFun string -> t
-class PolyFun extends ScillaType {
+export class PolyFun extends ScillaType {
     constructor(name, t) {
         super();
         this.name = name;
@@ -278,7 +278,7 @@ class PolyFun extends ScillaType {
 }
 
 //ADT string -> t list
-class ADT extends ScillaType {
+export class ADT extends ScillaType {
     constructor(id, tlist) {
         super();
         this.name = id;
@@ -294,19 +294,22 @@ class ADT extends ScillaType {
     //      CodeAddr
     //        / \
     //  LibAddr ContrAddr
-class AddressType extends ScillaType {}
+export class AddressType extends ScillaType {}
 
-class AnyAddr extends AddressType {}
+export class AnyAddr extends AddressType {}
 
-class ContrAddr extends AddressType {
+export class ContrAddr extends AddressType {
     //Contains addresses of other contract
-    //@fs: list of fields in contract
+    /**
+     * 
+     * @param {{id: String, typ: SType}[]} fs 
+     */
     constructor(fs) {
         super();
         this.fs = fs;
     }
 }
 
-class LibAddr extends AddressType {}
+export class LibAddr extends AddressType {}
 
-class CodeAddr extends AddressType {}
+export class CodeAddr extends AddressType {}

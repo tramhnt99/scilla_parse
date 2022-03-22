@@ -247,10 +247,6 @@ export const parser = new ScillaParser(tokens);
 const tree = parser.cmodule();
 
 
-
-// import EvalSyntax from "./evalSyntax.js";
-// import SyntaxVisitor from './syntaxVisitor.js';
-
 // tree.accept(new SyntaxVisitor);
 tree.accept(new TranslateVisitor());
 
