@@ -1,8 +1,8 @@
 import SP from './scillaParser.js';
 import * as ST from './types.js';
-import { Error } from './syntax.js';
+import { Error, Literal } from './syntax.js';
 
-export class ScillaLiterals {
+export class ScillaLiterals extends Literal {
 
     printError(funcname, msg) {
         console.log("[ERROR]" + funcname + ": " + msg);

@@ -165,7 +165,7 @@ export default class ScillaType {
 
     generateSType(ctx) {
         if (ctx instanceof SP.PrimorADTTypeContext) {
-            if (ctx.targs === []) {
+            if (ctx.targs.length === 0) {
                 return this.to_type(ctx.d.getText());
             } else {
                 const argTList = ctx.targs.map(targ =>

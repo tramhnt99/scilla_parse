@@ -214,37 +214,51 @@ const contracts = [
 ]
 
 import SyntaxVisitor from './syntaxVisitor.js';
-for (let i = 0; i < expressions.length; i++) {
-    const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
-    console.log("Input: " + 'scilexp/'.concat(expressions[i]));
-    const chars = new antlr4.InputStream(input);
-    const lexer = new ScillaLexer(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    const parser = new ScillaParser(tokens);
-    const tree = parser.simple_exp();
-    tree.accept(new SyntaxVisitor());
-}
+// for (let i = 0; i < expressions.length; i++) {
+//     const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
+//     console.log("Input: " + 'scilexp/'.concat(expressions[i]));
+//     const chars = new antlr4.InputStream(input);
+//     const lexer = new ScillaLexer(chars);
+//     const tokens = new antlr4.CommonTokenStream(lexer);
+//     const parser = new ScillaParser(tokens);
+//     const tree = parser.simple_exp();
+//     tree.accept(new SyntaxVisitor());
+// }
 import TranslateVisitor from './translate.js';
-for (let i = 0; i < contracts.length; i++) {
-    const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
-    console.log("Input: " + 'contracts/'.concat(contracts[i]));
-    const chars = new antlr4.InputStream(input);
-    const lexer = new ScillaLexer(chars);
-    const tokens = new antlr4.CommonTokenStream(lexer);
-    const parser = new ScillaParser(tokens);
-    const tree = parser.cmodule();
-    tree.accept(new TranslateVisitor());
-}
+// for (let i = 0; i < contracts.length; i++) {
+//     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
+//     console.log("Input: " + 'contracts/'.concat(contracts[i]));
+//     const chars = new antlr4.InputStream(input);
+//     const lexer = new ScillaLexer(chars);
+//     const tokens = new antlr4.CommonTokenStream(lexer);
+//     const parser = new ScillaParser(tokens);
+//     const tree = parser.cmodule();
+//     tree.accept(new TranslateVisitor());
+// }
 
 
 // Single test debugging
-const input = fs.readFileSync('contracts/address_list_traversal.scilla').toString();
+// const input = fs.readFileSync('contracts/address_list_traversal.scilla').toString();
+// const chars = new antlr4.InputStream(input);
+// const lexer = new ScillaLexer(chars);
+// const tokens = new antlr4.CommonTokenStream(lexer);
+// export const parser = new ScillaParser(tokens);
+// // const tree = parser.simple_exp();
+// const tree = parser.cmodule();
+
+//Testing Type Checking
+import ScillaTypeChecker from './typechecker.js';
+const input = fs.readFileSync('scilexp/app4.scilexp').toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);
 export const parser = new ScillaParser(tokens);
-// const tree = parser.simple_exp();
-const tree = parser.cmodule();
+const tree = parser.simple_exp();
+const exprAst = tree.accept(new SyntaxVisitor());
+const STC = new ScillaTypeChecker();
+const typed = STC.typeExpr(exprAst, {});
+console.log(typed);
+
 
 
 // tree.accept(new SyntaxVisitor);

@@ -4,7 +4,8 @@
 import * as SS from './syntax.js';
 import { ScillaLiterals } from './literals.js';
 import { Error } from './syntax.js';
-import * as ST from './types.js';
+import ScillaType, * as ST from './types.js';
+import TranslateVisitor from './translate.js';
 
 
 const SL = new ScillaLiterals();
@@ -40,11 +41,48 @@ export default class ScillaTypeChecker{
     //given an environment
     isWellFormedType(ty, tenv) {
         //TODO
+        return true;
     }
 
+    //Checking type equality
     typeEqual(ty1, ty2) {
-        //TODO
-        return true;
+        if (ty1 instanceof ST.PrimType && ty2 instanceof ST.PrimType) {
+            return ty1.constructor === ty2.constructor;
+        }
+        if (ty1 instanceof ST.TypeVar && ty2 instanceof ST.TypeVar) {
+            return ty1.name === ty2.name;
+        }
+        if (ty1 instanceof ST.Unit && ty2 instanceof ST.Unit) {
+            return true;
+        }
+        if (ty1 instanceof ST.ADT && ty2 instanceof ST.ADT) {
+            const eqNames = ty1.id === ty2.id;
+            const eqArgLength = ty1.t.length === ty2.t.length;
+            const eqArgs = ty1.t.reduce((is_true, t1, index) => 
+                is_true && (this.typeEqual(t1, ty2.t[index]))
+            , true);
+            return eqNames && eqArgLength && eqArgs;
+        }
+        if ((ty1 instanceof ST.MapType && ty2 instanceof ST.MapType) 
+            || (ty1 instanceof ST.FunType && ty2 instanceof ST.FunType)) {
+            return this.typeEqual(ty1.t1, ty2.t1) && this.typeEqual(ty1.t2, ty2.t2);
+        }
+        if (ty1 instanceof ST.PolyFun && ty2 instanceof ST.PolyFun) {
+            return (ty1.name === ty2.name && this.typeEqual(ty1.t, ty2.t));
+        }
+        if ((ty1 instanceof ST.AnyAddr && ty2 instanceof ST.AnyAddr)
+            || (ty1 instanceof ST.LibAddr && ty2 instanceof ST.LibAddr)
+            || (ty1 instanceof ST.CodeAddr && ty2 instanceof ST.CodeAddr)) {
+            return true;
+        }
+        if (ty1 instanceof ST.ContrAddr && ty2 instanceof ST.ContrAddr) {
+            return ty1.fs.reduce((is_true, t1) => {
+                const t2 = ty2.fs.find(t2 => t2.id === t1.id);
+                if (!t2) {return false;}
+                return is_true && this.typeEqual(t1.typ, t2.typ);
+            }, true)
+        }
+        return false;
     }
 
     //Checks whether one type is assignable to another
@@ -104,8 +142,26 @@ export default class ScillaTypeChecker{
         return this.typeEqual(tyFrom, tyTo);
     }
 
-    functionTypeApplies() {
-        //TODO
+    //Check that a function type applies for a given arity n
+    //to a list of argument types. Returns result type or Error().
+    functionTypeApplies(fty, actualsty) {
+        if (fty instanceof ST.FunType) {
+            if (fty.t1 instanceof ST.Unit && actualsty.length === 0) {
+                return fty.t2;
+            }
+            if (actualsty.length > 0) {
+                const assignable = this.typeAssignable(fty.t1, actualsty[0]);
+                if (assignable) {
+                    return this.functionTypeApplies(fty.t2, actualsty.slice(1, actualsty.length));
+                } else {
+                    return new Error("functionTypeApplies: Argument type is not assignable to function parameter.");
+                }
+            }
+        }
+        if (fty instanceof ScillaType && actualsty.length === 0) {
+            return fty;
+        }
+        return new Error("Ill-typed function application.");
     }
 
     //Typing Expressions
@@ -135,7 +191,7 @@ export default class ScillaTypeChecker{
             return this.makeRes(e, ty);
         }
         if (e instanceof SS.Fun) {
-            const isWF = isWellFormed(e.ty, tenv);
+            const isWF = this.isWellFormedType(e.ty, tenv);
             if (isWF instanceof Error) {
                 return isWF;
             }
@@ -156,15 +212,33 @@ export default class ScillaTypeChecker{
             if (!fty) {return new Error("typeExpr: Function type is not bound");}
             //Arguments Type - undefined arg types are checked in functionTypeApplies
             const actualsTy = e.args.map(arg => tenv[arg]);
-            const resType = this.functionTypeApplies(ty, actualsTy);
+            const resType = this.functionTypeApplies(fty, actualsTy);
             if (resType instanceof Error) {
                 return resType;
             }
-            const resTypeWF = isWellFormed(resType, tenv);
-            if (resType instanceof Error) {
-                return resType;
+            const resTypeWF = this.isWellFormedType(resType, tenv);
+            if (resTypeWF instanceof Error) {
+                return resTypeWF;
             }
+
             return this.makeRes(e, resType);
+        }
+
+        if (e instanceof SS.Let) {
+            const typedLhs = this.typeExpr(e.lhs, tenv);
+            if (typedLhs instanceof Error) { return typedLhs; }
+            const actualTyp = 
+                e.ty === null
+                ? this.getTy(typedLhs)
+                : this.typeAssignable(e.ty, this.getTy(typedLhs))
+                ? e.ty  
+                : new Error("Typing in Let is not assignable");
+            if (actualTyp instanceof Error) { return actualTyp; }
+            const tenv_ = Object.assign({}, tenv); 
+            tenv_[e.x] = actualTyp;
+            const typedRhs = this.typeExpr(e.rhs, tenv_);
+            if (typedRhs instanceof Error) { return typedRhs; }
+            return this.makeRes(e, this.getTy(typedRhs));
         }
     }
 }

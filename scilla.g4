@@ -117,7 +117,6 @@ typ
     | t_to_map=address_typ #AddrType
     | FORALL tv=TID PERIOD t=typ #PolyFunTy
     | t_var=TID #TypeVarType
-    // | prim_types #PrimType
     ;
 
 targ 

@@ -1,7 +1,5 @@
 //Syntax of Scilla programs
 
-import { ErrorNode } from "antlr4/tree/Tree";
-
 class ScillaProgram {}
 
 //Scilla expressions
@@ -56,6 +54,8 @@ export class App extends ScillaExpr {
     }
 }
 ScillaExpr.App = App;
+
+export class Literal extends ScillaExpr {}
 
 export class Var extends ScillaExpr {
     constructor(s) {
