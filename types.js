@@ -36,8 +36,8 @@ export default class ScillaType {
             ? new Exception
             : str.indexOf("ByStr") !== -1 && str.length > 5
             ? new ByStrXTyp(parseInt(str.substr(5, str.length - 1)))
-            : str.substr(0, 6) === "Option" 
-            ? new Option(this.parseStringToPrimType(str.substr(7, str.length - 1)))
+            // : str.substr(0, 6) === "Option" 
+            // ? new Option(this.parseStringToPrimType(str.substr(7, str.length - 1)))
             : undefined
             // : console.log("[ERROR]parseStringToPrimType: Couldn't match Prim Type: " + str);
     }
@@ -200,21 +200,25 @@ export default class ScillaType {
 //Primitive Types
 export class PrimType extends ScillaType {}
 
-export class Int64 extends PrimType {}
+export class Int extends PrimType{}
 
-export class Int32 extends PrimType {}
+export class Int64 extends Int {}
 
-export class Int128 extends PrimType {}
+export class Int32 extends Int {}
 
-export class Int256 extends PrimType {}
+export class Int128 extends Int {}
 
-export class Uint32 extends PrimType {}
+export class Int256 extends Int {}
 
-export class Uint64 extends PrimType {}
+export class Uint {}
 
-export class Uint128 extends PrimType {}
+export class Uint32 extends Uint {}
 
-export class Uint256 extends PrimType {}
+export class Uint64 extends Uint {}
+
+export class Uint128 extends Uint {}
+
+export class Uint256 extends Uint {}
 
 export class ByStrTyp extends PrimType {}
 

@@ -234,13 +234,30 @@ export default class ScillaTypeChecker{
                 ? this.getTy(typedLhs)
                 : this.typeAssignable(e.ty, this.getTy(typedLhs))
                 ? e.ty  
-                : new Error("Typing in Let is not assignable");
+                : new Error("typeExpr: Typing in Let is not assignable");
             if (actualTyp instanceof Error) { return actualTyp; }
             const tenv_ = _.cloneDeep(tenv); 
             tenv_[e.x] = actualTyp;
             const typedRhs = this.typeExpr(e.rhs, tenv_);
             if (typedRhs instanceof Error) { return typedRhs; }
             return this.makeRes(e, this.getTy(typedRhs));
+        }
+
+        if (e instanceof SS.Builtin) {
+            const tyArgsWF = e.targs.reduce((is_true, targ) => 
+                is_true && this.isWellFormedType(targ, tenv), true);
+            if (!tyArgsWF) {
+                return new Error("typeExpr: Builtin Type Arguments are not well formed");
+            }
+            //If type argument is a type var, resolve
+            const resolveTypArgs = e.targs.map(targ => {
+                if (targ instanceof ST.TypeVar) {
+                    return tenv[targ.name];
+                } else {
+                    return targ;
+                }
+            });
+            //Accessing the builtin 
         }
     }
 }
