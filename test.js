@@ -178,16 +178,12 @@ const contracts = [
     'exception-example.scilla',
     'fungible-token.scilla',
     'helloWorld.scilla',
-    'import-test-lib.scilla',
-    'import-test-lib2.scilla',
-    'import-test-lib3.scilla',
     'inplace-map.scilla',
     'listiter.scilla',
     'loopy-tree-call.scilla',
     'map_as_cparam.scilla',
     'map_corners_test.scilla',
     'map_corners_test_combined.scilla',
-    'map_key_test.scilla',
     'mappair.scilla',
     'multiple-msgs.scilla',
     'nonfungible-token.scilla',
@@ -213,6 +209,18 @@ const contracts = [
     'zil-game.scilla'
 ]
 
+const stdlib = [
+    'BoolUtils',
+    'Conversions',
+    'CryptoUtils',
+    'IntUtils',
+    'ListUtils',
+    'NatUtils',
+    'PairUtils',
+    'Polynetwork',
+    'ShogiLib'
+]
+
 import SyntaxVisitor from './syntaxVisitor.js';
 // for (let i = 0; i < expressions.length; i++) {
 //     const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
@@ -225,16 +233,26 @@ import SyntaxVisitor from './syntaxVisitor.js';
 //     tree.accept(new SyntaxVisitor());
 // }
 import TranslateVisitor from './translate.js';
-// for (let i = 0; i < contracts.length; i++) {
-//     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
-//     console.log("Input: " + 'contracts/'.concat(contracts[i]));
-//     const chars = new antlr4.InputStream(input);
-//     const lexer = new ScillaLexer(chars);
-//     const tokens = new antlr4.CommonTokenStream(lexer);
-//     const parser = new ScillaParser(tokens);
-//     const tree = parser.cmodule();
-//     tree.accept(new TranslateVisitor());
-// }
+for (let i = 0; i < contracts.length; i++) {
+    const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
+    console.log("Input: " + 'contracts/'.concat(contracts[i]));
+    const chars = new antlr4.InputStream(input);
+    const lexer = new ScillaLexer(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    const parser = new ScillaParser(tokens);
+    const tree = parser.cmodule();
+    tree.accept(new TranslateVisitor());
+}
+for (let i = 0; i < stdlib.length; i++) {
+    const input = fs.readFileSync('stdlib/'.concat(stdlib[i]).concat('.scillib')).toString();
+    console.log("Input: " + 'stdlib/'.concat(stdlib[i]).concat('.scillib'));
+    const chars = new antlr4.InputStream(input);
+    const lexer = new ScillaLexer(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    const parser = new ScillaParser(tokens);
+    const tree = parser.lmodule();
+    tree.accept(new TranslateVisitor());
+}
 
 
 // Single test debugging

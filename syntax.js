@@ -580,7 +580,7 @@ export class Cmodule {
     /**
      * @param {Int} smver
      * @param {Option Library} libs 
-     * @param {(String * Option String)[]} elibs;
+     * @param {(String * Lmodule)[]} elibs;
      * @param {Contract} contr
      */
     constructor(smver, libs, elibs, contr) {
@@ -600,7 +600,6 @@ export class Lmodule {
      * @param {Int} smver
      * @param {Option Library} libs 
      * @param {(String * Option String)[]} elibs;
-     * @param {Contract} contr
      */
     constructor(smver, libs, elibs, contr) {
         this.smver = smver;

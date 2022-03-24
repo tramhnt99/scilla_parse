@@ -383,15 +383,6 @@ export default class scillaListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by scillaParser#LitNum.
-	enterLitNum(ctx) {
-	}
-
-	// Exit a parse tree produced by scillaParser#LitNum.
-	exitLitNum(ctx) {
-	}
-
-
 	// Enter a parse tree produced by scillaParser#LitHex.
 	enterLitHex(ctx) {
 	}

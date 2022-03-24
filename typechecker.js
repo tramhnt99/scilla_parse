@@ -6,6 +6,7 @@ import { ScillaLiterals } from './literals.js';
 import { Error } from './syntax.js';
 import ScillaType, * as ST from './types.js';
 import TranslateVisitor from './translate.js';
+import _ from 'lodash';
 
 
 const SL = new ScillaLiterals();
@@ -196,9 +197,10 @@ export default class ScillaTypeChecker{
                 return isWF;
             }
             //Extend environment to include the argument type
-            const tenv_ = Object.assign({}, tenv); 
+            const tenv_ = _.cloneDeep(tenv); 
             tenv_[e.id] = e.ty;
             //Recursively run function with the updated environment
+            //TODO: make a deep copy with lodash
             const typedBody = this.typeExpr(e.e, tenv_);  
             if (typedBody instanceof Error) {
                 return typedBody;
@@ -234,7 +236,7 @@ export default class ScillaTypeChecker{
                 ? e.ty  
                 : new Error("Typing in Let is not assignable");
             if (actualTyp instanceof Error) { return actualTyp; }
-            const tenv_ = Object.assign({}, tenv); 
+            const tenv_ = _.cloneDeep(tenv); 
             tenv_[e.x] = actualTyp;
             const typedRhs = this.typeExpr(e.rhs, tenv_);
             if (typedRhs instanceof Error) { return typedRhs; }

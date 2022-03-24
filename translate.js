@@ -10,9 +10,16 @@ import { Cmodule, Library, ContractDef,
         Pattern as Pat,
         ComponentType as CT,
         ScillaStmt as SS,
-        LibEntry as LE} from './syntax.js';
+        LibEntry as LE,
+        Lmodule} from './syntax.js';
 import ScillaType from './types.js';
 import SyntaxVisitor from './syntaxVisitor.js';
+import antlr4 from 'antlr4';
+import fs from 'fs';
+import ScillaLexer from './scillaLexer.js';
+import ScillaParser from './scillaParser.js';
+import { parse } from 'path';
+
 
 export default class TranslateVisitor{
 
@@ -265,16 +272,31 @@ export default class TranslateVisitor{
         return new Library(lname, lentries);
     }
 
+    translateELib(importname) {
+        //Import the external library by name
+        const filename = "stdlib/" + importname.c.getText() + ".scillib";
+        const input = fs.readFileSync(filename).toString();
+        const chars = new antlr4.InputStream(input);
+        const lexer = new ScillaLexer(chars);
+        const tokens = new antlr4.CommonTokenStream(lexer);
+        const parser = new ScillaParser(tokens);
+        const tree = parser.lmodule();
+        const lmodule = this.translateLModule(tree);
+
+        if (importname instanceof SP.NoShadowELibContext) {
+            [importname.c.getText(), lmodule];
+        } else if (importname instanceof SP.ShadowELibContext) {
+            [importname.c2.getText(), lmodule];
+        }
+    }
+
     translateELibraries(ctx) {
-        const elibs = ctx.els.map(function(importname) {
-            //Import the external library by name
-            if (importname instanceof SP.NoShadowELibContext) {
-                [importname.c.getText(), undefined];
-            } else if (importname instanceof SP.ShadowELibContext) {
-                [importname.c1.getText(), importname.c2.getText()];
-            }
-        });
-        return elibs;
+        if (ctx === null) {
+            return undefined;
+        } else {
+            const elibs = ctx.els.map(importname => this.translateELib(importname));
+            return elibs;
+        }
     }
 
     translateCModule(ctx) {
@@ -289,6 +311,16 @@ export default class TranslateVisitor{
         }
         const contract = this.translateContract(ctx.c);
         return new Cmodule(scillaVer, libs, elibs, contract);
+    }
+
+    translateLModule(ctx) {
+        const scillaVer = parseInt(ctx.NUMBER().getText());
+        var elibs = undefined;
+        if (ctx.els !== null) {
+            elibs = this.translateELibraries(ctx.els); //TODO: look for loops?
+        }
+        var lib = this.translateLibrary(ctx.l);
+        return new Lmodule(scillaVer, elibs, lib);
     }
 
     visitChildren(ctx) {

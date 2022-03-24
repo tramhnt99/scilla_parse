@@ -350,8 +350,8 @@ library
     ;
 
 lmodule
-    : SCILLA_VERSION cver=NUMBER els=imports l=library EOF
-    ; //TODO: lookup EOF
+    : SCILLA_VERSION cver=NUMBER (els=imports)? l=library EOF
+    ;
 
 importname
     : c=cid #NoShadowELib
