@@ -1,0 +1,5 @@
+let x = Int64 1 in
+let f = fun (y: Int64) => x in
+let x = Int64 2 in
+let z = Int64 5 in
+f z
