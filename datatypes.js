@@ -70,10 +70,9 @@ export class DataTypeDict {
        }
        this.ADTDcit[newAdt.tname] = newAdt;
        newAdt.tconstr.array.forEach(constr => {
-            if (this.ConstrDict[constr.cname] !== undefined) {
-                continue;
+            if (this.ConstrDict[constr.cname] === undefined) {
+                this.ConstrDict[constr.cname] = [constr, newAdt];
             }
-            this.ConstrDict[constr.cname] = [constr, newAdt];
        });
        return this.ADTDict;
     }
@@ -224,7 +223,7 @@ export class ListDT extends ScillaDataTypes {
         super();
         this.tname = "List";
         this.tparams = ["'A"];
-        this.tconstr = [new Cons(); new Nil()];
+        this.tconstr = [new Cons(), new Nil()];
         this.tmap = {"Cons": [new ST.TypeVar("'A"), new ST.ADT("List", [new ST.TypeVar("'A")])]};
     }
 }

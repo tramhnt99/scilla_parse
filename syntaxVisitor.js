@@ -137,7 +137,6 @@ export default class SyntaxVisitor {
     const targs =
       ctx.ts === null ? [] : ctx.ts.ts.map((t) => ST.resolveTArg(t));
     const args = ctx.args.map((arg) => this.translateSid(arg));
-
     return new SE.DataConstructor(c, targs, args);
   }
 

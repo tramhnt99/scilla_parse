@@ -19,6 +19,22 @@ export default class ScillaTypeChecker{
         this.ADTDict = new DT.DataTypeDict();
     }
 
+    //Returns an object mapping from a previous tvar name, to a new one
+    makeFreshTVars(tvars, taken) {
+        var counter = 0;
+        var res = {};
+        const newTVars = tvars.map(tvar => {
+            var tvar_ = tvar;
+            while (tvar_ in taken) {
+                counter = counter + 1;
+                tvar_  = "'" + counter.toString();
+            };
+            res[tvar] = tvar_;
+            return tvar_;
+        });
+        return {new: newTVars, map: res};
+    }
+
     getType(v) {
         return this.tyEnv[v];
     }
@@ -133,8 +149,8 @@ export default class ScillaTypeChecker{
         if (tyTo instanceof ST.ADT && tyFrom instanceof ST.ADT) {
             //Assume ADT args order is always in covariant positions (the same)
             const eqName = tyTo.name === tyFrom.name;
-            const eqArgs = tyTo.tlist.reduce((is_true, tTo, index) =>
-                is_true && (this.typeAssignable(tTo, tyFrom.tlist[index]))
+            const eqArgs = tyTo.t.reduce((is_true, tTo, index) =>
+                is_true && (this.typeAssignable(tTo, tyFrom.t[index]))
             , true);
             return eqName && eqArgs;
         }
@@ -165,6 +181,7 @@ export default class ScillaTypeChecker{
         if (fty instanceof ScillaType && actualsty.length === 0) {
             return fty;
         }
+        console.log(fty);
         return new Error("Ill-typed function application.");
     }
 
@@ -203,7 +220,6 @@ export default class ScillaTypeChecker{
             const tenv_ = _.cloneDeep(tenv); 
             tenv_[e.id] = e.ty;
             //Recursively run function with the updated environment
-            //TODO: make a deep copy with lodash
             const typedBody = this.typeExpr(e.e, tenv_);  
             if (typedBody instanceof Error) {
                 return typedBody;
@@ -215,6 +231,7 @@ export default class ScillaTypeChecker{
             //Function Type - TODO: check WF?
             const fty = tenv[e.f_var];
             if (!fty) {return new Error("typeExpr: Function type is not bound");}
+
             //Arguments Type - undefined arg types are checked in functionTypeApplies
             const actualsTy = e.args.map(arg => tenv[arg]);
             const resType = this.functionTypeApplies(fty, actualsTy);
@@ -247,22 +264,19 @@ export default class ScillaTypeChecker{
         }
 
         if (e instanceof SS.Builtin) {
-            const tyArgsWF = e.targs.reduce((is_true, targ) => 
+            if (e.targs) {
+                const tyArgsWF = e.targs.reduce((is_true, targ) => 
                 is_true && this.isWellFormedType(targ, tenv), true);
-            if (!tyArgsWF) {
-                return new Error("typeExpr: Builtin Type Arguments are not well formed");
+                if (!tyArgsWF) {
+                    return new Error("typeExpr: Builtin Type Arguments are not well formed.");
+                }
             }
-            //TODO: Fix resolving type args
-            //First, type application doesn't happen, so we need to know which functions
-            //require typeApp - and how to handle them.
-            //functionTypeApplies only typecheckes from FunType on
-
             //Resolve the actuals and get the type of arguments
-            const resolvedTypArgs = e.targs.map(targ => {
-                if (targ instanceof ST.TypeVar) {
-                    return tenv[targ.name];
+            const resolvedTypArgs = e.xs.map(arg => {
+                if (tenv[arg] === undefined) {
+                    return new Error("typeExpr: Builtin Argument is not in environment.");
                 } else {
-                    return targ;
+                    return tenv[arg];
                 }
             });
             //Get Function Type
@@ -271,7 +285,13 @@ export default class ScillaTypeChecker{
                 //We do not handle type check this specific builtin
                 return new ScillaType();
             }
-            const resType = this.functionTypeApplies(func.funTyp, resolvedTypArgs);
+
+            const func_ = BI.resolveBIFunType(e.b, resolvedTypArgs);
+            if (func_ instanceof Error) {
+                return func_;
+            }
+
+            const resType = this.functionTypeApplies(func_, resolvedTypArgs);
             if (resType instanceof Error) {
                 return resType;
             }
@@ -284,17 +304,56 @@ export default class ScillaTypeChecker{
         }
 
         if (e instanceof SS.DataConstructor) {
-            const tyArgsWF = e.targs.reduce((is_true, targ) =>
+            const tyArgsWF = e.ts.reduce((is_true, targ) =>
                 is_true && this.isWellFormedType(targ, tenv), true);
             if (!tyArgsWF) {
                 return new Error("typeExpr: DataConstructor type arguments are not well formed");
             }
-            const constr = this.ADTDict.ConstrDict[e.c];
+            const constr = this.ADTDict.ConstrDict[e.c][0];
             const noOfArg = e.args.length;
             if (constr.arity !== noOfArg) {
                 return new Error("typeExpr: Constructor arity mismatch");
             }
 
+            const adt = this.ADTDict.ConstrDict[e.c][1];
+            if (constr.arity === 0) {
+                //We do not need to type check args
+                return this.makeRes(e, new ST.ADT(adt.tname, e.ts));
+            }
+
+            //Apply types to type functions and check arguments
+            //1. Get Data Type and then tparams and make sure there's no shadowing.
+            const cparams = adt.tmap[e.c]; //SType[] - constructor parameters
+            const ADTTparams = adt.tparams; //String[] - what we might rename
+            const renaming = this.makeFreshTVars(adt.tparams, tenv).map; //(String * String){}
+            const cparamsNoShadow = cparams.map(t => {
+                return ADTTparams.reduce((stype, str_tvar) => {
+                    return ST.substTypeinType(str_tvar, new ST.TypeVar(renaming[str_tvar]), stype);
+                }, t);
+            });
+
+            //2. Apply type params and update tenv accordingly
+            const ADTParams_ = this.makeFreshTVars(adt.tparams, tenv).new;
+            const appliedCParams = cparamsNoShadow.map(cparam => {
+                return ADTParams_.reduce((stype, str_tvar, index) => {
+                    tenv[str_tvar] = e.ts[index];
+                    return ST.substTypeinType(str_tvar, e.ts[index], stype)
+                }, cparam);
+            });
+            
+            //3. Ensure arguments applied type check
+            const typesOfArgs = e.args.map(arg => {
+                const tenv_ = _.cloneDeep(tenv); 
+                return this.typeExpr(new SS.Var(arg), tenv_).ty;
+            });
+            const argTC = appliedCParams.reduce((is_true, cparam, index) => {
+                return is_true && this.typeAssignable(cparam, typesOfArgs[index]);
+            }, true);
+            if (!argTC) {
+                return new Error("typeExpr: Arguments of Constructor do not type check");
+            }
+            // console.log(new ST.ADT(adt.tname, e.ts));
+            return this.makeRes(e, new ST.ADT(adt.tname, e.ts));
         }
     }
 }

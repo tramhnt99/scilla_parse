@@ -2,6 +2,7 @@
  * Type information on Builtin Functions
  */
 import * as ST from './types.js';
+import {Error} from './syntax.js';
 
 /**
  * Each BI class includes the arity of the builtin function.
@@ -285,4 +286,61 @@ export const BuiltInDict = {
     "rem": new BI_rem(),
     "pow": new BI_pow(),
     "isqrt": new BI_isqrt()
+}
+
+/**
+ * 
+ * @param {String} fname - Builtin function name
+ * @param {SType[]} targs - Types of arguments
+ * Returns: FunType or an Error
+ */
+//Note: Function also type checks - making sure targs are valid
+export function resolveBIFunType(fname, targs) {
+    function checkBasics(info) {
+        if (targs.length !== info.arity) {
+            return new Error("resolveBIFunType: Wrong arity for function.");
+        }
+        const allowedTy = targs.reduce((is_true, targ) => {
+            if (info.types.find(ty => ty.constructor === targ.constructor) === undefined) {
+                return false;
+            } else {
+                return is_true && true;
+            }
+        }, true);
+        if (!allowedTy) {
+            return new Error("resolveBIFunType: Type of arguments are not allowed to this function.");
+        }
+    }
+
+    if (fname === "eq" || fname === "concat" || fname === "substr" ||
+        fname === "to_string" || fname === "to_ascii" || fname === "lt" ||
+        fname === "add" || fname === "sub" || fname === "mul" || fname === "div" ||
+        fname === "rem" || fname === "pow" || fname === "isqrt") 
+    {
+        const info = this.BuiltInDict[fname];
+        const basicsOk = checkBasics(info);
+        if (basicsOk instanceof Error) {
+            return basicsOk;
+        }
+        const fType = info.funTyp;
+        return ST.substTypeinType(fType.name, targs[0], fType.t);
+    }
+
+    //Map builtins
+    if (fname === "contains" || fname === "put" || fname === "get" ||
+        fname === "remove" || fname === "to_list" || fname === "size")
+    {
+        const info = this.BuiltInDict[fname];
+        const basicsOk = checkBasics(info);
+        if (basicsOk instanceof Error) {
+            return basicsOk;
+        }
+        const fType = info.funTyp;
+        const mapArg = targs[0]; //Map argument is always the first
+        //Substitute t1 (key type)
+        const fType_ = ST.substTypeinType(fType.name, mapArg.t1, fType.t);
+        //Substitute t2 (value type)
+        const fType__ = ST.substTypeinType(fType_.name, mapArg.t2, fType_.t);
+        return fType__;
+    }
 }

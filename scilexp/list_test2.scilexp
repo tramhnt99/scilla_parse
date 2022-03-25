@@ -1,0 +1,13 @@
+
+let one = Int32 1 in
+let two = "two" in 
+let three = Int32 3 in 
+let four = "four" in 
+
+let onetwo = Pair {Int32 String} one two in
+let threefour = Pair {Int32 String} three four in
+
+let nil = Nil {(Pair Int32 String)} in
+let l1 = Cons {(Pair Int32 String)} onetwo nil in
+let l2 = Cons {(Pair Int32 String)} threefour l1 in
+l1

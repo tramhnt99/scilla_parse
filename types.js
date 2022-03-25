@@ -1,4 +1,5 @@
 //Types that exist in Scilla
+import { Constructor, ScillaDataTypes } from './datatypes.js';
 import SP from './scillaParser.js'; //short for ScillaParser
 // import ScillaExpr from './syntax.js';
 
@@ -197,6 +198,44 @@ export default class ScillaType {
     }
 }
 
+// tm[tvar := tp]
+export function substTypeinType(tvar, tp, tm) {
+    if (tm instanceof PrimType || tm instanceof Unit) {
+        return tm;
+    }
+    if (tm instanceof MapType) {
+        const kt = this.substTypeinType(tvar, tp, tm.t1);
+        const vt = this.substTypeinType(tvar, tp, tm.t2);
+        return new MapType(kt, vt);
+    }
+    if (tm instanceof FunType) {
+        const t1 = this.substTypeinType(tvar, tp, tm.t1);
+        const t2 = this.substTypeinType(tvar, tp, tm.t2);
+        return new FunType(t1, t2);
+    }
+    if (tm instanceof TypeVar) {
+        return tm.name === tvar ? tp : tm;
+    }
+    if (tm instanceof ADT) {
+        const tlist = tm.t.map(t => this.substTypeinType(tvar, tp, t));
+        return new ADT(tm.name, tlist);
+    }
+    if (tm instanceof PolyFun) {
+        if (tvar === tm.name) {return tm;}
+        return new PolyFun(tm.name, this.substTypeinType(tvar, tp, tm.t));
+    }
+    if (tm instanceof AnyAddr || tm instanceof LibAddr || tm instanceof CodeAddr) {
+        return tm;
+    }
+    if (tm instanceof ContrAddr) {
+        const fs = tm.fs.map(f => {
+            const ST = new ScillaType();
+            return {id: f.id, typ: ST.substTypeinType(tvar, tp, f.typ)}
+        });
+        return new ContrAddr(fs);
+    }
+}
+
 //Primitive Types
 export class PrimType extends ScillaType {}
 
@@ -281,7 +320,7 @@ export class PolyFun extends ScillaType {
     }
 }
 
-//ADT string -> t list
+//ADT string -> SType list
 export class ADT extends ScillaType {
     constructor(id, tlist) {
         super();

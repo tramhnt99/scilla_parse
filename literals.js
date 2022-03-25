@@ -66,9 +66,9 @@ export class ScillaLiterals extends Literal {
         : l instanceof StringLit
         ? new ST.String
         : l instanceof Bystr
-        ? new ST.Bystr
+        ? new ST.ByStrTyp
         : l instanceof BystrX
-        ? new ST.ByStrX
+        ? new ST.ByStrXTyp
         : l instanceof Msg
         ? new ST.Message
         : l instanceof Map
