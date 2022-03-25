@@ -13,7 +13,25 @@ import * as ST from "./types.js";
  * of the list, so the types are mapped correspondingly.
  */
 
-export class ScillaDataTypes {}
+export class ScillaDataTypes {
+    //Geting type of each Data Type
+    boolTyp() {
+        return new ST.ADT("Bool", []);
+    }
+    natTyp() {
+        return new ST.ADT("Nat", []);
+    }
+    optionTyp() {
+        return new ST.ADT("Option", []);
+    }
+    listTyp() {
+        return new ST.ADT("List", []);
+    }
+    pairTyp() {
+        return new ST.ADT("Pair", []);
+    }
+}
+
 export class Constructor {}
 export class DataTypeDict {
     constructor() {
@@ -56,6 +74,30 @@ export class DataTypeDict {
             this.ConstrDict[constr.cname] = constr;
        });
        return this.ADTDict;
+    }
+
+    /**
+     * @param {String} name 
+     */
+    lookUpADT(name) {
+        if (this.ADTDict[name] === undefined) {
+            console.log("ADT doesn't exist");
+            return undefined;
+        } else {
+            return this.ADTDict[name];
+        }
+    }
+
+    /**
+     * @param {String} name 
+     */
+    loopUpConstr(name) {
+        if (this.ConstrDict[name] === undefined) {
+            console.log("Constructor doesn't exist");
+            return undefined;
+        } else {
+            return this.ConstrDict[name];
+        }
     }
 }
 
