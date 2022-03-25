@@ -35,6 +35,8 @@ export class ScillaDataTypes {
 export class Constructor {}
 export class DataTypeDict {
     constructor() {
+        //When entering a program, we already have a set of pre-defined
+        //data types and their constructors.
         this.ADTDict = 
             {
                 "Bool" : new BoolDT(),
@@ -45,15 +47,15 @@ export class DataTypeDict {
             };
         this.ConstrDict = 
             {
-                "True": new True(),
-                "False": new False(),
-                "Zero": new Zero(),
-                "Succ": new Succ(),
-                "Some": new Some(),
-                "None": new None(),
-                "Cons": new Cons(),
-                "Nil": new Nil(),
-                "Pair": new Pair()
+                "True": [new True(), new BoolDT()],
+                "False": [new False(), new BoolDT()],
+                "Zero": [new Zero(), new NatDT()],
+                "Succ": [new Succ(), new NatDT()],
+                "Some": [new Some(), new OptionDT()],
+                "None": [new None(), new OptionDT()],
+                "Cons": [new Cons(), new ListDT()],
+                "Nil": [new Nil(), new ListDT()],
+                "Pair": [new Pair(), new ProductDT()]
             };
     }
 
@@ -71,7 +73,7 @@ export class DataTypeDict {
             if (this.ConstrDict[constr.cname] !== undefined) {
                 continue;
             }
-            this.ConstrDict[constr.cname] = constr;
+            this.ConstrDict[constr.cname] = [constr, newAdt];
        });
        return this.ADTDict;
     }
@@ -91,12 +93,22 @@ export class DataTypeDict {
     /**
      * @param {String} name 
      */
-    loopUpConstr(name) {
+    lookUpConstr(name) {
         if (this.ConstrDict[name] === undefined) {
             console.log("Constructor doesn't exist");
             return undefined;
         } else {
-            return this.ConstrDict[name];
+            return this.ConstrDict[name][0];
+        }
+    }
+
+    //look up ADT by a constructor. E.g. Find BoolDT by passing "True"
+    lookUpADTByConstr(cname) {
+        if (this.ConstrDict[cname] === undefined) {
+            console.log("Constructor doesn't exist");
+            return undefined;
+        } else {
+            return this.ConstrDict[cname][1];
         }
     }
 }

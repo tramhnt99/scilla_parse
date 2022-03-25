@@ -8,6 +8,7 @@ import ScillaType, * as ST from './types.js';
 import TranslateVisitor from './translate.js';
 import _ from 'lodash';
 import * as BI from './builtin.js';
+import * as DT from './datatypes.js';
 
 
 const SL = new ScillaLiterals();
@@ -15,6 +16,7 @@ const SL = new ScillaLiterals();
 export default class ScillaTypeChecker{
     constructor(){
         this.error_msg = "";
+        this.ADTDict = new DT.DataTypeDict();
     }
 
     getType(v) {
@@ -286,6 +288,11 @@ export default class ScillaTypeChecker{
                 is_true && this.isWellFormedType(targ, tenv), true);
             if (!tyArgsWF) {
                 return new Error("typeExpr: DataConstructor type arguments are not well formed");
+            }
+            const constr = this.ADTDict.ConstrDict[e.c];
+            const noOfArg = e.args.length;
+            if (constr.arity !== noOfArg) {
+                return new Error("typeExpr: Constructor arity mismatch");
             }
 
         }
