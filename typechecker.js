@@ -7,6 +7,7 @@ import { Error } from './syntax.js';
 import ScillaType, * as ST from './types.js';
 import TranslateVisitor from './translate.js';
 import _ from 'lodash';
+import * as BI from './builtin.js';
 
 
 const SL = new ScillaLiterals();
@@ -173,7 +174,7 @@ export default class ScillaTypeChecker{
     /**
      * 
      * @param {ScillaExpr} e 
-     * @param {(String * SType){}} tenv
+     * @param {(String * SType){}} tenv //Contains both type vars and vars
      */
     typeExpr(e, tenv){
         if (e instanceof SS.Literal) {
@@ -234,7 +235,7 @@ export default class ScillaTypeChecker{
                 ? this.getTy(typedLhs)
                 : this.typeAssignable(e.ty, this.getTy(typedLhs))
                 ? e.ty  
-                : new Error("typeExpr: Typing in Let is not assignable");
+                : new Error("typeExpr: Typing in Let is not assignable ");
             if (actualTyp instanceof Error) { return actualTyp; }
             const tenv_ = _.cloneDeep(tenv); 
             tenv_[e.x] = actualTyp;
@@ -249,15 +250,44 @@ export default class ScillaTypeChecker{
             if (!tyArgsWF) {
                 return new Error("typeExpr: Builtin Type Arguments are not well formed");
             }
-            //If type argument is a type var, resolve
-            const resolveTypArgs = e.targs.map(targ => {
+            //TODO: Fix resolving type args
+            //First, type application doesn't happen, so we need to know which functions
+            //require typeApp - and how to handle them.
+            //functionTypeApplies only typecheckes from FunType on
+
+            //Resolve the actuals and get the type of arguments
+            const resolvedTypArgs = e.targs.map(targ => {
                 if (targ instanceof ST.TypeVar) {
                     return tenv[targ.name];
                 } else {
                     return targ;
                 }
             });
-            //Accessing the builtin 
+            //Get Function Type
+            const func = BI.BuiltInDict[e.b];
+            if (func === undefined) {
+                //We do not handle type check this specific builtin
+                return new ScillaType();
+            }
+            const resType = this.functionTypeApplies(func.funTyp, resolvedTypArgs);
+            if (resType instanceof Error) {
+                return resType;
+            }
+            const resTypeWF = this.isWellFormedType(resType, tenv);
+            if (resTypeWF instanceof Error) {
+                return resTypeWF;
+            }
+
+            return this.makeRes(e, resType);
+        }
+
+        if (e instanceof SS.DataConstructor) {
+            const tyArgsWF = e.targs.reduce((is_true, targ) =>
+                is_true && this.isWellFormedType(targ, tenv), true);
+            if (!tyArgsWF) {
+                return new Error("typeExpr: DataConstructor type arguments are not well formed");
+            }
+
         }
     }
 }

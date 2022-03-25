@@ -257,8 +257,7 @@ import TranslateVisitor from './translate.js';
 
 //Testing Type Checking
 import ScillaTypeChecker from "./typechecker.js";
-// const input = fs.readFileSync('scilexp/app4.scilexp').toString();
-const input = fs.readFileSync("scilexp/builtin-div2.scilexp").toString();
+const input = fs.readFileSync('scilexp/builtin_type_args.scilexp').toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);

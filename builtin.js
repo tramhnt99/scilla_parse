@@ -3,13 +3,20 @@
  */
 import * as ST from './types.js';
 
+/**
+ * Each BI class includes the arity of the builtin function.
+ * The types of arguments it would accept.
+ * It's function type.
+ */
+
 /** 
  * Polymorphic Builtins
 */
 export class BI_eq {
     constructor() {
         this.arity = 2;
-        this.types = [ST.String, ST.BNum, ST.Int, ST.Uint, ST.ByStrTyp, ST.ByStrTyp];
+        this.types = [new ST.String(), new ST.BNum(), new ST.Int(), 
+                        new ST.Uint(), new ST.ByStrTyp(), new ST.ByStrTyp()];
         this.funTyp = 
             new ST.PolyFun("'A", 
                 new ST.FunType(new ST.TypeVar("'A"), 
@@ -20,7 +27,7 @@ export class BI_eq {
 export class BI_concat {
     constructor() {
         this.arity = 2;
-        this.types = [ST.String, ST.ByStrTyp, ST.ByStrXTyp]
+        this.types = [new ST.String(), new ST.ByStrTyp(), new ST.ByStrXTyp()]
         this.funTyp = new ST.PolyFun("'A", 
             new ST.FunType(new ST.TypeVar("'A"), 
                 new ST.FunType(new ST.TypeVar("'A"), new ST.Bool())));
@@ -30,7 +37,7 @@ export class BI_concat {
 export class BI_substr {
     constructor() {
         this.arity = 3;
-        this.types = [ST.String, ST.ByStrTyp, ST.ByStrXTyp]
+        this.types = [new ST.String(), new ST.ByStrTyp(), new ST.ByStrXTyp()]
         this.funTyp = 
             new ST.PolyFun("'A", 
                 new ST.FunType(new ST.TypeVar("'A"), 
@@ -42,7 +49,7 @@ export class BI_substr {
 export class BI_strlen{
     constructor() {
         this.arity = 1;
-        this.types = [ST.String];
+        this.types = [new ST.String()];
         this.funTyp = new ST.FunType(new ST.String(), new ST.Uint32());
     }
 }
@@ -50,7 +57,7 @@ export class BI_strlen{
 export class BI_to_string {
     constructor() {
         this.arity = 1;
-        this.types = [ST.String];
+        this.types = [new ST.String()];
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.String));
     }
 }
@@ -58,7 +65,7 @@ export class BI_to_string {
 export class BI_to_ascii{
     constructor() {
         this.arity = 1;
-        this.types = [ST.String];
+        this.types = [new ST.String()];
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.String));
     }
 }
@@ -66,7 +73,7 @@ export class BI_to_ascii{
 export class BI_strrev {
     constructor() {
         this.arity = 1;
-        this.types = [ST.String];
+        this.types = [new ST.String()];
         this.funTyp = new ST.FunType(new ST.TypeVar("'A"), new ST.TypeVar("'A"))
     }
 }
@@ -87,7 +94,7 @@ export class BI_to_bystrx {} //TODO
 export class BI_contains {
     constructor() {
         this.arity = 2;
-        this.types = [ST.MapType];
+        this.types = [new ST.MapType()];
         this.funTyp = 
         new ST.PolyFun("'K", 
             new ST.PolyFun("'V",
@@ -99,7 +106,7 @@ export class BI_contains {
 export class BI_put {
     constructor() {
         this.arity = 2;
-        this.types = [ST.MapType];
+        this.types = [new ST.MapType()];
         this.funTyp = 
         new ST.PolyFun("'K", new ST.PolyFun("'V",
                 new ST.FunType(new ST.MapType(new ST.TypeVar("'K"), new ST.TypeVar("'V")),
@@ -111,19 +118,19 @@ export class BI_put {
 export class BI_get {
     constructor() {
         this.arity = 2;
-        this.types = [ST.MapType];
+        this.types = [new ST.MapType()];
         this.funTyp = 
         new ST.PolyFun("'K", 
             new ST.PolyFun("'V",
                 new ST.FunType(new ST.MapType(new ST.TypeVar("'K"), new ST.TypeVar("'V")),
-                    new ST.FunType(new ST.TypeVar("'K"), new ST.ADT("Option", [new TypeVar("'V")])))));
+                    new ST.FunType(new ST.TypeVar("'K"), new ST.ADT("Option", [new ST.TypeVar("'V")])))));
     }
 }
 
 export class BI_remove {
     constructor() {
         this.arity = 2;
-        this.types = [ST.MapType];
+        this.types = [new ST.MapType()];
         this.funTyp =
         new ST.PolyFun("'K", 
             new ST.PolyFun("'V",
@@ -135,7 +142,7 @@ export class BI_remove {
 export class BI_to_list {
     constructor() {
         this.arity = 1;
-        this.types = [ST.MapType];
+        this.types = [new ST.MapType()];
         this.funTyp =
         new ST.PolyFun("'K",
             new ST.PolyFun("'V",
@@ -147,7 +154,7 @@ export class BI_to_list {
 export class BI_size {
     constructor() {
         this.arity = 1;
-        this.types = [ST.MapType];
+        this.types = [new ST.MapType()];
         this.funTyp = 
         new ST.PolyFun("'K",
             new ST.PolyFun("'V",
@@ -162,7 +169,7 @@ export class BI_size {
 export class BI_lt {
     constructor() {
         this.arity = 2;
-        this.types = [ST.Int, ST.Uint];
+        this.types = [new ST.Int(),new ST.Uint()];
         this.funTyp =
         new ST.PolyFun("'A", 
         new ST.FunType(new ST.TypeVar("'A"), 
@@ -173,7 +180,7 @@ export class BI_lt {
 export class BI_add {
     constructor() {
         this.arity = 2;
-        this.types = [ST.Int, ST.Uint];
+        this.types = [new ST.Int(), new ST.Uint()];
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -184,7 +191,7 @@ export class BI_add {
 export class BI_sub {
     constructor() {
         this.arity = 2;
-        this.types = [ST.Int, ST.Uint];
+        this.types = [new ST.Int(), new ST.Uint()];
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -195,7 +202,7 @@ export class BI_sub {
 export class BI_mul {
     constructor() {
         this.arity = 2;
-        this.types = [ST.Int, ST.Uint];
+        this.types = [new ST.Int(), new ST.Uint()];
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -206,7 +213,7 @@ export class BI_mul {
 export class BI_div {
     constructor() {
         this.arity = 2;
-        this.types = [ST.Int, ST.Uint];
+        this.types = [new ST.Int(), new ST.Uint()];
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -217,7 +224,7 @@ export class BI_div {
 export class BI_rem {
     constructor() {
         this.arity = 2;
-        this.types = [ST.Int, ST.Uint];
+        this.types = [new ST.Int(), new ST.Uint()];
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -228,7 +235,7 @@ export class BI_rem {
 export class BI_pow {
     constructor() {
         this.arity = 2;
-        this.types = [ST.Int, ST.Uint];
+        this.types = [new ST.Int(), new ST.Uint()];
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -239,7 +246,7 @@ export class BI_pow {
 export class BI_isqrt {
     constructor() {
         this.arity = 2;
-        this.types = [ST.Uint];
+        this.types = [new ST.Uint()];
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), new ST.TypeVar("'A")));
     }

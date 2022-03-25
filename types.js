@@ -210,7 +210,7 @@ export class Int128 extends Int {}
 
 export class Int256 extends Int {}
 
-export class Uint {}
+export class Uint extends PrimType {}
 
 export class Uint32 extends Uint {}
 
