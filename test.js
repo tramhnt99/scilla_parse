@@ -1,6 +1,7 @@
 // test.js
 import antlr4 from "antlr4";
 import fs from "fs";
+import Evaluator from "./evalSyntax.js";
 import ScillaLexer from "./scillaLexer.js";
 import ScillaParser from "./scillaParser.js";
 
@@ -223,7 +224,7 @@ import SyntaxVisitor from "./syntaxVisitor.js";
 //     const tree = parser.simple_exp();
 //     tree.accept(new SyntaxVisitor());
 // }
-import TranslateVisitor from './translate.js';
+import TranslateVisitor from "./translate.js";
 // for (let i = 0; i < contracts.length; i++) {
 //     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
 //     console.log("Input: " + 'contracts/'.concat(contracts[i]));
@@ -245,8 +246,7 @@ import TranslateVisitor from './translate.js';
 //     tree.accept(new TranslateVisitor());
 // }
 
-
-// Single test debugging
+// // Single test debugging contracts
 // const input = fs.readFileSync('contracts/address_list_traversal.scilla').toString();
 // const chars = new antlr4.InputStream(input);
 // const lexer = new ScillaLexer(chars);
@@ -264,9 +264,22 @@ const tokens = new antlr4.CommonTokenStream(lexer);
 export const parser = new ScillaParser(tokens);
 const tree = parser.simple_exp();
 const exprAst = tree.accept(new SyntaxVisitor());
-const STC = new ScillaTypeChecker();
-const typed = STC.typeExpr(exprAst, {});
-console.log(typed);
+const SEEvaluator = new Evaluator({});
+const value = SEEvaluator.evalChildren(exprAst);
+console.log(value);
+
+//Testing Type Checking
+// import ScillaTypeChecker from "./typechecker.js";
+// const input = fs.readFileSync('scilexp/app4.scilexp').toString();
+// const chars = new antlr4.InputStream(input);
+// const lexer = new ScillaLexer(chars);
+// const tokens = new antlr4.CommonTokenStream(lexer);
+// export const parser = new ScillaParser(tokens);
+// const tree = parser.simple_exp();
+// const exprAst = tree.accept(new SyntaxVisitor());
+// const STC = new ScillaTypeChecker();
+// const typed = STC.typeExpr(exprAst, {});
+// console.log(typed);
 
 // tree.accept(new SyntaxVisitor);
-tree.accept(new TranslateVisitor());
+// tree.accept(new TranslateVisitor());
