@@ -34,84 +34,6 @@ export class ScillaDataTypes {
 
 export class Constructor {}
 export class DataTypeDict {
-<<<<<<< Updated upstream
-    constructor() {
-        //When entering a program, we already have a set of pre-defined
-        //data types and their constructors.
-        this.ADTDict = 
-            {
-                "Bool" : new BoolDT(),
-                "Nat": new NatDT(),
-                "Option": new OptionDT(),
-                "List": new ListDT(),
-                "Pair": new ProductDT()
-            };
-        this.ConstrDict = 
-            {
-                "True": [new True(), new BoolDT()],
-                "False": [new False(), new BoolDT()],
-                "Zero": [new Zero(), new NatDT()],
-                "Succ": [new Succ(), new NatDT()],
-                "Some": [new Some(), new OptionDT()],
-                "None": [new None(), new OptionDT()],
-                "Cons": [new Cons(), new ListDT()],
-                "Nil": [new Nil(), new ListDT()],
-                "Pair": [new Pair(), new ProductDT()]
-            };
-    }
-
-    /**
-     * @param {ScillaDataTypes} new_adt 
-     */
-    addAdt(newAdt) {
-       //To add a new ADT - we add a ScillaDataTypes along with its Constructors
-       if (this.ADTDict[new_adt] !== undefined) {
-           //If ADT already exists, we do nothing.
-           return this.ADTDict;
-       }
-       this.ADTDcit[newAdt.tname] = newAdt;
-       newAdt.tconstr.array.forEach(constr => {
-            if (this.ConstrDict[constr.cname] === undefined) {
-                this.ConstrDict[constr.cname] = [constr, newAdt];
-            }
-       });
-       return this.ADTDict;
-    }
-
-    /**
-     * @param {String} name 
-     */
-    lookUpADT(name) {
-        if (this.ADTDict[name] === undefined) {
-            console.log("ADT doesn't exist");
-            return undefined;
-        } else {
-            return this.ADTDict[name];
-        }
-    }
-
-    /**
-     * @param {String} name 
-     */
-    lookUpConstr(name) {
-        if (this.ConstrDict[name] === undefined) {
-            console.log("Constructor doesn't exist");
-            return undefined;
-        } else {
-            return this.ConstrDict[name][0];
-        }
-    }
-
-    //look up ADT by a constructor. E.g. Find BoolDT by passing "True"
-    lookUpADTByConstr(cname) {
-        if (this.ConstrDict[cname] === undefined) {
-            console.log("Constructor doesn't exist");
-            return undefined;
-        } else {
-            return this.ConstrDict[cname][1];
-        }
-    }
-=======
   constructor() {
     //When entering a program, we already have a set of pre-defined
     //data types and their constructors.
@@ -146,10 +68,9 @@ export class DataTypeDict {
     }
     this.ADTDcit[newAdt.tname] = newAdt;
     newAdt.tconstr.array.forEach((constr) => {
-      if (this.ConstrDict[constr.cname] !== undefined) {
-        //continue;
+      if (this.ConstrDict[constr.cname] === undefined) {
+        this.ConstrDict[constr.cname] = [constr, newAdt];
       }
-      this.ConstrDict[constr.cname] = [constr, newAdt];
     });
     return this.ADTDict;
   }
@@ -187,7 +108,6 @@ export class DataTypeDict {
       return this.ConstrDict[cname][1];
     }
   }
->>>>>>> Stashed changes
 }
 
 /**
@@ -297,15 +217,6 @@ export class Nil extends Constructor {
 }
 
 export class ListDT extends ScillaDataTypes {
-<<<<<<< Updated upstream
-    constructor() {
-        super();
-        this.tname = "List";
-        this.tparams = ["'A"];
-        this.tconstr = [new Cons(), new Nil()];
-        this.tmap = {"Cons": [new ST.TypeVar("'A"), new ST.ADT("List", [new ST.TypeVar("'A")])]};
-    }
-=======
   constructor() {
     super();
     this.tname = "List";
@@ -315,7 +226,6 @@ export class ListDT extends ScillaDataTypes {
       Cons: [new ST.TypeVar("'A"), new ST.ADT("List", [new ST.TypeVar("'A")])],
     };
   }
->>>>>>> Stashed changes
 }
 
 /**

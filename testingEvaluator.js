@@ -255,8 +255,7 @@ import TranslateVisitor from "./translate.js";
 // // const tree = parser.simple_exp();
 // const tree = parser.cmodule();
 
-//Testing Type Checking
-import ScillaTypeChecker from "./typechecker.js";
+// Single test debugging expressions
 const input = fs.readFileSync("scilexp/addr.scilexp").toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
