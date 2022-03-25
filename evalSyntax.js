@@ -70,7 +70,8 @@ export default class Evaluator {
       return { x: v };
     }
     if (p instanceof Pattern.ConstructorPat) {
-      console.log("p", Object.getPrototypeOf(p.c));
+      console.log("ConstructorPat", p.c);
+      console.log(v);
       return v === p.c;
     }
     this.printError("matchClause", "Didn't match match clause.");
@@ -281,8 +282,6 @@ export default class Evaluator {
     const func_id = this.evalSid(ctx.f_var); // gets the identifier
     const func = this.lookup(func_id, this.getEnv());
     const argsLit = ctx.args.map((arg) => this.lookup(arg, this.getEnv()));
-
-    console.log(func);
     // let env = Object.assign({}, this.getEnv());
     const fullyAppliedRes = argsLit.reduce(function (res, arg) {
       //Apply closure to argument
@@ -291,14 +290,6 @@ export default class Evaluator {
       return partialRes;
     }, func);
     return fullyAppliedRes;
-  }
-
-  evalAtomic(ctx) {
-    return ctx instanceof SE.Literal //Literal
-      ? this.evalLiteral(ctx.a)
-      : ctx instanceof SE.Var //Identifier
-      ? this.lookup(this.evalSid(ctx.a), this.globalEnv)
-      : this.printError("evalAtomic", "Couldn't match atomic expression.");
   }
 
   evalMessage(ctx) {
@@ -337,14 +328,18 @@ export default class Evaluator {
   }
 
   evalDataConstructor(ctx) {
+    console.log("datacons", ctx);
     const c = this.evalScid(ctx.c);
-    const targ = ctx.ts;
+    const targs = ctx.ts;
     const args = ctx.args.map((arg) => this.evalSid(arg));
-    return c;
+    return new SL.ADTValue(c, targs, args);
   }
+
+  // evalADTConstructor(ctx)
 
   evalMatchExp(ctx) {
     const value = this.lookup(ctx.x, this.getEnv());
+    // console.log("value", value, value.constructor.name);
     for (const clause of ctx.clauses) {
       const found = this.matchClause(value, clause.pat);
       if (found === false) {
@@ -386,39 +381,55 @@ export default class Evaluator {
     return new TApp(tfunc, argsLit);
   }
 
+  // evalAtomic(ctx) {
+  //   return ctx instanceof SE.Literal //Literal
+  //     ? this.evalLiteral(ctx.a)
+  //     : ctx instanceof SE.Var //Identifier
+  //     ? this.lookup(this.evalSid(ctx.a), this.globalEnv)
+  //     : this.printError("evalAtomic", "Couldn't match atomic expression.");
+  // }
+
   evalLiteral(ctx) {
-    console.log("oh literal! ", ctx);
-    const val =
-      ctx instanceof SL.StringLit // SP.LitCidContext
-        ? this.evalCid(ctx.s)
-        : ctx instanceof SL.IntLit
-        ? parseInt(ctx.i) //integer
-        : ctx instanceof SL.UintLit
-        ? parseInt(ctx.i) //integer
-        : ctx instanceof SL.BNumLit // SP.LitBNumContext
-        ? parseInt(ctx.i_number.getText()) //BNUM number (> 0)
-        : // : ctx instanceof // SP.LitNumContext
-        // ? parseInt(ctx.n.getText()) //number
-        ctx instanceof SP.LitHexContext
-        ? console.log(ctx, "HEX TODO") //hex TODOA
-        : ctx instanceof SL.StringLit // SP.LitStringContext
-        ? console.log("SL.StringLit TODO", ctx) //string
-        : ctx instanceof SL.Map // SP.LitEmpContext
-        ? console.log("SL.Map TODO", ctx) //empty map TODO
-        : ctx instanceof SP.LitBoolContext
-        ? ctx.getText() //(ctx.b.getText() === "True")
-        : this.printError("evalLiteral", "Couldn't match literal.");
-    return val;
+    // console.log("oh literal! ", ctx);
+    return ctx;
+    // const val =
+    //   ctx instanceof SL.StringLit // SP.LitCidContext
+    //     ? this.evalCid(ctx.s)
+    //     : ctx instanceof SL.IntLit
+    //     ? parseInt(ctx.i) //integer
+    //     : ctx instanceof SL.UintLit
+    //     ? parseInt(ctx.i) //integer
+    //     : ctx instanceof SL.BNumLit // SP.LitBNumContext
+    //     ? parseInt(ctx.i_number.getText()) //BNUM number (> 0)
+    //     : // : ctx instanceof // SP.LitNumContext
+    //     // ? parseInt(ctx.n.getText()) //number
+    //     ctx instanceof SP.LitHexContext
+    //     ? console.log(ctx, "HEX TODO") //hex TODOA
+    //     : ctx instanceof SL.StringLit // SP.LitStringContext
+    //     ? console.log("SL.StringLit TODO", ctx) //string
+    //     : ctx instanceof SL.Map // SP.LitEmpContext
+    //     ? console.log("SL.Map TODO", ctx) //empty map TODO
+    //     : ctx instanceof SP.LitBoolContext
+    //     ? ctx.getText() //(ctx.b.getText() === "True")
+    //     : this.printError("evalLiteral", "Couldn't match literal.");
+    // return val;
+  }
+
+  evalVar(ctx) {
+    return this.lookup(this.evalSid(ctx.s), this.globalEnv);
   }
 
   evalSimpleExp(ctx) {
     if (!ctx) {
       return;
     }
+
     return ctx instanceof SE.Let
       ? this.evalLet(ctx)
-      : ctx instanceof SE.Atomic
-      ? this.evalAtomic(ctx)
+      : ctx instanceof SL.ScillaLiterals
+      ? this.evalLiteral(ctx)
+      : ctx instanceof SE.Var
+      ? this.evalVar(ctx)
       : ctx instanceof SE.Fun
       ? this.evalFun(ctx)
       : ctx instanceof SE.App
@@ -440,7 +451,6 @@ export default class Evaluator {
 
   evalExp(ctx) {
     return this.evalSimpleExp(ctx);
-    // return this.evalSimpleExp(ctx.f);
   }
 
   evalChildren(ctx) {
