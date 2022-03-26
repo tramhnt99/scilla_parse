@@ -21,7 +21,7 @@ export class BI_eq {
         this.funTyp = 
             new ST.PolyFun("'A", 
                 new ST.FunType(new ST.TypeVar("'A"), 
-                    new ST.FunType(new ST.TypeVar("'A"), new ST.Bool())));
+                    new ST.FunType(new ST.TypeVar("'A"), new ST.ADT("Bool", []))));
     }
 }
 
@@ -31,7 +31,7 @@ export class BI_concat {
         this.types = [new ST.String(), new ST.ByStrTyp(), new ST.ByStrXTyp()]
         this.funTyp = new ST.PolyFun("'A", 
             new ST.FunType(new ST.TypeVar("'A"), 
-                new ST.FunType(new ST.TypeVar("'A"), new ST.Bool())));
+                new ST.FunType(new ST.TypeVar("'A"), new ST.ADT("Bool", []))));
     }
 }
 
@@ -100,13 +100,13 @@ export class BI_contains {
         new ST.PolyFun("'K", 
             new ST.PolyFun("'V",
                 new ST.FunType(new ST.MapType(new ST.TypeVar("'K"), new ST.TypeVar("'V")),
-                    new ST.FunType(new ST.TypeVar("'K"), new ST.Bool))));
+                    new ST.FunType(new ST.TypeVar("'K"), new ST.ADT("Bool", [])))));
     }
 }
 
 export class BI_put {
     constructor() {
-        this.arity = 2;
+        this.arity = 3;
         this.types = [new ST.MapType()];
         this.funTyp = 
         new ST.PolyFun("'K", new ST.PolyFun("'V",
@@ -174,7 +174,7 @@ export class BI_lt {
         this.funTyp =
         new ST.PolyFun("'A", 
         new ST.FunType(new ST.TypeVar("'A"), 
-            new ST.FunType(new ST.TypeVar("'A"), new ST.Bool)));
+            new ST.FunType(new ST.TypeVar("'A"), new ST.ADT("Bool", []))));
     }
 }
 
@@ -300,15 +300,12 @@ export function resolveBIFunType(fname, targs) {
         if (targs.length !== info.arity) {
             return new Error("resolveBIFunType: Wrong arity for function.");
         }
-        const allowedTy = targs.reduce((is_true, targ) => {
-            if (info.types.find(ty => ty.constructor === targ.constructor) === undefined) {
-                return false;
-            } else {
-                return is_true && true;
-            }
-        }, true);
-        if (!allowedTy) {
+        //Update: We only look at the first targ and if it's allowed
+        //Eg. contains allows only type Map - but we would also have a type like Int32 of what the map contains.
+        if (info.types.find(ty => ty.constructor === targs[0].constructor) === undefined) {
             return new Error("resolveBIFunType: Type of arguments are not allowed to this function.");
+        } else {
+            return true;
         }
     }
 

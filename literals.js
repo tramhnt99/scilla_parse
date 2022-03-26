@@ -1,6 +1,8 @@
 import SP from './scillaParser.js';
-import * as ST from './types.js';
+import ScillaType, * as ST from './types.js';
 import { Error, Literal } from './syntax.js';
+
+const ST_ = new ScillaType();
 
 export class ScillaLiterals extends Literal {
 
@@ -38,7 +40,7 @@ export class ScillaLiterals extends Literal {
             return new StringLit(ctx.STRING().getText());
         }
         if (ctx instanceof SP.LitEmpContext) {
-            return new Map({});
+            return new Map(new ST.MapType(ST_.resolveTMapKey(ctx.kt), ST_.resolveTMapValue(ctx.vt) ),[]);
         }
         this.printError("generateLiteral", "Couldn't match literal.");
         return undefined;
@@ -68,7 +70,7 @@ export class ScillaLiterals extends Literal {
         : l instanceof Bystr
         ? new ST.ByStrTyp
         : l instanceof BystrX
-        ? new ST.ByStrXTyp
+        ? new ST.ByStrXTyp(l.width)
         : l instanceof Msg
         ? new ST.Message
         : l instanceof Map
@@ -163,10 +165,19 @@ export class Bystr extends ScillaLiterals {
 /**
  * BystrX - with statically known length
  */
-export class BystrX extends Bystr {
+function hex2a(hexx) {
+    var hex = hexx.toString();//force conversion
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+}
+
+export class BystrX extends ScillaLiterals {
     constructor(s) {
         super();
-        this.s = s;
+        this.s = hex2a(s.substr(2, s.length));
+        this.width = this.s.length;
     }
 }
 

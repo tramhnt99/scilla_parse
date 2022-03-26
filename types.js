@@ -23,8 +23,6 @@ export default class ScillaType {
             ? new Uint256()
             : str === 'Bystr'
             ? new ByStrTyp()
-            : str === 'Bool'
-            ? new Bool()
             : str === 'String'
             ? new String()
             : str === 'BNum'
@@ -267,8 +265,6 @@ export class ByStrXTyp extends PrimType {
         this.i = i; //Bystr20 then i = 20; i is the length
     }
 }
-
-export class Bool extends PrimType {}
 
 export class String extends PrimType {}
 

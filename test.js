@@ -257,29 +257,16 @@ import TranslateVisitor from "./translate.js";
 
 //Testing Type Checking
 import ScillaTypeChecker from "./typechecker.js";
-const input = fs.readFileSync("scilexp/addr.scilexp").toString();
+const input = fs.readFileSync("scilexp/app5.scilexp").toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);
 export const parser = new ScillaParser(tokens);
 const tree = parser.simple_exp();
 const exprAst = tree.accept(new SyntaxVisitor());
-const SEEvaluator = new Evaluator({});
-const value = SEEvaluator.evalChildren(exprAst);
-console.log(value);
-
-//Testing Type Checking
-// import ScillaTypeChecker from "./typechecker.js";
-// const input = fs.readFileSync('scilexp/app4.scilexp').toString();
-// const chars = new antlr4.InputStream(input);
-// const lexer = new ScillaLexer(chars);
-// const tokens = new antlr4.CommonTokenStream(lexer);
-// export const parser = new ScillaParser(tokens);
-// const tree = parser.simple_exp();
-// const exprAst = tree.accept(new SyntaxVisitor());
-// const STC = new ScillaTypeChecker();
-// const typed = STC.typeExpr(exprAst, {});
-// console.log(typed);
+const STC = new ScillaTypeChecker();
+const typed = STC.typeExpr(exprAst, {});
+console.log(typed);
 
 // tree.accept(new SyntaxVisitor);
 // tree.accept(new TranslateVisitor());
