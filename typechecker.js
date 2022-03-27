@@ -506,7 +506,59 @@ export default class ScillaTypeChecker{
             return this.makeRes(e, funTy_);
         }
 
-        //Message
+        if (e instanceof SS.Message) {
+            //Find the type of the message
+            function msgTyp(e) {
+                if (e.es.find(e => e.i === "_tag") !== undefined) {
+                    return new ST.MessageTyp();
+                }
+                if (e.es.find(e => e.i === "_eventname") !== undefined) {
+                    return new ST.EventTyp();
+                }
+                if (e.es.find(e => e.i === "_exception") !== undefined) {
+                    return new ST.ExceptionTyp();
+                }
+                setError(new Error("msgTyp: Ill built message"));
+            }
+            const msgTy = msgTyp(e);
+            if (isError()) {return getError()};
+
+            function payloadTyp(es) {
+                function checkFieldType(seenTyp) {
+                    //If the field is a mandatory field
+                    //We check the literal passed to it is of the right type
+                    if (ST.msgFieldTypes[es.i] !== undefined) {
+                        if (!typeAssignable(ST.msgFieldTypes[es.i], seenTyp)) {
+                            setError(new Error("checkFieldType: Message field type is not assible."));
+                        } 
+                    }
+                }
+
+                if (es.l !== undefined) {
+                    //A literal is passed to message
+                    const tenv_ = _.cloneDeep(tenv);
+                    const ty = this.typeExpr(es.l, tenv_);
+                    checkFieldType(ty);
+                    if (isError()) {return getError()};
+                    return this.makeRes(es, ty);
+                }
+
+                if (es.v !== undefined) {
+                    //A variable is passed to message
+                    const ty = tenv[es.v];
+                    if (ty === undefined) {
+                        setError(new Error("payloadTyp: Message variable is not in the environemt."));
+                        return getError();
+                    }
+                    checkFieldType(ty);
+                    if (ty instanceof ST.MapType || ty instanceof ST.EventTyp || ty instanceof ST.PolyFun || ty instanceof ST.Unit) {
+                        setError(new Error("payloadTyp: Message variables are of illegal type."));
+                        return getError();
+                    }
+                    return this.makeRes(es, ty);
+                }
+            }
+        }
     }
 }
 

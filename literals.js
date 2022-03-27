@@ -2,8 +2,6 @@ import SP from './scillaParser.js';
 import ScillaType, * as ST from './types.js';
 import { Error, Literal } from './syntax.js';
 
-const ST_ = new ScillaType();
-
 export class ScillaLiterals extends Literal {
 
     printError(funcname, msg) {
@@ -40,7 +38,7 @@ export class ScillaLiterals extends Literal {
             return new StringLit(ctx.STRING().getText());
         }
         if (ctx instanceof SP.LitEmpContext) {
-            return new Map(new ST.MapType(ST_.resolveTMapKey(ctx.kt), ST_.resolveTMapValue(ctx.vt) ),[]);
+            return new Map(new ST.MapType(ST.resolveTMapKey(ctx.kt), ST.resolveTMapValue(ctx.vt) ),[]);
         }
         this.printError("generateLiteral", "Couldn't match literal.");
         return undefined;
@@ -192,7 +190,6 @@ export class MsgEntry {
      * @param {ScillaLiterals} t 
      */
     constructor(s, ty, t) {
-        super();
         this.s = s;
         this.ty = ty;
         this.t = t;

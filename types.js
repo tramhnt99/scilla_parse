@@ -1,8 +1,26 @@
 //Types that exist in Scilla
 import { Constructor, ScillaDataTypes } from './datatypes.js';
+import { BystrX } from './literals.js';
 import SP from './scillaParser.js'; //short for ScillaParser
-// import ScillaExpr from './syntax.js';
 
+//Returns ScillaType
+export function resolveTMapKey(ctx) {
+    if (ctx.scid() !== null) {
+        return this.to_type(ctx.scid().getText());
+    }
+    if (ctx.address_typ() !== null) {
+        return new AddressType();
+    }
+    console.log("resolveTMapKey: Couldn't resolve type of map's key");
+}
+
+//Returns ScillaType
+export function resolveTMapValue(ctx) {
+    if (ctx.scid() !== undefined) {
+        return this.to_type(ctx.scid().getText());
+    }
+    //TODO: the rest - got distracted
+}
 export default class ScillaType {
     parseStringToPrimType(str) {
         return str === 'Int64' 
@@ -54,25 +72,6 @@ export default class ScillaType {
     }
 
     //Returns ScillaType
-    resolveTMapKey(ctx) {
-        if (ctx.scid() !== null) {
-            return this.to_type(ctx.scid().getText());
-        }
-        if (ctx.address_typ() !== null) {
-            return new AddressType();
-        }
-        console.log("resolveTMapKey: Couldn't resolve type of map's key");
-    }
-
-    //Returns ScillaType
-    resolveTMapValue(ctx) {
-        if (ctx.scid() !== undefined) {
-            return this.to_type(ctx.scid().getText());
-        }
-        //TODO: the rest - got distracted
-    }
-
-    //Returns ScillaType
     resolveTArg(ctx) {
         return ctx instanceof SP.TypTargContext
             ? this.generateSType(ctx.t)
@@ -83,7 +82,7 @@ export default class ScillaType {
             : ctx instanceof SP.AddrTargContext
             ? new AddressType()
             : ctx instanceof SP.MapTargContext
-            ? new MapType(this.resolveTMapKey(ctx.k), this.resolveTMapValue(ctx.v))
+            ? new MapType(resolveTMapKey(ctx.k), resolveTMapValue(ctx.v))
             : console.log("resolveTArg: Couldn't resolve TArg " + ctx.getText());
     }
 
@@ -270,13 +269,18 @@ export class String extends PrimType {}
 
 export class BNum extends PrimType {}
 
-export class Message extends PrimType {}
+export class MessageTyp extends PrimType {}
 
-export class Event extends PrimType {}
+export class EventTyp extends PrimType {}
 
-export class Exception extends PrimType {}
+export class ExceptionTyp extends PrimType {}
 
-
+export const msgFieldTypes = 
+    {
+        "_tag" : new String(),
+        "_amount" : new Uint128(),
+        "_recipient": new ByStrXTyp(20)
+    }
 
 //Unit
 export class Unit extends ScillaType {}
