@@ -4,6 +4,8 @@ import fs from "fs";
 import Evaluator from "./evalSyntax.js";
 import ScillaLexer from "./scillaLexer.js";
 import ScillaParser from "./scillaParser.js";
+import { Error } from "./syntax.js";
+import { startingTEnv } from "./general.js";
 
 const expressions = [
   "ackermann.scilexp",
@@ -213,7 +215,22 @@ const contracts = [
   "zil-game.scilla",
 ];
 
+export const stdlib = [
+  'BoolUtils',
+  'Conversions',
+  'CryptoUtils',
+  'IntUtils',
+  'ListUtils',
+  'NatUtils',
+  'PairUtils',
+  'Polynetwork',
+  'ShogiLib'
+];
+
 import SyntaxVisitor from "./syntaxVisitor.js";
+import ScillaTypeChecker from "./typechecker.js";
+import TranslateVisitor from "./translate.js";
+const tenv = startingTEnv();
 // for (let i = 0; i < expressions.length; i++) {
 //     const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
 //     console.log("Input: " + 'scilexp/'.concat(expressions[i]));
@@ -222,9 +239,14 @@ import SyntaxVisitor from "./syntaxVisitor.js";
 //     const tokens = new antlr4.CommonTokenStream(lexer);
 //     const parser = new ScillaParser(tokens);
 //     const tree = parser.simple_exp();
-//     tree.accept(new SyntaxVisitor());
+//     const exprAst = tree.accept(new SyntaxVisitor());
+//     const STC = new ScillaTypeChecker();
+//     const typed = STC.typeExpr(exprAst, {});
+//     if (typed instanceof Error) {
+//       console.log(typed);
+//       break;
+//     }
 // }
-import TranslateVisitor from "./translate.js";
 // for (let i = 0; i < contracts.length; i++) {
 //     const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
 //     console.log("Input: " + 'contracts/'.concat(contracts[i]));
@@ -243,7 +265,8 @@ import TranslateVisitor from "./translate.js";
 //     const tokens = new antlr4.CommonTokenStream(lexer);
 //     const parser = new ScillaParser(tokens);
 //     const tree = parser.lmodule();
-//     tree.accept(new TranslateVisitor());
+//     const lmod = tree.accept(new TranslateVisitor());
+//     console.log(lmod);
 // }
 
 // // Single test debugging contracts
@@ -256,7 +279,6 @@ import TranslateVisitor from "./translate.js";
 // const tree = parser.cmodule();
 
 //Testing Type Checking
-import ScillaTypeChecker from "./typechecker.js";
 const input = fs.readFileSync("scilexp/id.scilexp").toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
@@ -267,6 +289,3 @@ const exprAst = tree.accept(new SyntaxVisitor());
 const STC = new ScillaTypeChecker();
 const typed = STC.typeExpr(exprAst, {});
 console.log(typed);
-
-// tree.accept(new SyntaxVisitor);
-// tree.accept(new TranslateVisitor());

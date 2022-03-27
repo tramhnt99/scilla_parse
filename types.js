@@ -3,10 +3,64 @@ import { Constructor, ScillaDataTypes } from './datatypes.js';
 import { BystrX } from './literals.js';
 import SP from './scillaParser.js'; //short for ScillaParser
 
+/***************************************************
+ * 
+ * Type Utility Functions
+ * 
+ **************************************************/
+export function parseStringToPrimType(str) {
+    return str === 'Int64' 
+        ? new Int64()
+        : str === 'Int32' 
+        ? new Int32()
+        : str === 'Int128'
+        ? new Int128()
+        : str === 'Int256'
+        ? new Int256()
+        : str === 'Uint32'
+        ? new Uint32()
+        : str === 'Uint64'
+        ? new Uint64()
+        : str === 'Uint128'
+        ? new Uint128()
+        : str === 'Uint256'
+        ? new Uint256()
+        : str === 'Bystr'
+        ? new ByStrTyp()
+        : str === 'String'
+        ? new String()
+        : str === 'BNum'
+        ? new BNum()
+        : str === 'Message'
+        ? new Message()
+        : str === 'Event'
+        ? new Event()
+        : str === 'Exception'
+        ? new Exception
+        : str.indexOf("ByStr") !== -1 && str.length > 5
+        ? new ByStrXTyp(parseInt(str.substr(5, str.length - 1)))
+        // : str.substr(0, 6) === "Option" 
+        // ? new Option(parseStringToPrimType(str.substr(7, str.length - 1)))
+        : undefined
+        // : console.log("[ERROR]parseStringToPrimType: Couldn't match Prim Type: " + str);
+}
+
+//@n: string
+//returns ScillaType
+export function to_type(n) {
+    const is_prim = parseStringToPrimType(n);
+    // console.log("parseStringToPrimType error is okay.");
+    if (is_prim !== undefined) {
+        return is_prim;
+    } else {
+        return new ADT(n, []);
+    }
+}
+
 //Returns ScillaType
 export function resolveTMapKey(ctx) {
     if (ctx.scid() !== null) {
-        return this.to_type(ctx.scid().getText());
+        return to_type(ctx.scid().getText());
     }
     if (ctx.address_typ() !== null) {
         return new AddressType();
@@ -15,184 +69,129 @@ export function resolveTMapKey(ctx) {
 }
 
 //Returns ScillaType
-export function resolveTMapValue(ctx) {
-    if (ctx.scid() !== undefined) {
-        return this.to_type(ctx.scid().getText());
-    }
-    //TODO: the rest - got distracted
+export function resolveTArg(ctx) {
+    return ctx instanceof SP.TypTargContext
+        ? generateSType(ctx.t)
+        : ctx instanceof SP.ScidTargContext
+        ? to_type(ctx.d.getText())
+        : ctx instanceof SP.TvarTargContext
+        ? new TypeVar(ctx.TID().getText())
+        : ctx instanceof SP.AddrTargContext
+        ? new AddressType()
+        : ctx instanceof SP.MapTargContext
+        ? new MapType(resolveTMapKey(ctx.k), resolveTMapValue(ctx.v))
+        : console.log("resolveTArg: Couldn't resolve TArg " + ctx.getText());
 }
-export default class ScillaType {
-    parseStringToPrimType(str) {
-        return str === 'Int64' 
-            ? new Int64()
-            : str === 'Int32' 
-            ? new Int32()
-            : str === 'Int128'
-            ? new Int128()
-            : str === 'Int256'
-            ? new Int256()
-            : str === 'Uint32'
-            ? new Uint32()
-            : str === 'Uint64'
-            ? new Uint64()
-            : str === 'Uint128'
-            ? new Uint128()
-            : str === 'Uint256'
-            ? new Uint256()
-            : str === 'Bystr'
-            ? new ByStrTyp()
-            : str === 'String'
-            ? new String()
-            : str === 'BNum'
-            ? new BNum()
-            : str === 'Message'
-            ? new Message()
-            : str === 'Event'
-            ? new Event()
-            : str === 'Exception'
-            ? new Exception
-            : str.indexOf("ByStr") !== -1 && str.length > 5
-            ? new ByStrXTyp(parseInt(str.substr(5, str.length - 1)))
-            // : str.substr(0, 6) === "Option" 
-            // ? new Option(this.parseStringToPrimType(str.substr(7, str.length - 1)))
-            : undefined
-            // : console.log("[ERROR]parseStringToPrimType: Couldn't match Prim Type: " + str);
-    }
 
-    //@n: string
-    //returns ScillaType
-    to_type(n) {
-        const is_prim = this.parseStringToPrimType(n);
-        // console.log("parseStringToPrimType error is okay.");
-        if (is_prim !== undefined) {
-            return is_prim;
+//return ScillaType
+export function resolveAddressTyp(ctx) {
+    if (ctx instanceof SP.AnyAdressContext) {
+        return new AnyAddr();
+    }
+    if (ctx instanceof SP.LibAddrContext) {
+        return new LibAddr();
+    }
+    if (ctx instanceof SP.CodeAddrContext) {
+        return new CodeAddr();
+    }
+    if (ctx instanceof SP.ContrAddrContext) {
+        const fields = ctx.fs.map(field => 
+                {id: field.id.getText(); typ: generateSType(field.ty)}
+            );
+        return new ContrAddr(fields);
+    }
+}
+
+export function resolveTMapValueTArgs(ctx) {
+    if (ctx.t instanceof SP.TMP1Context) {
+        if (ctx.targs === []) {
+            return to_type(ctx.d.getText());
         } else {
-            return new ADT(n, []);
+            const argTList = ctx.targs.map(targ =>
+                resolveTMapValueArgs(targ)
+            );
+            return new ADT(ctx.d.getText(), argTList);
         }
     }
-
-    //Returns ScillaType
-    resolveTArg(ctx) {
-        return ctx instanceof SP.TypTargContext
-            ? this.generateSType(ctx.t)
-            : ctx instanceof SP.ScidTargContext
-            ? this.to_type(ctx.d.getText())
-            : ctx instanceof SP.TvarTargContext
-            ? new TypeVar(ctx.TID().getText())
-            : ctx instanceof SP.AddrTargContext
-            ? new AddressType()
-            : ctx instanceof SP.MapTargContext
-            ? new MapType(resolveTMapKey(ctx.k), resolveTMapValue(ctx.v))
-            : console.log("resolveTArg: Couldn't resolve TArg " + ctx.getText());
+    if (ctx.t instanceof SP.TMP2Context) {
+        return resolveTMapValue(ctx.t_map_value());
     }
+}
 
-    //return ScillaType
-    resolveAddressTyp(ctx) {
-        if (ctx instanceof SP.AnyAdressContext) {
-            return new AnyAddr();
-        }
-        if (ctx instanceof SP.LibAddrContext) {
-            return new LibAddr();
-        }
-        if (ctx instanceof SP.CodeAddrContext) {
-            return new CodeAddr();
-        }
-        if (ctx instanceof SP.ContrAddrContext) {
-            const fields = ctx.fs.map(field => 
-                    {id: field.id.getText(); typ: this.generateSType(field.ty)}
-                );
-            return new ContrAddr(fields);
-        }
+export function resolveTMapValueArgs(ctx){
+    if (ctx instanceof SP.TMP3Context) {
+        resolveTMapValueTArgs(ctx.t);
     }
-
-    resolveTMapValueTArgs(ctx) {
-        if (ctx.t instanceof SP.TMP1Context) {
-            if (ctx.targs === []) {
-                return this.to_type(ctx.d.getText());
-            } else {
-                const argTList = ctx.targs.map(targ =>
-                    this.resolveTMapValueArgs(targ)
-                );
-                return new ADT(ctx.d.getText(), argTList);
-            }
-        }
-        if (ctx.t instanceof SP.TMP2Context) {
-            return this.resolveTMapValue(ctx.t_map_value());
-        }
+    if (ctx instanceof SP.TMP4Context) {
+        return to_type(ctx.d.getText());
     }
+    if (ctx instanceof SP.TMP5Context) {
+        return resolveMapType(ctx);
+    }
+}
 
-    resolveTMapValueArgs(ctx){
-        if (ctx instanceof SP.TMP3Context) {
-            this.resolveTMapValueTArgs(ctx.t);
-        }
-        if (ctx instanceof SP.TMP4Context) {
-            return this.to_type(ctx.d.getText());
-        }
-        if (ctx instanceof SP.TMP5Context) {
-            return this.resolveMapType(ctx);
+export function resolveTMapValue(ctx){
+    if (ctx instanceof SP.TMPScidContext) {
+        return to_type(ctx.d.getText());
+    }
+    if (ctx instanceof SP.TMPMapContext) {
+        return resolveMapType(ctx);
+    }
+    if (ctx instanceof SP.TMPParenContext) {
+        return resolveTMapValueTArgs(ctx.t);
+    }
+    if (ctx instanceof SP.TMPAddrContext) {
+        return resolveAddressTyp(ctx.vt);
+    }
+}
+
+export function resolveMapType(ctx) {
+    //Map keys can only be prim types (scid) or address types
+    const map_k_t = 
+        ctx.k.kt_to_map !== null 
+        ? to_type(ctx.k.kt_to_map.getText()) 
+        : resolveAddressTyp(ctx.k.kt.getText());
+    
+    //Map Value can only be another prim (scid), map, 
+    const map_v_t = resolveTMapValue(ctx.v);
+
+    return new MapType(map_k_t, map_v_t);
+}
+
+export function generateSType(ctx) {
+    if (ctx instanceof SP.PrimorADTTypeContext) {
+        if (ctx.targs.length === 0) {
+            return to_type(ctx.d.getText());
+        } else {
+            const argTList = ctx.targs.map(targ =>
+                resolveTArg(targ)
+            );
+            return new ADT(ctx.d.getText(), argTList);
         }
     }
-
-    resolveTMapValue(ctx){
-        if (ctx instanceof SP.TMPScidContext) {
-            return this.to_type(ctx.d.getText());
-        }
-        if (ctx instanceof SP.TMPMapContext) {
-            return this.resolveMapType(ctx);
-        }
-        if (ctx instanceof SP.TMPParenContext) {
-            return this.resolveTMapValueTArgs(ctx.t);
-        }
-        if (ctx instanceof SP.TMPAddrContext) {
-            return this.resolveAddressTyp(ctx.vt);
-        }
+    if (ctx instanceof SP.MapTypeContext) {
+        return resolveMapType(ctx);
     }
-
-    resolveMapType(ctx) {
-        //Map keys can only be prim types (scid) or address types
-        const map_k_t = 
-            ctx.k.kt_to_map !== null 
-            ? this.to_type(ctx.k.kt_to_map.getText()) 
-            : this.resolveAddressTyp(ctx.k.kt.getText());
-        
-        //Map Value can only be another prim (scid), map, 
-        const map_v_t = this.resolveTMapValue(ctx.v);
-
-        return new MapType(map_k_t, map_v_t);
+    if (ctx instanceof SP.FunTypeContext) {
+        // console.log("generateSType:");
+        // console.log(generateSType(ctx.t1));
+        // console.log(generateSType(ctx.t2));
+        return new FunType(generateSType(ctx.t1), generateSType(ctx.t2));
     }
-
-    generateSType(ctx) {
-        if (ctx instanceof SP.PrimorADTTypeContext) {
-            if (ctx.targs.length === 0) {
-                return this.to_type(ctx.d.getText());
-            } else {
-                const argTList = ctx.targs.map(targ =>
-                    this.resolveTArg(targ)
-                );
-                return new ADT(ctx.d.getText(), argTList);
-            }
-        }
-        if (ctx instanceof SP.MapTypeContext) {
-            return this.resolveMapType(ctx);
-        }
-        if (ctx instanceof SP.FunTypeContext) {
-            return new FunType(this.generateSType(ctx.t1), this.generateSType(ctx.t2));
-        }
-        if (ctx instanceof SP.ParenTypeContext) {
-            return this.generateSType(ctx.t)
-        }
-        if (ctx instanceof SP.AddrTypeContext) {
-            return this.resolveAddressTyp(ctx.t_to_map)
-        }
-        if (ctx instanceof SP.PolyFunTyContext) {
-            return new PolyFun(ctx.TID().getText(), this.generateSType(ctx.t));
-        }
-        if (ctx instanceof SP.TypeVarTypeContext) {
-            return new TypeVar(ctx.getText());
-        }
-        console.log("[ERROR]generateSType: Couldn't match type " + ctx.getText());
-        return undefined;
+    if (ctx instanceof SP.ParenTypeContext) {
+        return generateSType(ctx.t)
     }
+    if (ctx instanceof SP.AddrTypeContext) {
+        return resolveAddressTyp(ctx.t_to_map)
+    }
+    if (ctx instanceof SP.PolyFunTyContext) {
+        return new PolyFun(ctx.TID().getText(), generateSType(ctx.t));
+    }
+    if (ctx instanceof SP.TypeVarTypeContext) {
+        return new TypeVar(ctx.getText());
+    }
+    console.log("[ERROR]generateSType: Couldn't match type " + ctx.getText());
+    return undefined;
 }
 
 // tm[tvar := tp]
@@ -232,6 +231,8 @@ export function substTypeinType(tvar, tp, tm) {
         return new ContrAddr(fs);
     }
 }
+
+export default class ScillaType {}
 
 //Primitive Types
 export class PrimType extends ScillaType {}
@@ -322,10 +323,10 @@ export class PolyFun extends ScillaType {
 
 //ADT string -> SType list
 export class ADT extends ScillaType {
-    constructor(id, tlist) {
+    constructor(name, t) {
         super();
-        this.name = id;
-        this.t = tlist;
+        this.name = name;
+        this.t = t;
     }
 }
 

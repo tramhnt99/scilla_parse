@@ -113,7 +113,7 @@ typ
     : d=scid (targs+=targ)* #PrimorADTType
     | MAP k=t_map_key v=t_map_value #MapType
     | t1=typ TARROW t2=typ #FunType
-    | LPAREN t=typ RPAREN #ParenType
+    | <assoc=right> LPAREN t=typ RPAREN #ParenType
     | t_to_map=address_typ #AddrType
     | FORALL tv=TID PERIOD t=typ #PolyFunTy
     | t_var=TID #TypeVarType

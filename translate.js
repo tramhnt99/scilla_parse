@@ -12,19 +12,18 @@ import { Cmodule, Library, ContractDef,
         ScillaStmt as SS,
         LibEntry as LE,
         Lmodule} from './syntax.js';
-import ScillaType from './types.js';
 import SyntaxVisitor from './syntaxVisitor.js';
 import antlr4 from 'antlr4';
 import fs from 'fs';
 import ScillaLexer from './scillaLexer.js';
 import ScillaParser from './scillaParser.js';
 import { parse } from 'path';
+import * as ST from './types.js';
 
 
 export default class TranslateVisitor{
 
     constructor(){
-        this.ST = new ScillaType();
         this.SV = new SyntaxVisitor();
     }
 
@@ -193,7 +192,7 @@ export default class TranslateVisitor{
 
     translateIdWithType(ctx) {
         const param = ctx.n.getText();
-        const type = this.ST.generateSType(ctx.t.t);
+        const type = ST.generateSType(ctx.t.t);
         return [param, type]; 
     }
 
@@ -237,14 +236,16 @@ export default class TranslateVisitor{
 
     translateContractDef(ctx) {
         const cname = ctx.cid().getText();
-        const cArgTypes = ctx.t.map(targ => this.ST.resolveTArg(targ));
+        const cArgTypes = ctx.t.map(targ => ST.resolveTArg(targ));
         return new ContractDef(cname, cArgTypes);
     }
 
     translateLibEntry(ctx) {
         if (ctx instanceof SP.LibVarContext) {
             const x = ctx.ns.getText();
-            const tyopt = ctx.t === null ? undefined : this.ST.generateSType(ctx.t.t);
+            const tyopt = ctx.t === null ? undefined : ST.generateSType(ctx.t.t);
+            console.log("GENERATE TYPE OF LIBVAR");
+            console.log(tyopt);
             const e = this.SV.translateExp(ctx.e);
             return new LE.LibVar(x, tyopt, e);
         } 
@@ -320,13 +321,15 @@ export default class TranslateVisitor{
             elibs = this.translateELibraries(ctx.els); //TODO: look for loops?
         }
         var lib = this.translateLibrary(ctx.l);
-        return new Lmodule(scillaVer, elibs, lib);
+        return new Lmodule(scillaVer, lib, elibs);
     }
 
     visitChildren(ctx) {
         if (!ctx) {return;}
         return ctx instanceof SP.CmoduleContext
         ? this.translateCModule(ctx)
+        : ctx instanceof SP.LmoduleContext
+        ? this.translateLModule(ctx)
         : undefined;
     }
 

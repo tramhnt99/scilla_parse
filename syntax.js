@@ -489,7 +489,7 @@ export class ContractDef {
 
 export class LibEntry {}
 
-class LibVar extends LibEntry {
+export class LibVar extends LibEntry {
     /**
      * @param {String} x
      * @param {Option SType} tyopt
@@ -504,7 +504,7 @@ class LibVar extends LibEntry {
 }
 LibEntry.LibVar = LibVar;
 
-class LibType extends LibEntry {
+export class LibType extends LibEntry {
     /**
      * @param {String} x
      * @param {ContractDef[]} c
@@ -571,7 +571,7 @@ export class Lmodule {
      * @param {Option Library} libs 
      * @param {(String * Option String)[]} elibs;
      */
-    constructor(smver, libs, elibs, contr) {
+    constructor(smver, libs, elibs) {
         this.smver = smver;
         this.libs = libs;
         this.elibs = elibs;

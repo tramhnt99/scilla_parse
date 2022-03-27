@@ -5,7 +5,6 @@ import * as SS from './syntax.js';
 import { ScillaLiterals } from './literals.js';
 import { Error } from './syntax.js';
 import ScillaType, * as ST from './types.js';
-import TranslateVisitor from './translate.js';
 import _ from 'lodash';
 import * as BI from './builtin.js';
 import * as DT from './datatypes.js';
@@ -93,9 +92,50 @@ export default class ScillaTypeChecker{
     //Checks whether the type is well-formed
     //given an environment
     isWellFormedType(ty, tenv) {
-        //TODO
         if (isError()) { return getError(); }
-        return true;
+        const ADTDict = this.ADTDict.ADTDict;
+
+        function isWellFormedType_(t_, tb) {
+            if (t_ instanceof ST.PrimType || t_ instanceof ST.Unit || t_ instanceof ST.AnyAddr 
+                || t_ instanceof ST.CodeAddr || t_ instanceof ST.LibAddr) {
+                return true;
+            }
+            if (t_ instanceof ST.MapType) {
+                return isWellFormedType_(t_.t1, tb) && isWellFormedType_(t_.t2, tb);
+            }
+            if (t_ instanceof ST.FunType) {
+                return isWellFormedType_(t_.t1, tb) && isWellFormedType_(t_.t2, tb);
+            }
+            if (t_ instanceof ST.ADT) {
+                //Check arity of ADT tvars
+                const adt = ADTDict[t_.name];
+                if (t_.t.length !== adt.tparams.length) {
+                    setError(new Error("isWellFormedType_: ADT type constructor arity mismatch"));
+                    return false;
+                }
+                const res = t_.t.reduce((is_true, t) => is_true && isWellFormedType_(t, tb), true);
+                return res;
+            }
+            if (t_ instanceof ST.TypeVar) {
+                //Check if bound locally
+                if (tb.find(t => t === t_.name) !== undefined) {
+                    return true;
+                }
+                //Check if bound in environment
+                if (tenv[t_.name] !== undefined) {
+                    return true;
+                }
+                setError(new Error("isWellFormedType_: Unbound type variable."));
+                return false;
+            }
+            if (t_ instanceof ST.PolyFun) {
+                return isWellFormedType_(t_.t, tb.push(t_.name));
+            }
+            if (t_ instanceof ST.ContrAddr) {
+                const res = t_.tlist.reduce((is_true, t) => is_true && isWellFormedType_(t.typ, tb));
+            }
+        }
+        return isWellFormedType_(ty, []);
     }
 
     //Checking type equality
@@ -205,9 +245,6 @@ export default class ScillaTypeChecker{
                 return fty.t2;
             }
             if (actualsty.length > 0) {
-                console.log(fty);
-                console.log(fty.t1);
-                console.log(actualsty[0]);
                 const assignable = this.typeAssignable(fty.t1, actualsty[0]);
                 if (assignable) {
                     return this.functionTypeApplies(fty.t2, actualsty.slice(1, actualsty.length));
@@ -471,7 +508,7 @@ export default class ScillaTypeChecker{
             const tenv_ = _.cloneDeep(tenv);
             setTenv(tenv_, e.i, new ST.TypeVar(e.i));
             const typedE = this.typeExpr(e.e, tenv_);
-            return this.makeRes(e, this.getTy(typedE));
+            return this.makeRes(e, new ST.PolyFun(e.i, this.getTy(typedE)));
         }
 
         if (e instanceof SS.TApp) { 
@@ -482,6 +519,8 @@ export default class ScillaTypeChecker{
                 return getError();
             }
             const funTy = tenv[e.f];
+            console.log(tenv);
+            console.log(e.f);
             if (!funTy) {
                 setError(new Error("typeExpr: TApp's function type is not bound"));
                 return getError();

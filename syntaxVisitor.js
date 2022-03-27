@@ -2,12 +2,10 @@
 // the ANTLR AST
 // https://medium.com/dailyjs/compiler-in-javascript-using-antlr-9ec53fd2780f
 import SP from "./scillaParser.js"; //short for ScillaParser
-import ScillaType from "./types.js";
 import { ScillaExpr as SE, Pattern, ClauseExp } from "./syntax.js";
-// import { Map } from './literals.js'; //Scilla Literals
 import { ScillaLiterals } from "./literals.js";
+import * as ST from "./types.js";
 
-const ST = new ScillaType();
 const SL = new ScillaLiterals();
 
 export default class SyntaxVisitor {
@@ -159,7 +157,7 @@ export default class SyntaxVisitor {
 
   translateTApp(ctx) {
     const tfunc = this.translateSid(ctx.f);
-    const argsLit = ctx.targs.map((targ) => targ.getText());
+    const argsLit = ctx.targs.map((targ) => ST.resolveTArg(targ));
 
     return new SE.TApp(tfunc, argsLit);
   }
