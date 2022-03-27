@@ -3,6 +3,7 @@
  */
 import * as ST from './types.js';
 import {Error} from './syntax.js';
+import * as ER from './general.js';
 
 /**
  * Each BI class includes the arity of the builtin function.
@@ -298,12 +299,12 @@ export const BuiltInDict = {
 export function resolveBIFunType(fname, targs) {
     function checkBasics(info) {
         if (targs.length !== info.arity) {
-            return new Error("resolveBIFunType: Wrong arity for function.");
+            return ER.setError(new Error("resolveBIFunType: Wrong arity for function."));
         }
         //Update: We only look at the first targ and if it's allowed
         //Eg. contains allows only type Map - but we would also have a type like Int32 of what the map contains.
         if (info.types.find(ty => ty.constructor === targs[0].constructor) === undefined) {
-            return new Error("resolveBIFunType: Type of arguments are not allowed to this function.");
+            return ER.setError(new Error("resolveBIFunType: Type of arguments are not allowed to this function."));
         } else {
             return true;
         }
@@ -316,9 +317,7 @@ export function resolveBIFunType(fname, targs) {
     {
         const info = this.BuiltInDict[fname];
         const basicsOk = checkBasics(info);
-        if (basicsOk instanceof Error) {
-            return basicsOk;
-        }
+        if (ER.isError()) { return ER.getError()};
         const fType = info.funTyp;
         return ST.substTypeinType(fType.name, targs[0], fType.t);
     }
@@ -329,9 +328,8 @@ export function resolveBIFunType(fname, targs) {
     {
         const info = this.BuiltInDict[fname];
         const basicsOk = checkBasics(info);
-        if (basicsOk instanceof Error) {
-            return basicsOk;
-        }
+        if (ER.isError()) { return ER.getError()};
+        
         const fType = info.funTyp;
         const mapArg = targs[0]; //Map argument is always the first
         //Substitute t1 (key type)

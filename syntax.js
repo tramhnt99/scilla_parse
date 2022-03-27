@@ -148,7 +148,7 @@ export class TApp extends ScillaExpr {
     /**
      * 
      * @param {String} f 
-     * @param {*} targs 
+     * @param {SType[]} targs 
      */
     constructor(f, targs) {
         super();

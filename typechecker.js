@@ -9,15 +9,15 @@ import TranslateVisitor from './translate.js';
 import _ from 'lodash';
 import * as BI from './builtin.js';
 import * as DT from './datatypes.js';
-import * as ER from './general.js';
+import { isError, getError, setError } from './general.js';
 
 
 const SL = new ScillaLiterals();
 
 function setTenv(tenv, x, v) {
-    if (ER.isError()) { return ER.getError(); }
+    if (isError()) { return getError(); }
     if (tenv[x]) {
-        ER.setError(new Error("setTenv: " + x + " already exists in tenv"));
+        setError(new Error("setTenv: " + x + " already exists in tenv"));
     } else {
         tenv[x] = v;
         return tenv;
@@ -32,7 +32,7 @@ export default class ScillaTypeChecker{
 
     //Returns an object mapping from a previous tvar name, to a new one
     makeFreshTVars(tvars, taken) {
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         var counter = 0;
         var res = {};
         const newTVars = tvars.map(tvar => {
@@ -52,7 +52,7 @@ export default class ScillaTypeChecker{
     //Eg. If ADT has tparams "'A", and a constructor takes a parameter of type ST.TypeVar("'A"),
     //but "'A" is already bound in env, then we create a new one called "'1" and bind it to that instead
     refereshADTTVars(cparams, adtParams, tenv) {
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         const renaming = this.makeFreshTVars(adtParams, tenv).map; //(String * String){}
         const cparamsNoShadow = cparams.map(t => {
                 return adtParams.reduce((stype, str_tvar) => {
@@ -64,29 +64,29 @@ export default class ScillaTypeChecker{
     }
 
     getType(v) {
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         return this.tyEnv[v];
     }
 
     updateEnv(v, ty) {
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         this.tyEnv[v] = ty;
     }
 
     //Results of all functions will be an object containing the expressions
     //and its type (unless it was an Error)
     makeRes(e, ty) {
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         return {e: e, ty: ty};
     }
 
     getExpr(res) {
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         return res.e;
     }
 
     getTy(res) {
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         return res.ty;
     }
 
@@ -94,13 +94,13 @@ export default class ScillaTypeChecker{
     //given an environment
     isWellFormedType(ty, tenv) {
         //TODO
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         return true;
     }
 
     //Checking type equality
     typeEqual(ty1, ty2) {
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         if (ty1 instanceof ST.PrimType && ty2 instanceof ST.PrimType) {
             return ty1.constructor === ty2.constructor;
         }
@@ -205,15 +205,18 @@ export default class ScillaTypeChecker{
                 return fty.t2;
             }
             if (actualsty.length > 0) {
+                console.log(fty);
+                console.log(fty.t1);
+                console.log(actualsty[0]);
                 const assignable = this.typeAssignable(fty.t1, actualsty[0]);
                 if (assignable) {
                     return this.functionTypeApplies(fty.t2, actualsty.slice(1, actualsty.length));
                 } else {
-                    return ER.setError(new Error("functionTypeApplies: Argument type is not assignable to function parameter."));
+                    return setError(new Error("functionTypeApplies: Argument type is not assignable to function parameter."));
                 }
             }
         }
-        if (ER.isError()) { return ER.getError(); }
+        if (isError()) { return getError(); }
         if (fty instanceof ScillaType && actualsty.length === 0) {
             return fty;
         }
@@ -231,56 +234,59 @@ export default class ScillaTypeChecker{
      * @param {(String * SType){}} tenv //Contains both type vars and vars
      */
     typeExpr(e, tenv){
-        if (ER.isError()) {
-            return ER.getError();
+        if (isError()) {
+            return getError();
         }
 
         if (e instanceof SS.Literal) {
             const res = SL.literalType(e);
-            if (res instanceof Error) {
-                return res;
-            } else {
-                return this.makeRes(e, res);
-            }
+            if (isError()) { return getError(); }
+            return this.makeRes(e, res);
         }
         if (e instanceof SS.Var) {
             const ty = tenv[e.s];
             if (ty === undefined) {
-                return new Error("typeExpr: Variable not found in Type Environment");
+                setError(new Error("typeExpr: Variable not found in Type Environment."));
+                return getError();
             }
             return this.makeRes(e, ty);
         }
         if (e instanceof SS.Fun) {
             const isWF = this.isWellFormedType(e.ty, tenv);
-            if (isWF instanceof Error) {
-                return isWF;
+            if (!isWF) { 
+                setError(new Error("typeExpr: Function Argument Type is not well formed."));
+                return getError(); 
             }
+
             //Extend environment to include the argument type
             const tenv_ = _.cloneDeep(tenv); 
             setTenv(tenv_, e.id, e.ty);
-            if (ER.isError()) { return ER.getError(); }
+            if (isError()) { return getError(); }
+
             //Recursively run function with the updated environment
             const typedBody = this.typeExpr(e.e, tenv_);  
-            if (typedBody instanceof Error) {
-                return typedBody;
-            }
+            if (isError()) { return getError(); }
+
             return this.makeRes(e, new ST.FunType(e.ty, this.getTy(typedBody)));
         }
 
         if (e instanceof SS.App) {
             //Function Type - TODO: check WF?
             const fty = tenv[e.f_var];
-            if (!fty) {return new Error("typeExpr: Function type is not bound");}
+            if (!fty) {
+                setError(new Error("typeExpr: Function type is not bound"));
+                return getError();
+            }
 
             //Arguments Type - undefined arg types are checked in functionTypeApplies
             const actualsTy = e.args.map(arg => tenv[arg]);
             const resType = this.functionTypeApplies(fty, actualsTy);
-            if (resType instanceof Error) {
-                return resType;
-            }
+            if (isError()) { return getError(); }
+            
             const resTypeWF = this.isWellFormedType(resType, tenv);
-            if (resTypeWF instanceof Error) {
-                return resTypeWF;
+            if (!resTypeWF) {
+                setError(new Error("typeExpr: Result Type of App is not well formed."));
+                return getError();
             }
 
             return this.makeRes(e, resType);
@@ -295,12 +301,12 @@ export default class ScillaTypeChecker{
                 : this.typeAssignable(e.ty, this.getTy(typedLhs))
                 ? e.ty  
                 : new Error("typeExpr: Typing in Let is not assignable ");
-            if (actualTyp instanceof Error) { return actualTyp; }
+            if (actualTyp instanceof Error) { setError(actualTyp); }
+
             const tenv_ = _.cloneDeep(tenv); 
             setTenv(tenv_, e.x, actualTyp);
-            if (ER.isError()) { return ER.getError(); }
             const typedRhs = this.typeExpr(e.rhs, tenv_);
-            if (typedRhs instanceof Error) { return typedRhs; }
+            if (isError()) { return getError(); }
             return this.makeRes(e, this.getTy(typedRhs));
         }
 
@@ -309,19 +315,19 @@ export default class ScillaTypeChecker{
                 const tyArgsWF = e.targs.reduce((is_true, targ) => 
                 is_true && this.isWellFormedType(targ, tenv), true);
                 if (!tyArgsWF) {
-                    ER.setError(new Error("typeExpr: Builtin Type Arguments are not well formed."));
-                    return ER.getError();
+                    setError(new Error("typeExpr: Builtin Type Arguments are not well formed."));
+                    return getError();
                 }
             }
             //Resolve the actuals and get the type of arguments
             const resolvedTypArgs = e.xs.map(arg => {
                 if (tenv[arg] === undefined) {                    
-                    ER.setError(new Error("typeExpr: Builtin Argument is not in environment."));
+                    setError(new Error("typeExpr: Builtin Argument is not in environment."));
                 } else {
                     return tenv[arg];
                 }
             });
-            if (ER.isError()) { return ER.getError(); }
+            if (isError()) { return getError(); }
 
             //Get Function Type
             const func = BI.BuiltInDict[e.b];
@@ -331,17 +337,17 @@ export default class ScillaTypeChecker{
             }
             //Remove TFuns
             const func_ = BI.resolveBIFunType(e.b, resolvedTypArgs);
-            if (func_ instanceof Error) {
-                return func_;
-            }
+            if (isError()) { return getError(); }
+
             const resType = this.functionTypeApplies(func_, resolvedTypArgs);
-            if (resType instanceof Error) {
-                return resType;
-            }
+            if (isError()) { return getError(); }
+
             const resTypeWF = this.isWellFormedType(resType, tenv);
-            if (resTypeWF instanceof Error) {
-                return resTypeWF;
+            if (!resTypeWF) { 
+                setError(new Error("typeExpr: Builtin result type is not well formed."));
+                return getError(); 
             }
+
             return this.makeRes(e, resType);
         }
 
@@ -349,12 +355,14 @@ export default class ScillaTypeChecker{
             const tyArgsWF = e.ts.reduce((is_true, targ) =>
                 is_true && this.isWellFormedType(targ, tenv), true);
             if (!tyArgsWF) {
-                return new Error("typeExpr: DataConstructor type arguments are not well formed");
+                setError(new Error("typeExpr: DataConstructor type arguments are not well formed"));
+                return getError();
             }
             const constr = this.ADTDict.ConstrDict[e.c][0];
             const noOfArg = e.args.length;
             if (constr.arity !== noOfArg) {
-                return new Error("typeExpr: Constructor arity mismatch");
+                setError(new Error("typeExpr: Constructor arity mismatch"));
+                return getError();
             }
 
             const adt = this.ADTDict.ConstrDict[e.c][1];
@@ -378,7 +386,7 @@ export default class ScillaTypeChecker{
                     return ST.substTypeinType(str_tvar, e.ts[index], stype)
                 }, cparam);
             });
-            if (ER.isError()) {return ER.getError()};
+            if (isError()) {return getError()};
 
             //3. Ensure arguments applied type check
             const typesOfArgs = e.args.map(arg => {
@@ -389,14 +397,15 @@ export default class ScillaTypeChecker{
                 return is_true && this.typeAssignable(cparam, typesOfArgs[index]);
             }, true);
             if (!argTC) {
-                return new Error("typeExpr: Arguments of Constructor do not type check");
+                setError(Error("typeExpr: Arguments of Constructor do not type check"));
             }
+            if (isError()) { return getError(); }
             return this.makeRes(e, new ST.ADT(adt.tname, e.ts));
         }
 
         if (e instanceof SS.Match) {
             if (e.clauses.length === 0) {
-                return new Error("typeExpr: List of pattern matching is empty.");
+                setError(new Error("typeExpr: List of pattern matching is empty."));
             }
             const xTyp = tenv[e.x];
 
@@ -405,7 +414,7 @@ export default class ScillaTypeChecker{
             //Depending on the binder clause, we update the environment and run
             //typechecking on the respective expressions
             function updateTenvOfPattern(pat, xty, tenv, ADTDict) {
-                if (ER.isError()) { return ER.getError(); }
+                if (isError()) { return getError(); }
                 if (pat instanceof SS.Pattern.WildCard) {
                     const tenv_ = _.cloneDeep(tenv); 
                     return tenv_;
@@ -421,13 +430,13 @@ export default class ScillaTypeChecker{
 
                     //2. Extract args that it needs. Check length vs. arity
                     if (constr.arity !== pat.ps.length) {
-                        return ER.setError(new Error("typeExpr: Constructor Type Arguments Pattern arity mismatch."));
+                        return setError(new Error("typeExpr: Constructor Type Arguments Pattern arity mismatch."));
                     }
 
                     //3. Find the actual types and run with updated tenv
                     //Since it's mapped to a contructor, its type is definitely ADT
                     if (!(xty instanceof ST.ADT)) {
-                        return ER.setError(new Error("typeExpr: Constructor Pattern is not of type ADT"));
+                        return setError(new Error("typeExpr: Constructor Pattern is not of type ADT"));
                     }
                     const typArgs = xty.t;
                     const tenv_ = _.cloneDeep(tenv);
@@ -435,6 +444,7 @@ export default class ScillaTypeChecker{
                 }
             }
             const tenv_ = _.cloneDeep(tenv);
+            
             for (let i = 0; i < e.clauses.length; i++) {
                 const clause = e.clauses[i];
                 const clauseTyp = this.typeExpr(clause.exp, updateTenvOfPattern(clause.pat, xTyp, tenv_, this.ADTDict));
@@ -443,18 +453,60 @@ export default class ScillaTypeChecker{
                 }
                 clausesTyp.push(clauseTyp.ty);
             }
-            if (ER.isError()) { return ER.getError(); }
-            if (this.error_msg) {
-                return this.error_msg;
-            }
+            if (isError()) { return getError(); }
             const allEqual = clausesTyp.every((ty => this.typeAssignable(ty, clausesTyp[0])));
             if (!allEqual) {
-                return new Error("typeExpr: Match clauses are not of the same type");
+                setError(new Error("typeExpr: Match clauses are not of the same type"));
             }
+            if (isError()) { return getError(); }
             return this.makeRes(e, clausesTyp[0]);
         }
 
-        //TFun, TApp, Message
+        if (e instanceof SS.TFun) {
+            //According to Scilla TC, it is illegal to declare a type variable
+            //with the same name as an existing one in the scope
+            if (tenv[e.i] !== undefined) {
+                setError(new Error("typeExpr: Type Variable is already in use"));
+            }
+            const tenv_ = _.cloneDeep(tenv);
+            setTenv(tenv_, e.i, new ST.TypeVar(e.i));
+            const typedE = this.typeExpr(e.e, tenv_);
+            return this.makeRes(e, this.getTy(typedE));
+        }
+
+        if (e instanceof SS.TApp) { 
+            //Check all type arguments are WF
+            const tArgsWF = e.targs.reduce((is_true, targ) => is_true && this.isWellFormedType(targ, tenv));
+            if (!tArgsWF) {
+                setError(new Error("typeExpr: TApp type arguments are not well formed."));
+                return getError();
+            }
+            const funTy = tenv[e.f];
+            if (!funTy) {
+                setError(new Error("typeExpr: TApp's function type is not bound"));
+                return getError();
+            }
+            function applyToTFun(tfun, targs) {
+                if (isError()) {return getError()};
+                if (tfun instanceof ST.PolyFun) {
+                    if (targs.length > 0) {
+                        const tenv_ = _.cloneDeep(tenv);
+                        setTenv(tenv_, tfun.name, targs[0]);
+                        const tfun_ = ST.substTypeinType(tfun.name, targs[0], tfun.t);
+                        return applyToTFun(tfun_, targs.slice(1, targs.length));
+                    } else {
+                        return tfun;
+                    }
+                } else {
+                    return tfun;
+                }
+            }
+            const funTy_ = applyToTFun(funTy, e.targs);
+            if (isError()) {return getError()};
+            return this.makeRes(e, funTy_);
+        }
+
+        //Message
     }
 }
 

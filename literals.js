@@ -184,7 +184,7 @@ export class BystrX extends ScillaLiterals {
 /**
  * Msg
  */
-export class Msg extends ScillaLiterals {
+export class MsgEntry {
     /**
      * 
      * @param {String} s 
@@ -196,6 +196,16 @@ export class Msg extends ScillaLiterals {
         this.s = s;
         this.ty = ty;
         this.t = t;
+    }
+}
+
+export class Msg extends ScillaLiterals {
+    /**
+     * @param {MsgEntry[]} mentries
+     */
+    constructor(mentries) {
+        super();
+        this.mentries = mentries;
     }
 }
 
