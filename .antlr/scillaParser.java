@@ -908,7 +908,7 @@ public class scillaParser extends Parser {
 					setState(208);
 					match(TARROW);
 					setState(209);
-					((FunTypeContext)_localctx).t2 = typ(6);
+					((FunTypeContext)_localctx).t2 = typ(5);
 					}
 					} 
 				}
@@ -4820,7 +4820,7 @@ public class scillaParser extends Parser {
 		"\b\4\u00ce\u00d0\7@\2\2\u00cf\u00b9\3\2\2\2\u00cf\u00c1\3\2\2\2\u00cf"+
 		"\u00c5\3\2\2\2\u00cf\u00c9\3\2\2\2\u00cf\u00ca\3\2\2\2\u00cf\u00ce\3\2"+
 		"\2\2\u00d0\u00d6\3\2\2\2\u00d1\u00d2\f\7\2\2\u00d2\u00d3\7-\2\2\u00d3"+
-		"\u00d5\5\16\b\b\u00d4\u00d1\3\2\2\2\u00d5\u00d8\3\2\2\2\u00d6\u00d4\3"+
+		"\u00d5\5\16\b\7\u00d4\u00d1\3\2\2\2\u00d5\u00d8\3\2\2\2\u00d6\u00d4\3"+
 		"\2\2\2\u00d6\u00d7\3\2\2\2\u00d7\17\3\2\2\2\u00d8\u00d6\3\2\2\2\u00d9"+
 		"\u00da\7\'\2\2\u00da\u00db\5\16\b\2\u00db\u00dc\7(\2\2\u00dc\u00e5\3\2"+
 		"\2\2\u00dd\u00e5\5\62\32\2\u00de\u00e5\7@\2\2\u00df\u00e5\5\f\7\2\u00e0"+
