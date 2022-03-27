@@ -5,7 +5,6 @@ import fs from "fs";
 import SP from "./scillaParser.js"; //short for ScillaParser
 // import { ScillaType as ST } from './types.js'; //ScillaTypes
 import ScillaType from "./types.js";
-import { parser } from "./test.js";
 import { get } from "http";
 import { ScillaExpr as SE, Pattern, ClauseExp } from "./syntax.js";
 import exp from "constants";
@@ -15,10 +14,13 @@ import * as SL from "./literals.js";
 import Builtins from "./builtins.js";
 import { allowedNodeEnvironmentFlags } from "process";
 import _ from "lodash";
+import { DataTypeDict } from "./datatypes.js";
 
 const ST = new ScillaType();
 const SV = new SyntaxVisitor();
 const BI = new Builtins();
+const DT = new DataTypeDict();
+const SL_ = new SL.ScillaLiterals();
 
 export default class Evaluator {
   constructor(env) {
@@ -63,18 +65,19 @@ export default class Evaluator {
   //Returns bindings
   matchClause(v, p) {
     if (p instanceof Pattern.WildCard) {
-      return true;
+      return "Wildcard";
     }
     if (p instanceof Pattern.Binder) {
-      const x = p.x;
-      return { x: v };
+      // const x = p.x;
+      // return { x: v };
+      return "Binder";
     }
     if (p instanceof Pattern.ConstructorPat) {
-      console.log("ConstructorPat", p.c);
-      console.log(v);
-      return v === p.c;
+      if (v.name === p.c) {
+        return "ConstructorPat";
+      }
     }
-    this.printError("matchClause", "Didn't match match clause.");
+    // this.printError("matchClause", "Didn't match match clause.");
     return undefined;
   }
 
@@ -104,6 +107,15 @@ export default class Evaluator {
   //in the rest of the code
   //Return updated Expr
   substTypeInExpr(tvar, tp, expr) {
+    console.log(
+      "in",
+      "substTypeInExpr",
+      `
+    tvar = ${tvar},
+    tp = ${tp},
+    expr = ${expr}
+    `
+    );
     if (expr instanceof SP.AtomicContext) {
       //If Var, change nothing
       if (expr.a instanceof SP.AtomicSidContext) {
@@ -210,21 +222,14 @@ export default class Evaluator {
     //   : this.printError("evalID", "Couldn't match ID");
   }
 
-  evalWildcard(ctx) {
-    return ctx.getText();
+  evalTArg(ctx) {
+    console.log("evalTArg", ctx);
+    console.log(ctx.constructor.name);
+    // if (ctx instanceof TypTarg)
   }
 
-  evalArgPattern(ctx) {
-    if (ctx instanceof SP.ArgPatternWildcardContext) {
-      return new ArgPattern(this.evalWildcard(ctx), null, null, null);
-    } else if (ctx instanceof SP.ArgPatternBinderContext) {
-      return new ArgPattern(null, this.evalID(ctx.x), null, null);
-    } else if (ctx instanceof SP.ArgPatternConstructorContext) {
-      // const ps = ctx.ps !== null ? this.evalArgPattern(ctx.ps) : null;
-      return new ArgPattern(null, null, this.evalScid(ctx.c), null);
-    } else if (ctx instanceof SP.ArgPatternPatternContext) {
-      return new ArgPattern(null, null, null, this.evalPattern(ctx.p));
-    }
+  evalWildcard(ctx) {
+    return ctx.getText();
   }
 
   evalBuiltinArgs(ctx) {
@@ -237,18 +242,29 @@ export default class Evaluator {
     return new ExpPmClause(p, e);
   }
 
-  evalPattern(ctx) {
-    console.log("PAT TODO");
-    // console.log(ctx);
-    // if (ctx instanceof SP.WildcardContext) {
-    //   return new Pattern(this.evalWildcard(ctx), null, null, null);
-    // } else if (ctx instanceof SP.BinderContext) {
-    //   return new Pattern(null, this.evalID(ctx.x), null, null);
-    // } else if (ctx instanceof SP.ConstructorContext) {
-    //   const c = this.evalScid(ctx.c);
-    //   const ps = ctx.ps !== null ? this.evalArgPattern(ctx.ps) : null;
-    //   return new Pattern(null, null, c, ps);
-    // }
+  evalPattern(value, ctx) {
+    let env = _.cloneDeep(this.getEnv());
+    if (ctx instanceof Pattern.WildCard) {
+      //continue, Wildcard
+    } else if (ctx instanceof Pattern.Binder) {
+      // bind value to variable to environment
+      env[ctx.x] = value;
+    } else {
+      // ConstructorPat case
+      const adt = DT.lookUpConstr(ctx.c);
+      if (adt.arity > 0) {
+        for (let a = 0; a < adt.arity; a++) {
+          if (value instanceof SL.ADTValue) {
+            value = value.ll;
+          }
+          _.merge(
+            env,
+            this.evalPattern(this.lookup(value[a], this.getEnv()), ctx.ps[a])
+          );
+        }
+      }
+    }
+    return env;
   }
 
   evalLet(ctx) {
@@ -269,8 +285,8 @@ export default class Evaluator {
     const param = ctx.id;
     const clo = function (x, env) {
       const newEvaluator = new Evaluator(env); // evaluate in new environment
-      const env_ = newEvaluator.setEnv(param, x); // set param binding
-      return newEvaluator.evalExp(ctx.e, env_);
+      newEvaluator.setEnv(param, x); // set param binding
+      return newEvaluator.evalExp(ctx.e);
     };
     return this.wrap(clo, _.cloneDeep(this.getEnv()));
   }
@@ -281,7 +297,9 @@ export default class Evaluator {
   evalApp(ctx) {
     const func_id = this.evalSid(ctx.f_var); // gets the identifier
     const func = this.lookup(func_id, this.getEnv());
-    const argsLit = ctx.args.map((arg) => this.lookup(arg, this.getEnv()));
+    const argsLit = ctx.args.map((arg) =>
+      this.lookup(this.evalSid(arg), this.getEnv())
+    );
     // let env = Object.assign({}, this.getEnv());
     const fullyAppliedRes = argsLit.reduce(function (res, arg) {
       //Apply closure to argument
@@ -293,14 +311,21 @@ export default class Evaluator {
   }
 
   evalMessage(ctx) {
-    const es = ctx.es.map((pair) => {
-      return pair.l !== null
-        ? { i: this.evalSid(pair.i), l: this.evalLiteral(pair.l) }
-        : pair.v !== null
-        ? { i: this.evalSid(pair.i), v: this.evalSid(pair.v) }
-        : this.printError("evalMessage", "Message not defined correctly.");
+    if (ctx === undefined) {
+      this.printError("evalMessage", "Ctx is undefined.");
+    }
+    const messageKVPairs = ctx.es.map((pair) => {
+      if (pair?.i !== undefined && pair?.l !== undefined) {
+        return new SL.MsgEntry(pair.i, SL_.literalType(pair.l), pair.l);
+      } else if (pair?.i !== undefined && pair?.v !== undefined) {
+        pair.v = this.lookup(pair.v, this.getEnv());
+        return new SL.MsgEntry(pair.i, SL_.literalType(pair.v), pair.v);
+      } else {
+        return `Error: evalMessage ${pair}`;
+      }
     });
-    return new Message(es);
+
+    return new SL.Msg(messageKVPairs);
   }
 
   evalBuiltin(ctx) {
@@ -313,11 +338,13 @@ export default class Evaluator {
           )
         : undefined;
 
-    console.group(this.getEnv(), ctx.xs);
+    // console.log(this.getEnv(), ctx.xs);
     const builtinArgs = this.evalBuiltinArgs(ctx.xs).map((arg) => {
       return this.lookup(arg, this.getEnv());
     });
-
+    console.log(typeArgs);
+    console.log(ctx.xs);
+    console.log(builtinArgs);
     const builtinFuncResult = builtinArgs.reduce(function (res, arg) {
       //Apply closure to argument
       const partialRes = res(arg);
@@ -328,48 +355,106 @@ export default class Evaluator {
   }
 
   evalDataConstructor(ctx) {
-    console.log("datacons", ctx);
     const c = this.evalScid(ctx.c);
     const targs = ctx.ts;
     const args = ctx.args.map((arg) => this.evalSid(arg));
     return new SL.ADTValue(c, targs, args);
   }
 
-  // evalADTConstructor(ctx)
+  // NOT USED DUE TO ARGPATTERN BEING TRANSLATED TO PATTERN
+  // evalArgPattern(ctx) {
+  //   if (ctx instanceof Pattern.Wildcard) {
+  //     return new ArgPattern(this.evalWildcard(ctx), null, null, null);
+  //   } else if (ctx instanceof Pattern.Binder) {
+  //     return new ArgPattern(null, this.evalID(ctx.x), null, null);
+  //   } else if (ctx instanceof Pattern.ConstructorPat) {
+  //     // const ps = ctx.ps !== null ? this.evalArgPattern(ctx.ps) : null;
+  //     return new ArgPattern(null, null, this.evalScid(ctx.c), null);
+  //   } else {
+  //     return `ERROR[ evalArgPattern ]: ctx provided was ${ctx} `;
+  //   }
+  // }
 
   evalMatchExp(ctx) {
     const value = this.lookup(ctx.x, this.getEnv());
-    // console.log("value", value, value.constructor.name);
+    // Scilla requires exhaustive match statements, we do a check for this
+    // current assumption is that if expecting an ADT constructor
+    // only ADT constructors are used as patterns
+    if (value instanceof SL.ADTValue) {
+      const adt = DT.lookUpADTByConstr(value.name);
+      const clausePatterns = ctx.clauses.map((clause) => clause.pat);
+
+      // check for reachable pattern
+      // if (clausePatterns.length > 1) {
+      //   for (let i = 0; i < clausePatterns.length - 1; i++) {
+      //     if (clausePatterns[i] instanceof Pattern.WildCard) {
+      //       return `Error: Wildcard cannot be used before last pattern in a match statement`;
+      //     }
+      //   }
+      // }
+      // check for exhaustive match
+
+      // check for arity match
+      const adtConstructors = adt.tconstr;
+      if (clausePatterns.length !== adtConstructors.length) {
+        return `Error: Pattern matching arity mismatch for ADT`;
+      }
+
+      // check that all ADT constructors are provided as patterns to match
+      for (let j = 0; j < adtConstructors.length; j++) {
+        let foundFlag = false;
+        for (let k = 0; k < clausePatterns.length; k++) {
+          if (adtConstructors[j].cname === clausePatterns[k].c) {
+            foundFlag = true;
+          }
+        }
+        if (!foundFlag) {
+          return `Invalid constructor provided in pattern match`;
+        }
+      }
+    }
+
     for (const clause of ctx.clauses) {
       const found = this.matchClause(value, clause.pat);
-      if (found === false) {
+      if (found === undefined) {
       } //continue
       else {
-        //We update env for the branch
-        console.log("clause", clause);
-        console.log("found", found);
-        console.log(this.getEnv());
-        let env = Object.assign({}, this.getEnv());
-        return this.evalExp(clause.exp);
+        // evalPattern returns an env for evaluating the expression
+        // of the pattern
+        const env = this.evalPattern(value, clause.pat);
+        return new Evaluator(env).evalExp(clause.exp);
       }
     }
   }
 
   evalTFun(ctx) {
-    const tvar = ctx.TID().getText();
-    const clo = function (tp) {
+    console.log(ctx);
+    if (ctx === undefined) {
+      this.printError("evalTFun", "Ctx is undefined.");
+    }
+    const tvar = ctx.i;
+    const clo = function (tp, env) {
       const newEvaluator = new Evaluator(env);
-      const exp = newEvaluator.substTypeInExpr(tvar, tp, ctx.e.f);
-      return newEvaluator.evalSimpleExp(exp, env);
+      const exp = newEvaluator.substTypeInExpr(tvar, tp, ctx.e);
+      return newEvaluator.evalSimpleExp(exp);
     };
-    return this.wrap(clo, env);
+    return this.wrap(clo, _.cloneDeep(this.getEnv()));
+    // const tvar = ctx.TID().getText();
+    // const clo = function (tp) {
+    //   const newEvaluator = new Evaluator(env);
+    //   const exp = newEvaluator.substTypeInExpr(tvar, tp, ctx.e.f);
+    //   return newEvaluator.evalSimpleExp(exp, env);
+    // };
+    // return this.wrap(clo, env);
     // return new TFun(tvar, this.evalSimpleExp(ctx.e.f));
   }
 
   evalTApp(ctx) {
     // console.log("At Tapp for " + ctx.getText());
-    const tfunc = this.evalSid(ctx.f);
-    const argsLit = ctx.targs.map((targ) => targ.getText());
+    console.log(ctx.targs);
+    const tfunc_id = this.evalSid(ctx.f);
+    const tfunc = this.lookup(tfunc_id, this.getEnv());
+    const argsLit = ctx.targs.map((targ) => this.evalTArg(targ));
 
     // const fullyAppliedTRes = argsLit.reduce(function(tres, arg) {
     //     //Apply closure to arg
