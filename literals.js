@@ -198,7 +198,6 @@ export class MsgEntry {
    * @param {ScillaLiterals} t
    */
   constructor(s, ty, t) {
-    super();
     this.s = s;
     this.ty = ty;
     this.t = t;
