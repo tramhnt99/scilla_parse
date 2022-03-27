@@ -256,7 +256,7 @@ import TranslateVisitor from "./translate.js";
 // const tree = parser.cmodule();
 
 // Single test debugging expressions
-const input = fs.readFileSync("scilexp/addr.scilexp").toString();
+const input = fs.readFileSync("scilexp/msg.scilexp").toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);
@@ -266,6 +266,7 @@ const exprAst = tree.accept(new SyntaxVisitor());
 const SEEvaluator = new Evaluator({});
 const value = SEEvaluator.evalChildren(exprAst);
 console.log(value);
+// console.log(value, SEEvaluator.globalEnv);
 
 //Testing Type Checking
 // import ScillaTypeChecker from "./typechecker.js";
