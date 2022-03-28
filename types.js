@@ -25,14 +25,14 @@ export function parseStringToPrimType(str) {
         ? new Uint128()
         : str === 'Uint256'
         ? new Uint256()
-        : str === 'Bystr'
+        : str === 'ByStr'
         ? new ByStrTyp()
         : str === 'String'
         ? new String()
         : str === 'BNum'
         ? new BNum()
         : str === 'Message'
-        ? new Message()
+        ? new MessageTyp()
         : str === 'Event'
         ? new Event()
         : str === 'Exception'
@@ -49,7 +49,6 @@ export function parseStringToPrimType(str) {
 //returns ScillaType
 export function to_type(n) {
     const is_prim = parseStringToPrimType(n);
-    // console.log("parseStringToPrimType error is okay.");
     if (is_prim !== undefined) {
         return is_prim;
     } else {
@@ -173,9 +172,6 @@ export function generateSType(ctx) {
         return resolveMapType(ctx);
     }
     if (ctx instanceof SP.FunTypeContext) {
-        // console.log("generateSType:");
-        // console.log(generateSType(ctx.t1));
-        // console.log(generateSType(ctx.t2));
         return new FunType(generateSType(ctx.t1), generateSType(ctx.t2));
     }
     if (ctx instanceof SP.ParenTypeContext) {
@@ -247,6 +243,8 @@ export class Int128 extends Int {}
 
 export class Int256 extends Int {}
 
+export const allInts = [new Int32(), new Int64(), new Int128(), new Int256()]
+
 export class Uint extends PrimType {}
 
 export class Uint32 extends Uint {}
@@ -257,6 +255,8 @@ export class Uint128 extends Uint {}
 
 export class Uint256 extends Uint {}
 
+export const allUints = [new Uint32(), new Uint64(), new Uint128(), new Uint256()]
+
 export class ByStrTyp extends PrimType {}
 
 export class ByStrXTyp extends PrimType {
@@ -265,6 +265,8 @@ export class ByStrXTyp extends PrimType {
         this.i = i; //Bystr20 then i = 20; i is the length
     }
 }
+
+export const allBystr = [new ByStrTyp(), new ByStrXTyp()];
 
 export class String extends PrimType {}
 

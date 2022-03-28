@@ -244,8 +244,6 @@ export default class TranslateVisitor{
         if (ctx instanceof SP.LibVarContext) {
             const x = ctx.ns.getText();
             const tyopt = ctx.t === null ? undefined : ST.generateSType(ctx.t.t);
-            console.log("GENERATE TYPE OF LIBVAR");
-            console.log(tyopt);
             const e = this.SV.translateExp(ctx.e);
             return new LE.LibVar(x, tyopt, e);
         } 
@@ -285,10 +283,11 @@ export default class TranslateVisitor{
         const lmodule = this.translateLModule(tree);
 
         if (importname instanceof SP.NoShadowELibContext) {
-            [importname.c.getText(), lmodule];
+            return [importname.c.getText(), undefined , lmodule];
         } else if (importname instanceof SP.ShadowELibContext) {
-            [importname.c2.getText(), lmodule];
+            return [importname.c1.getText(), importname.c2.getText(), lmodule];
         }
+        this.printError("translateElib", "Didn't match kind of elib");
     }
 
     translateELibraries(ctx) {
@@ -296,6 +295,7 @@ export default class TranslateVisitor{
             return undefined;
         } else {
             const elibs = ctx.els.map(importname => this.translateELib(importname));
+            //elibs is a list of pairs (lists of 2 of String * lmodule)
             return elibs;
         }
     }

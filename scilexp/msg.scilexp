@@ -1,6 +1,6 @@
-let x = Int32 42 in
-let f = fun (z : Int32) => x in
+let x = Uint128 42 in
+let f = fun (z : Uint128) => x in
 let y = x in
 let a = y in
-let m = {tag : "Main"; amount : x; code: y} in
+let m = {_tag : "Main"; _amount : x; _code: y} in
 m

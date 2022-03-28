@@ -14,6 +14,13 @@ import * as ST from "./types.js";
  */
 
 export class ScillaDataTypes {
+  constructor() {
+    this.tname = undefined;
+    this.tparams = [];
+    this.tconstr = [];
+    this.tmap = {};
+  }
+
   //Geting type of each Data Type
   boolTyp() {
     return new ST.ADT("Bool", []);
@@ -32,7 +39,13 @@ export class ScillaDataTypes {
   }
 }
 
-export class Constructor {}
+export class Constructor {
+  constructor() {
+    this.cname = undefined;
+    this.arity = undefined;
+  }
+}
+
 export class DataTypeDict {
   constructor() {
     //When entering a program, we already have a set of pre-defined

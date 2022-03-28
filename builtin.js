@@ -17,8 +17,7 @@ import * as ER from './general.js';
 export class BI_eq {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.String(), new ST.BNum(), new ST.Int(), 
-                        new ST.Uint(), new ST.ByStrTyp(), new ST.ByStrTyp()];
+        this.types = [new ST.String(), new ST.BNum()].concat(ST.allInts).concat(ST.allUints).concat(ST.allBystr);
         this.funTyp = 
             new ST.PolyFun("'A", 
                 new ST.FunType(new ST.TypeVar("'A"), 
@@ -29,17 +28,17 @@ export class BI_eq {
 export class BI_concat {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.String(), new ST.ByStrTyp(), new ST.ByStrXTyp()]
+        this.types = [new ST.String()].concat(ST.allBystr)
         this.funTyp = new ST.PolyFun("'A", 
             new ST.FunType(new ST.TypeVar("'A"), 
-                new ST.FunType(new ST.TypeVar("'A"), new ST.ADT("Bool", []))));
+                new ST.FunType(new ST.TypeVar("'A"), new ST.TypeVar("'A"))));
     }
 }
 
 export class BI_substr {
     constructor() {
         this.arity = 3;
-        this.types = [new ST.String(), new ST.ByStrTyp(), new ST.ByStrXTyp()]
+        this.types = [new ST.String()].concat(ST.allBystr)
         this.funTyp = 
             new ST.PolyFun("'A", 
                 new ST.FunType(new ST.TypeVar("'A"), 
@@ -51,15 +50,15 @@ export class BI_substr {
 export class BI_strlen{
     constructor() {
         this.arity = 1;
-        this.types = [new ST.String()];
-        this.funTyp = new ST.FunType(new ST.String(), new ST.Uint32());
+        this.types = [new ST.String()].concat(ST.allBystr);
+        this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.Uint32()));
     }
 }
 
 export class BI_to_string {
     constructor() {
         this.arity = 1;
-        this.types = [new ST.String()];
+        this.types = [new ST.String()].concat(ST.allBystr);
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.String));
     }
 }
@@ -67,7 +66,7 @@ export class BI_to_string {
 export class BI_to_ascii{
     constructor() {
         this.arity = 1;
-        this.types = [new ST.String()];
+        this.types = [new ST.String()].concat(ST.allBystr);
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.String));
     }
 }
@@ -75,8 +74,8 @@ export class BI_to_ascii{
 export class BI_strrev {
     constructor() {
         this.arity = 1;
-        this.types = [new ST.String()];
-        this.funTyp = new ST.FunType(new ST.TypeVar("'A"), new ST.TypeVar("'A"))
+        this.types = [new ST.String()].concat(ST.allBystr);
+        this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.TypeVar("'A")));
     }
 }
 
@@ -171,7 +170,7 @@ export class BI_size {
 export class BI_lt {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.Int(),new ST.Uint()];
+        this.types = ST.allInts.concat(ST.allUints);
         this.funTyp =
         new ST.PolyFun("'A", 
         new ST.FunType(new ST.TypeVar("'A"), 
@@ -182,7 +181,7 @@ export class BI_lt {
 export class BI_add {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.Int(), new ST.Uint()];
+        this.types = ST.allInts.concat(ST.allUints);
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -193,7 +192,7 @@ export class BI_add {
 export class BI_sub {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.Int(), new ST.Uint()];
+        this.types = ST.allInts.concat(ST.allUints);
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -204,7 +203,7 @@ export class BI_sub {
 export class BI_mul {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.Int(), new ST.Uint()];
+        this.types = ST.allInts.concat(ST.allUints);
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -215,7 +214,7 @@ export class BI_mul {
 export class BI_div {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.Int(), new ST.Uint()];
+        this.types = ST.allInts.concat(ST.allUints);
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -226,7 +225,7 @@ export class BI_div {
 export class BI_rem {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.Int(), new ST.Uint()];
+        this.types = ST.allInts.concat(ST.allUints);
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -237,7 +236,7 @@ export class BI_rem {
 export class BI_pow {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.Int(), new ST.Uint()];
+        this.types = ST.allInts.concat(ST.allUints);
         this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), 
@@ -247,8 +246,9 @@ export class BI_pow {
 
 export class BI_isqrt {
     constructor() {
-        this.arity = 2;
-        this.types = [new ST.Uint()];
+        this.arity = 1;
+        this.types = ST.allUints;
+        this.funTyp =
         new ST.PolyFun("'A",
             new ST.FunType(new ST.TypeVar("'A"), new ST.TypeVar("'A")));
     }
@@ -266,7 +266,7 @@ export class BI_isqrt {
 export const BuiltInDict = {
     "eq": new BI_eq(),
     "concat": new BI_concat(),
-    "susbtr": new BI_substr(),
+    "substr": new BI_substr(),
     "strlen": new BI_strlen(),
     "to_string": new BI_to_string(),
     "to_ascii": new BI_to_ascii(),
@@ -304,6 +304,9 @@ export function resolveBIFunType(fname, targs) {
         //Update: We only look at the first targ and if it's allowed
         //Eg. contains allows only type Map - but we would also have a type like Int32 of what the map contains.
         if (info.types.find(ty => ty.constructor === targs[0].constructor) === undefined) {
+            console.log(info.types);
+            console.log(targs);
+            console.log(fname);
             return ER.setError(new Error("resolveBIFunType: Type of arguments are not allowed to this function."));
         } else {
             return true;
@@ -313,11 +316,12 @@ export function resolveBIFunType(fname, targs) {
     if (fname === "eq" || fname === "concat" || fname === "substr" ||
         fname === "to_string" || fname === "to_ascii" || fname === "lt" ||
         fname === "add" || fname === "sub" || fname === "mul" || fname === "div" ||
-        fname === "rem" || fname === "pow" || fname === "isqrt") 
+        fname === "rem" || fname === "pow" || fname === "isqrt" ||
+        fname === "strlen" || fname === "strrev") 
     {
-        const info = this.BuiltInDict[fname];
+        const info = BuiltInDict[fname];
         const basicsOk = checkBasics(info);
-        if (ER.isError()) { return ER.getError()};
+        if (ER.isError()) { return;};
         const fType = info.funTyp;
         return ST.substTypeinType(fType.name, targs[0], fType.t);
     }
@@ -326,9 +330,9 @@ export function resolveBIFunType(fname, targs) {
     if (fname === "contains" || fname === "put" || fname === "get" ||
         fname === "remove" || fname === "to_list" || fname === "size")
     {
-        const info = this.BuiltInDict[fname];
+        const info = BuiltInDict[fname];
         const basicsOk = checkBasics(info);
-        if (ER.isError()) { return ER.getError()};
+        if (ER.isError()) { return; };
         
         const fType = info.funTyp;
         const mapArg = targs[0]; //Map argument is always the first

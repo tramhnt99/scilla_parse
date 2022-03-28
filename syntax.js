@@ -568,12 +568,12 @@ export class Cmodule {
 export class Lmodule {
     /**
      * @param {Int} smver
-     * @param {Option Library} libs 
-     * @param {(String * Option String)[]} elibs;
+     * @param {Library} lib
+     * @param {(String * String Option * Lmodule)[] Option} elibs;
      */
-    constructor(smver, libs, elibs) {
+    constructor(smver, lib, elibs) {
         this.smver = smver;
-        this.libs = libs;
+        this.lib = lib;
         this.elibs = elibs;
     }
 }
