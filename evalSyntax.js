@@ -4,9 +4,9 @@ import antlr4 from "antlr4";
 import fs from "fs";
 import SP from "./scillaParser.js"; //short for ScillaParser
 // import { ScillaType as ST } from './types.js'; //ScillaTypes
-import ScillaType from "./types.js";
+import ScillaType, { substTypeinType, to_type } from "./types.js";
 import { get } from "http";
-import { ScillaExpr as SE, Pattern, ClauseExp } from "./syntax.js";
+import { ScillaExpr as SE, Pattern, ClauseExp, TFun } from "./syntax.js";
 import exp from "constants";
 import { inspect } from "util";
 import SyntaxVisitor from "./syntaxVisitor.js";
@@ -62,7 +62,7 @@ export default class Evaluator {
     }
   }
 
-  //Returns bindings
+  //Returns match context
   matchClause(v, p) {
     if (p instanceof Pattern.WildCard) {
       return "Wildcard";
@@ -93,14 +93,19 @@ export default class Evaluator {
   substTypeInLit(tvar, type, lit) {
     //TODO: Handles only Map and ADT literals
     //Update the context - global
-    return;
+    if (lit instanceof SL.Map) {
+      console.log("substTypeInLit Map TODO");
+    } else if (lit instanceof SL.ADTValue) {
+    } else {
+      return lit;
+    }
   }
 
-  substTypeInType(tvar, type, t) {
-    //TODO: substitite type in type
-    //Update the context t - returns unit.
-    return;
-  }
+  // substTypeInType(tvar, type, t) {
+  //   //TODO: substitite type in type
+  //   //Update the context t - returns unit.
+  //   return ST.substTypeInType;
+  // }
 
   //Since we will be returning updated context in this case,
   //we must only use constructor fields instead of methods like identifier()
@@ -116,62 +121,62 @@ export default class Evaluator {
     expr = ${expr}
     `
     );
-    if (expr instanceof SP.AtomicContext) {
+    console.log("cons", expr.constructor.name);
+    if (expr instanceof SE.Var) {
       //If Var, change nothing
-      if (expr.a instanceof SP.AtomicSidContext) {
-        return expr;
-      }
-
-      //If Lit, update the lit
-      if (expr.a instanceof SP.AtomicLitContext) {
-        substTypeInLit(tvar, tp, expr.a.l);
-        return expr;
-      }
-      this.printError("substTypeInExpr", "Couldn't match Atomic");
       return expr;
     }
 
-    if (expr instanceof SP.FunContext) {
+    //If Lit, update the lit
+    if (expr.a instanceof SL.ScillaLiterals) {
+      this.substTypeInLit(tvar, tp, expr.a.l);
+      return expr;
+    }
+    // this.printError("substTypeInExpr", "Couldn't match Atomic");
+    // return expr;
+
+    if (expr instanceof SE.Fun) {
       //Update type in fun type - Note: doesn't do anything yet
-      this.substTypeInType(tvar, tp, expr.ty);
+      ST.substTypeinType(tvar, tp, expr.ty);
       this.substTypeInExpr(tvar, tp, expr.e);
       return expr;
     }
 
-    if (expr instanceof SP.TFunContext) {
-      if (expr.i.getText() === tvar) {
+    if (expr instanceof SE.TFun) {
+      if (expr.i === tvar) {
         return expr;
       } else {
-        this.substTypeInExpr(tvar, tv, expr.e);
+        this.substTypeInExpr(tvar, tp, expr.e);
         return expr;
       }
     }
 
     if (expr instanceof SP.ConstructorContext) {
+      console.log(expr);
       return expr; //TODO: implement constructors
     }
 
-    if (expr instanceof SP.AppContext) {
+    if (expr instanceof SE.App) {
       return expr;
     }
-    if (expr instanceof SP.BuiltinContext) {
+    if (expr instanceof SE.Builtin) {
       return expr;
     }
-    if (expr instanceof SP.MessageContext) {
+    if (expr instanceof SE.Message) {
       return expr;
     }
 
-    if (expr instanceof SP.LetContext) {
+    if (expr instanceof SE.Let) {
       if (expr.ty !== undefined) {
-        this.substTypeInType(tvar, tp, expr, ty);
+        ST.substTypeInType(tvar, tp, expr.ty);
       }
       this.substTypeInExpr(tvar, tp, expr.f); //lhs
       this.substTypeInExpr(tvar, tp, expr.e.f); //rhs
       return expr;
     }
 
-    if (expr instanceof SP.TAppContext) {
-      this.substTypeInType(tvar, tp, expr.f);
+    if (expr instanceof SE.TApp) {
+      ST.substTypeInType(tvar, tp, expr.f);
       return expr;
     }
   }
@@ -223,8 +228,7 @@ export default class Evaluator {
   }
 
   evalTArg(ctx) {
-    console.log("evalTArg", ctx);
-    console.log(ctx.constructor.name);
+    return to_type(ctx);
     // if (ctx instanceof TypTarg)
   }
 
@@ -300,7 +304,7 @@ export default class Evaluator {
     const argsLit = ctx.args.map((arg) =>
       this.lookup(this.evalSid(arg), this.getEnv())
     );
-    // let env = Object.assign({}, this.getEnv());
+
     const fullyAppliedRes = argsLit.reduce(function (res, arg) {
       //Apply closure to argument
       const partialRes = res.value(arg, res.env);
@@ -331,6 +335,9 @@ export default class Evaluator {
   evalBuiltin(ctx) {
     const id = this.evalID(ctx.b);
     const builtinFunc = BI.parseBuiltinIdentifier(id);
+    if (builtinFunc === undefined) {
+      return `Error: ${id} is not recognised as a builtin function`;
+    }
     const typeArgs =
       ctx.targs !== undefined
         ? ctx.targs.map((targ) =>
@@ -342,9 +349,9 @@ export default class Evaluator {
     const builtinArgs = this.evalBuiltinArgs(ctx.xs).map((arg) => {
       return this.lookup(arg, this.getEnv());
     });
-    console.log(typeArgs);
-    console.log(ctx.xs);
-    console.log(builtinArgs);
+    // console.log("typeArgs", typeArgs);
+    // console.log("ctx.xs", ctx.xs);
+    // console.log("builtinArgs", builtinArgs);
     const builtinFuncResult = builtinArgs.reduce(function (res, arg) {
       //Apply closure to argument
       const partialRes = res(arg);
@@ -385,13 +392,13 @@ export default class Evaluator {
       const clausePatterns = ctx.clauses.map((clause) => clause.pat);
 
       // check for reachable pattern
-      // if (clausePatterns.length > 1) {
-      //   for (let i = 0; i < clausePatterns.length - 1; i++) {
-      //     if (clausePatterns[i] instanceof Pattern.WildCard) {
-      //       return `Error: Wildcard cannot be used before last pattern in a match statement`;
-      //     }
-      //   }
-      // }
+      if (clausePatterns.length > 1) {
+        for (let i = 0; i < clausePatterns.length - 1; i++) {
+          if (clausePatterns[i] instanceof Pattern.WildCard) {
+            return `Error: Wildcard cannot be used before last pattern in a match statement`;
+          }
+        }
+      }
       // check for exhaustive match
 
       // check for arity match
@@ -409,7 +416,8 @@ export default class Evaluator {
           }
         }
         if (!foundFlag) {
-          return `Invalid constructor provided in pattern match`;
+          console.log(adtConstructors);
+          return `Error: Invalid constructor provided in pattern match`;
         }
       }
     }
@@ -451,19 +459,19 @@ export default class Evaluator {
 
   evalTApp(ctx) {
     // console.log("At Tapp for " + ctx.getText());
-    console.log(ctx.targs);
     const tfunc_id = this.evalSid(ctx.f);
     const tfunc = this.lookup(tfunc_id, this.getEnv());
     const argsLit = ctx.targs.map((targ) => this.evalTArg(targ));
 
-    // const fullyAppliedTRes = argsLit.reduce(function(tres, arg) {
-    //     //Apply closure to arg
-    //     const partialRes = tres.value(arg);
-    //     return partialRes;
-    // }, tfunc);
+    const fullyAppliedTRes = argsLit.reduce(function (tres, arg) {
+      //Apply closure to arg
+      const partialRes = tres.value(arg, tres.env);
 
-    // return fullyAppliedTRes;
-    return new TApp(tfunc, argsLit);
+      return partialRes;
+    }, tfunc);
+
+    return fullyAppliedTRes;
+    // return new TApp(tfunc, argsLit);
   }
 
   // evalAtomic(ctx) {

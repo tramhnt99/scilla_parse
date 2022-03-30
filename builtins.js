@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   ADTValue,
   IntLit,
@@ -11,7 +12,18 @@ import {
   Uint128L,
   Uint256L,
   StringLit,
+  Bystr,
+  BystrX,
+  Map,
+  BNumLit,
 } from "./literals.js";
+
+function reverseString(str) {
+  const stringArray = str.split("");
+  const reverseArray = stringArray.reverse();
+  const joinArray = reverseArray.join("");
+  return joinArray;
+}
 
 export default class Builtins {
   printError(funcname, msg) {
@@ -43,6 +55,36 @@ export default class Builtins {
       ? this.concat
       : id === "to_nat"
       ? this.to_nat
+      : id === "to_int32"
+      ? this.to_int32
+      : id === "to_int64"
+      ? this.to_int64
+      : id === "to_int128"
+      ? this.to_int128
+      : id === "to_int256"
+      ? this.to_int256
+      : id === "to_uint32"
+      ? this.to_uint32
+      : id === "to_uint64"
+      ? this.to_uint64
+      : id === "to_uint128"
+      ? this.to_uint128
+      : id === "to_uint256"
+      ? this.to_uint256
+      : id === "concat"
+      ? this.concat
+      : id === "substring"
+      ? this.substring
+      : id === "to_string"
+      ? this.to_string
+      : id === "strlen"
+      ? this.strlen
+      : id === "strrev"
+      ? this.strrev
+      : id === "to_ascii"
+      ? this.to_ascii
+      : id === "put"
+      ? this.put
       : undefined;
   }
 
@@ -271,8 +313,109 @@ export default class Builtins {
     console.log("TODO: to_nat");
   };
 
-  // to_(u)int32/64/128/256
-  // to add to list of functions
+  to_int32 = (x) => {
+    if (x instanceof IntLit) {
+      return new Int32L(x.i);
+    } else if (x instanceof UintLit) {
+      return new Int32L(x.i);
+    } else if (x instanceof StringLit) {
+      return Number(x.s) !== NaN
+        ? new Int32L(Number(x.s))
+        : `Error: to_int32 of ${x}`;
+    }
+  };
+
+  to_int64 = (x) => {
+    if (x instanceof IntLit) {
+      return new Int64L(x.i);
+    } else if (x instanceof UintLit) {
+      return new Int64L(x.i);
+    } else if (x instanceof StringLit) {
+      return Number(x.s) !== NaN
+        ? new Int64L(Number(x.s))
+        : `Error: to_int64 of ${x}`;
+    }
+  };
+
+  to_int128 = (x) => {
+    if (x instanceof IntLit) {
+      return new Int128L(x.i);
+    } else if (x instanceof UintLit) {
+      return new Int128L(x.i);
+    } else if (x instanceof StringLit) {
+      return Number(x.s) !== NaN
+        ? new Int128L(Number(x.s))
+        : `Error: to_int128 of ${x}`;
+    }
+  };
+
+  to_int256 = (x) => {
+    if (x instanceof IntLit) {
+      return new Int256L(x.i);
+    } else if (x instanceof UintLit) {
+      return new Int256L(x.i);
+    } else if (x instanceof StringLit) {
+      return Number(x.s) !== NaN
+        ? new Int256L(Number(x.s))
+        : `Error: to_int256 of ${x}`;
+    }
+  };
+
+  to_uint32 = (x) => {
+    if (x instanceof IntLit) {
+      return x.i >= 0 ? new Uint32L(x.i) : `Error: to_uint32 of ${x}`;
+    } else if (x instanceof UintLit) {
+      return new Uint32L(x.i);
+    } else if (x instanceof StringLit) {
+      return Number(x.s) !== NaN
+        ? Number(x.s) >= 0
+          ? new Uint32L(Number(x.s))
+          : `Error: to_uint32 of ${x}, unsigned int cannot be negative`
+        : `Error: to_uint32 of ${x}`;
+    }
+  };
+
+  to_uint64 = (x) => {
+    if (x instanceof IntLit) {
+      return x.i >= 0 ? new Uint64L(x.i) : `Error: to_uint64 of ${x}`;
+    } else if (x instanceof UintLit) {
+      return new Uint64L(x.i);
+    } else if (x instanceof StringLit) {
+      return Number(x.s) !== NaN
+        ? Number(x.s) >= 0
+          ? new Uint64L(Number(x.s))
+          : `Error: to_uint64 of ${x}, unsigned int cannot be negative`
+        : `Error: to_uint64 of ${x}`;
+    }
+  };
+
+  to_uint128 = (x) => {
+    if (x instanceof IntLit) {
+      return x.i >= 0 ? new Uint128L(x.i) : `Error: to_uint128 of ${x}`;
+    } else if (x instanceof UintLit) {
+      return new Uint128L(x.i);
+    } else if (x instanceof StringLit) {
+      return Number(x.s) !== NaN
+        ? Number(x.s) >= 0
+          ? new Uint128L(Number(x.s))
+          : `Error: to_uint128 of ${x}, unsigned int cannot be negative`
+        : `Error: to_uint128 of ${x}`;
+    }
+  };
+
+  to_uint256 = (x) => {
+    if (x instanceof IntLit) {
+      return x.i >= 0 ? new Uint256L(x.i) : `Error: to_uint256 of ${x}`;
+    } else if (x instanceof UintLit) {
+      return new Uint256L(x.i);
+    } else if (x instanceof StringLit) {
+      return Number(x.s) !== NaN
+        ? Number(x.s) >= 0
+          ? new Uint256L(Number(x.s))
+          : `Error: to_uint256 of ${x}, unsigned int cannot be negative`
+        : `Error: to_uint256 of ${x}`;
+    }
+  };
 
   concat = (s1) => (s2) => {
     if (s1 instanceof StringLit && s2 instanceof StringLit) {
@@ -304,18 +447,149 @@ export default class Builtins {
   };
 
   to_string = (x) => {
-    console.log(`to_string TODO`);
+    if (x instanceof IntLit || x instanceof UintLit) {
+      return new StringLit(String(x.i));
+    } else if (x instanceof Bystr || x instanceof BystrX) {
+      return new StringLit(String(x.s));
+    } else {
+      `Error: to_string X ${x} needs to be of type IntLit or UintLit or ByStr
+       or ByStrX`;
+    }
   };
 
   strlen = (s) => {
-    console.log(`strlen TODO`);
+    if (s instanceof StringLit) {
+      return new Uint32L(s.s.length);
+    } else if (s instanceof Bystr) {
+      return new Uint32L(s.width());
+    } else {
+      `Error: strlen s ${s} needs to be of type String or ByStr`;
+    }
   };
 
   strrev = (s) => {
-    console.log(`strrev TODO`);
+    if (s instanceof StringLit) {
+      return new StringLit(reverseString(s.s));
+    } else if (s instanceof Bystr || s instanceof BystrX) {
+      return new StringLit(reverseString(s.s));
+    } else {
+      `Error: strrev s ${s} needs to be of type String or ByStr or ByStrX`;
+    }
   };
 
   to_ascii = (h) => {
     console.log(`to_ascii TODO`);
+  };
+
+  // NOT USED SINCE DIFFERENT TYPES HAVE DIFFERENT ACCESSORS
+  // put = (m) => (k) => (v) => {
+  //   console.log("hi");
+  //   console.log("m", m);
+  //   console.log("k", k);
+  //   console.log("v", v);
+  //   if (m instanceof Map) {
+  //     if (
+  //       k instanceof StringLit ||
+  //       k instanceof IntLit ||
+  //       k instanceof UintLit ||
+  //       k instanceof Bystr ||
+  //       k instanceof BystrX ||
+  //       k instanceof BNumLit
+  //     ) {
+  //       if (v) {
+  //         // todo
+  //         console.log(m);
+  //         const res = _.cloneDeep(m);
+  //         res.update(k, v);
+  //         return res;
+  //       } else {
+  //       }
+  //     } else {
+  //     }
+  //   } else {
+  //     `Error: put m ${m} needs to be of type Map`;
+  //   }
+  // };
+
+  put = (m) => (k) => (v) => {
+    if (m instanceof Map) {
+      if (k instanceof StringLit) {
+        const res = _.cloneDeep(m);
+        res.update(k.s, v);
+        return res;
+      } else {
+      }
+      if (k instanceof IntLit) {
+        const res = _.cloneDeep(m);
+        res.update(k.i, v);
+        return res;
+      } else {
+      }
+      if (k instanceof UintLit) {
+        const res = _.cloneDeep(m);
+        res.update(k.i, v);
+        return res;
+      } else {
+      }
+      if (k instanceof Bystr) {
+        const res = _.cloneDeep(m);
+        res.update(k.s, v);
+        return res;
+      } else {
+      }
+      if (k instanceof BystrX) {
+        const res = _.cloneDeep(m);
+        res.update(k.s, v);
+        return res;
+      } else {
+      }
+      if (k instanceof BNumLit) {
+        const res = _.cloneDeep(m);
+        res.update(k.i, v);
+        return res;
+      } else {
+      }
+      {
+        if (v) {
+          // todo
+          console.log(m);
+        } else {
+        }
+      }
+    } else {
+      `Error: put m ${m} needs to be of type Map`;
+    }
+  };
+
+  get = (m) => (k) => {
+    console.log("MAP get TODO");
+  };
+
+  contains = (m) => (k) => {
+    console.log("MAP contains TODO");
+  };
+
+  remove = (m) => (k) => {
+    console.log("MAP remove TODO");
+  };
+
+  to_list = (m) => {
+    console.log("MAP to_list TODO");
+  };
+
+  size = (m) => {
+    console.log("MAP size TODO");
+  };
+
+  blt = (b1) => (b2) => {
+    console.log("BNum blt todo");
+  };
+
+  badd = (b1) => (i1) => {
+    console.log("BNum badd todo");
+  };
+
+  bsub = (b1) => (b2) => {
+    console.log("BNum bsub todo");
   };
 }

@@ -247,16 +247,20 @@ import TranslateVisitor from "./translate.js";
 // }
 
 // // Single test debugging contracts
-// const input = fs.readFileSync('contracts/address_list_traversal.scilla').toString();
+// const input = fs
+//   .readFileSync("contracts/address_list_traversal.scilla")
+//   .toString();
 // const chars = new antlr4.InputStream(input);
 // const lexer = new ScillaLexer(chars);
 // const tokens = new antlr4.CommonTokenStream(lexer);
 // export const parser = new ScillaParser(tokens);
 // // const tree = parser.simple_exp();
 // const tree = parser.cmodule();
+// const contractAst = tree.accept(new TranslateVisitor());
+// console.log(contractAst);
 
 // Single test debugging expressions
-const input = fs.readFileSync("scilexp/msg.scilexp").toString();
+const input = fs.readFileSync("scilexp/map2.scilexp").toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);
