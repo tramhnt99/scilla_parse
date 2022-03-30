@@ -48,11 +48,8 @@ export function resetErrorSettings() {
     tcerror = undefined;
 }
 
-//Starting type environment that contains all library functions and library ADTs
-//Which also type checks the library functions
-//Return the tenv and the typechecker with updated ADTs
-//Note: currently ignores all lentries that fail because of unimplemented stdlibs
-export function startingTEnv() {
+//Parse all standard libraries
+export function parseAllStdLibs() {
     const parsedLibs = {};
 
     //1. Parse all libraries
@@ -66,10 +63,30 @@ export function startingTEnv() {
         const lmod = tree.accept(new TranslateVisitor());
         parsedLibs[stdlib[i]] = lmod;
     }
+    return parsedLibs;
+}
 
-    const tenv = {};
-    const STC = new ScillaTypeChecker();
-    const lmodDone = []; //String[] //IMPORTANT: we skip those named
+export function parseLib(libname){
+    const input = fs.readFileSync('stdlib/'.concat(libname).concat('.scillib')).toString();
+    const chars = new antlr4.InputStream(input);
+    const lexer = new ScillaLexer(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    const parser = new ScillaParser(tokens);
+    const tree = parser.lmodule();
+    const lmod = tree.accept(new TranslateVisitor());
+    return lmod;
+}
+
+
+//Starting type environment that contains all library functions and library ADTs
+//Which also type checks the library functions
+//Return the tenv and the typechecker with updated ADTs
+//Note: currently ignores all lentries that fail because of unimplemented stdlibs
+export function startingTEnv() {
+    const parsedLibs = parseAllStdLibs();
+    var tenv = {};
+    var STC = new ScillaTypeChecker();
+    var lmodDone = []; //String[] //IMPORTANT: we skip those named
 
     //2. Type check all modules
     //Note: the function currently doesn't fail with error.
@@ -78,79 +95,10 @@ export function startingTEnv() {
         if (lmodDone.find(l => l === lmod)) {
             continue;
         }
-
-        function typeLmodGeneral(lmod) {
-            //Type Check elibs first to add function types and ADTs in tenv and STC
-            if (lmod.elibs) {
-                lmod.elibs.forEach(elib => {
-                    if (lmodDone.find(l => l === elib[0])) {return undefined;}
-                    typeLmodGeneral(elib[2]);
-                    lmodDone.push(elib[0]);
-                });
-            }
-
-            //Now type check the lmod
-            const lentries = lmod.lib.lentries;
-            for (let i = 0; i < lentries.length; i++) {
-                const lentry = lentries[i];
-                resetErrorSettings();
-                if (lentry.x === "compute_m") {
-                    typeLentryGeneral(lentry);
-                }
-                typeLentryGeneral(lentry);
-            }
-            lmodDone.push(lmod.lib.lname);
-        }
-
-        //The following function edits mutable tenv and STC defined above
-        // => not for external use
-        function typeLentryGeneral(lentry) {
-            if (lentry instanceof SS.LibVar) {
-                const tenv_ = _.cloneDeep(tenv);
-                const funTy = STC.typeExpr(lentry.e, tenv_);
-                if (lentry.tyopt) {
-                    const typAssign = TCU.typeAssignable(lentry.tyopt, STC.getTy(funTy));
-                    if (typAssign) {
-                        tenv[lentry.x] = STC.getTy(funTy);
-                        return;
-                    } else {
-                        setError(new Error("startingTenv: Type of function is not assinable to declared type."));
-                        return;
-                    }
-                } else {
-                    if (!funTy instanceof Error) {
-                        tenv[lentry.x] = STC.getTy(funTy);
-                        return;
-                    }
-                }
-            }
-
-            if (lentry instanceof SS.LibType) {
-                //We add the new ADT
-                const adt = new ScillaDataTypes();
-                adt.tname = lentry.x;
-                var constrs = []; //constructors - contain name and arity
-                lentry.c.forEach(c => {
-                    const constr = new Constructor();
-                    constr.cname = c.cname;
-                    constr.arity = c.cArgTypes.length;
-                    adt.tmap[c.cname] = _.cloneDeep(c.cArgTypes);
-                    constrs.push(constr);
-                });
-                adt.tconstr = constrs;
-                //adt.tparams seem to always be empty for libraries
-
-                //Update ADT dictionaries in this instance of Scilla Type Checker
-                STC.ADTDict.ADTDict[adt.tname] = adt;
-                if (lentry.x === "LittleEndian") {
-                    console.log("we do see him");
-                }
-                constrs.forEach(c => {
-                    STC.ADTDict.ConstrDict[c.cname] = [c, adt];
-                });
-            }
-        }
-        typeLmodGeneral(parsedLibs[lmod])
+        const res = TC.typeLmod(parsedLibs[lmod], tenv, STC);
+        tenv = res.tenv;
+        STC = res.STC;
+        lmodDone.concat(res.lmodDone);
     }
 
     //Return the tenv and the typechecker with updated ADTs

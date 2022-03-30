@@ -1,5 +1,7 @@
 import ScillaType, * as ST from './types.js';
 import {setError, getError, isError} from './general.js';
+import * as SS from './syntax.js';
+import _ from 'lodash';
 /**
  * 
  * 
@@ -64,9 +66,13 @@ export function refereshADTTVars(cparams, adtParams, tenv) {
 //Checks whether the type is well-formed
 //given an environment
 export function isWellFormedType(ty, tenv, ADTDict) {
-    if (isError()) { return; }
+    if (isError()) { return false; }
 
     function isWellFormedType_(t_, tb) {
+        if (t_ === undefined) {
+            setError(new Error("isWellFormedType_: type is undefined"));
+            return false;
+        }
         if (t_ instanceof ST.PrimType || t_ instanceof ST.Unit || t_ instanceof ST.AnyAddr 
             || t_ instanceof ST.CodeAddr || t_ instanceof ST.LibAddr) {
             return true;
@@ -107,7 +113,7 @@ export function isWellFormedType(ty, tenv, ADTDict) {
             return isWellFormedType_(t_.t, tb.push(t_.name));
         }
         if (t_ instanceof ST.ContrAddr) {
-            const res = t_.tlist.reduce((is_true, t) => is_true && isWellFormedType_(t.typ, tb));
+            const res = t_.fs.reduce((is_true, t) => is_true && isWellFormedType_(t.typ, tb));
             return res;
         }
         setError(new Error("isWellFormedType_: Missed a type."));
@@ -162,6 +168,7 @@ export function typeEqual(ty1, ty2) {
 
 
 //Checks whether one type is assignable to another
+//tyTo :> toFrom
 export function typeAssignable(tyTo, tyFrom) {
     if (tyTo instanceof ST.AddressType && tyFrom instanceof ST.AddressType) {
         if (tyTo instanceof ST.AnyAddr) {
@@ -176,11 +183,11 @@ export function typeAssignable(tyTo, tyFrom) {
             || tyFrom instanceof ST.ContrAddr)) {
             return true;
         }
-        if (tyTo instanceof SS.ContrAddr && tyFrom instanceof SS.ContrAddr) {
+        if (tyTo instanceof ST.ContrAddr && tyFrom instanceof ST.ContrAddr) {
             //Check all fields from tyTo.fs are a subset of tyFrom.fs
             //and that their types are assignable
             const res = tyTo.fs.reduce((is_true, toF) => {
-                const fromF = toFrom.fs.find(fromF => fromF.id === toF.id);
+                const fromF = tyFrom.fs.find(fromF => fromF.id === toF.id);
                 if (fromF === undefined) {return false;}
                 return is_true && (typeAssignable(toF.typ, fromF.typ));
             }
@@ -188,7 +195,7 @@ export function typeAssignable(tyTo, tyFrom) {
         }
     }
     if (tyTo instanceof ST.ByStrXTyp && tyFrom instanceof ST.AddressType) {
-        if (tyFrom.i === 20) {
+        if (tyTo.i === 20) {
             //Any address is assignable to ByStr20.
             return true;
         }
@@ -231,6 +238,10 @@ export function functionTypeApplies(fty, actualsty) {
             if (assignable) {
                 return functionTypeApplies(fty.t2, actualsty.slice(1, actualsty.length));
             } else {
+                console.log(fty.t1);
+                console.log(actualsty[0]);
+                console.log(fty);
+                console.log(actualsty);
                 return setError(new Error("functionTypeApplies: Argument type is not assignable to function parameter."));
             }
         }
@@ -241,4 +252,106 @@ export function functionTypeApplies(fty, actualsty) {
     }
     setError(new Error("Ill-typed function application."));
     return;;
+}
+
+//Access the type of a field in an address type
+export function addressFieldType(fname, addr_ty) {
+    if (!(addr_ty instanceof ST.AddressType)) {
+        setError(new Error("addressFieldType: addr_ty is not of an Address Type."));
+        return;
+    }
+    const preKnownType = fname === "_balance" 
+                        ? new ST.Uint128()
+                        : fname === "_codehash" 
+                        ? new ST.ByStrXTyp(32)
+                        : undefined;
+    if (addr_ty instanceof ST.AnyAddr && fname === "_balance") {
+        return new ST.Uint128();
+    }
+    if (preKnownType !== undefined && 
+        (addr_ty instanceof ST.LibAddr || addr_ty instanceof ST.CodeAddr 
+        || addr_ty instanceof ST.ContrAddr)) {
+        return preKnownType;
+    }
+    if (addr_ty instanceof ST.ContrAddr) {
+        const res = addr_ty.fs.find(f => f.id === fname);
+        if (res !== undefined) { 
+            return res.typ;
+        } else {
+            setError(new Error("addressFieldType: Field" + fname + "is not declared."))
+            return;
+        }
+    }
+}
+
+//Type check multiple keys indexing into a map type
+export function typeMapAccess(m, kl) {
+    if (kl.length === 0) { return m; }
+    if (m instanceof ST.MapType) {
+        const check = typeAssignable(m.t1, kl[0]);
+        if (!check) {
+            setError(new Error("typeMapAccess: Key type is not assignable to its map."));
+            return;
+        }
+        return typeMapAccess(m.t2, kl.slice(1));
+    }
+    if (kl.length > 0) {
+        setError("typeMapAccess: Cannot index into key.")
+        return;
+    }
+}
+
+
+//Depending on the binder clause, we update the environment and run
+//typechecking on the respective expressions
+export function updateTenvOfPattern(pat, xty, tenv, ADTDict) {
+    if (isError()) { return; }
+    if (pat instanceof SS.Pattern.WildCard) {
+        const tenv_ = _.cloneDeep(tenv); 
+        return tenv_;
+    }
+    if (pat instanceof SS.Pattern.Binder) {
+        const tenv_ = _.cloneDeep(tenv);
+        setTenv(tenv_, pat.x, xty);
+        return tenv_;
+    }
+    if (pat instanceof SS.Pattern.ConstructorPat) {
+        //1. Find the constructor by name and its respective ADT
+        const constr = ADTDict.ConstrDict[pat.c][0];  
+        const adt = ADTDict.ConstrDict[pat.c][1]; 
+
+        //2. Extract args that it needs. Check length vs. arity
+        if (constr.arity !== pat.ps.length) {
+            return setError(new Error("typeExpr: Constructor Type Arguments Pattern arity mismatch."));
+        }
+
+        //3. Find the actual types and run with updated tenv
+        //Since it's mapped to a contructor, its type is definitely ADT
+        if (!(xty instanceof ST.ADT)) {
+            return setError(new Error("typeExpr: Constructor Pattern is not of type ADT"));
+        }
+
+        //4. xty is the ADT type - includes any application to tparams of a adt
+        //   adt.map[pat.c] (call tyToInit) would give us what a constructor's argument types are
+        //   we initialise tyToInit with info in xty
+        //   then update respective argument type of construtor
+        if (constr.arity === 0) {
+            const tenv_ = _.cloneDeep(tenv); 
+            return tenv_; //No more bindings
+        } else {
+            const tenv_ = _.cloneDeep(tenv);
+            const tyToInit = adt.tmap[pat.c];
+            const fresh = refereshADTTVars(tyToInit, adt.tparams, tenv_); //No shadowing
+            const ADTParams = fresh.newap;
+            const cparams = fresh.newcp;
+            const appliedCParams = cparams.map(cparam => {
+                return ADTParams.reduce((stype, str_tvar, index) => {
+                    setTenv(tenv_, str_tvar, xty.t[index]);
+                    return ST.substTypeinType(str_tvar, xty.t[index], stype);
+                }, cparam);
+            });
+            if (isError()) {return;}
+            return pat.ps.reduce((tenv_, pat_, index) => updateTenvOfPattern(pat_, appliedCParams[index], tenv_, ADTDict), tenv_);
+        }
+    }
 }

@@ -4,6 +4,7 @@
 import * as ST from './types.js';
 import {Error} from './syntax.js';
 import * as ER from './general.js';
+import { BystrX } from './literals.js';
 
 /**
  * Each BI class includes the arity of the builtin function.
@@ -17,7 +18,7 @@ import * as ER from './general.js';
 export class BI_eq {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.String(), new ST.BNum()].concat(ST.allInts).concat(ST.allUints).concat(ST.allBystr);
+        this.types = [new ST.String(), new ST.BNum()].concat(ST.allInts).concat(ST.allUints).concat(ST.allBystr).concat(ST.allAddr);
         this.funTyp = 
             new ST.PolyFun("'A", 
                 new ST.FunType(new ST.TypeVar("'A"), 
@@ -28,7 +29,7 @@ export class BI_eq {
 export class BI_concat {
     constructor() {
         this.arity = 2;
-        this.types = [new ST.String()].concat(ST.allBystr)
+        this.types = [new ST.String()].concat(ST.allBystr).concat(ST.allAddr);
         this.funTyp = new ST.PolyFun("'A", 
             new ST.FunType(new ST.TypeVar("'A"), 
                 new ST.FunType(new ST.TypeVar("'A"), new ST.TypeVar("'A"))));
@@ -38,7 +39,7 @@ export class BI_concat {
 export class BI_substr {
     constructor() {
         this.arity = 3;
-        this.types = [new ST.String()].concat(ST.allBystr)
+        this.types = [new ST.String()].concat(ST.allBystr).concat(ST.allAddr);
         this.funTyp = 
             new ST.PolyFun("'A", 
                 new ST.FunType(new ST.TypeVar("'A"), 
@@ -50,7 +51,7 @@ export class BI_substr {
 export class BI_strlen{
     constructor() {
         this.arity = 1;
-        this.types = [new ST.String()].concat(ST.allBystr);
+        this.types = [new ST.String()].concat(ST.allBystr).concat(ST.allAddr);
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.Uint32()));
     }
 }
@@ -58,7 +59,7 @@ export class BI_strlen{
 export class BI_to_string {
     constructor() {
         this.arity = 1;
-        this.types = [new ST.String()].concat(ST.allBystr);
+        this.types = [new ST.String()].concat(ST.allBystr).concat(ST.allAddr);
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.String));
     }
 }
@@ -66,7 +67,7 @@ export class BI_to_string {
 export class BI_to_ascii{
     constructor() {
         this.arity = 1;
-        this.types = [new ST.String()].concat(ST.allBystr);
+        this.types = [new ST.String()].concat(ST.allBystr).concat(ST.allAddr);
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.String));
     }
 }
@@ -74,16 +75,29 @@ export class BI_to_ascii{
 export class BI_strrev {
     constructor() {
         this.arity = 1;
-        this.types = [new ST.String()].concat(ST.allBystr);
+        this.types = [new ST.String()].concat(ST.allBystr).concat(ST.allAddr);
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.TypeVar("'A")));
     }
 }
 
-export class BI_to_bystrx {} //TODO
+export class BI_to_bystrx {
+    constructor(i) {
+        this.arity = 1;
+        this.types = ST.allBystr.concat(ST.allUints);
+        this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.ADT("Option", new ST.ByStrXTyp(i))));
+    }
+}
 
 /** 
- * Block Numbers (skip)
+ * Block Numbers (skip most)
 */
+export class BI_blt {
+    constructor() {
+        this.arity = 2;
+        this.types = [ST.BNum];
+        this.funTyp = new ST.FunType(new ST.BNum, new ST.FunType(new ST.BNum, new ST.ADT("Bool", [])));
+    }
+}
 
 /** 
  * CryptoBuiltins (skip)
@@ -286,7 +300,8 @@ export const BuiltInDict = {
     "div": new BI_div(),
     "rem": new BI_rem(),
     "pow": new BI_pow(),
-    "isqrt": new BI_isqrt()
+    "isqrt": new BI_isqrt(),
+    "blt": new BI_blt()
 }
 
 /**
@@ -313,11 +328,24 @@ export function resolveBIFunType(fname, targs) {
         }
     }
 
-    if (fname === "eq" || fname === "concat" || fname === "substr" ||
+    if (fname === "eq") {
+        const info = BuiltInDict[fname];
+        const basicsOk = checkBasics(info);
+        if (ER.isError()) { return;};
+        const fType = info.funTyp;
+
+        //All address types are compared as bystr
+        if (targs[0] instanceof ST.AddressType) {
+            targs[0] = new ST.ByStrXTyp(20);
+        }
+        return ST.substTypeinType(fType.name, targs[0], fType.t);
+    }
+
+    if (fname === "concat" || fname === "substr" ||
         fname === "to_string" || fname === "to_ascii" || fname === "lt" ||
         fname === "add" || fname === "sub" || fname === "mul" || fname === "div" ||
         fname === "rem" || fname === "pow" || fname === "isqrt" ||
-        fname === "strlen" || fname === "strrev") 
+        fname === "strlen" || fname === "strrev" || fname === "to_bystrx") 
     {
         const info = BuiltInDict[fname];
         const basicsOk = checkBasics(info);
@@ -342,4 +370,24 @@ export function resolveBIFunType(fname, targs) {
         const fType__ = ST.substTypeinType(fType_.name, mapArg.t2, fType_.t);
         return fType__;
     }
+
+    //Other builtins
+    if (fname === "blt") {
+        return BuiltInDict[fname].funTyp;
+    }
+}
+
+
+export function resolveBITargs(fname, targs) {
+    if (fname === "eq") {
+        //Arity is already checked in resolveBIFunType
+        targs.map(targ => {
+            if (targ instanceof ST.AddressType) {
+                return new ST.ByStrXTyp(20);
+            }
+            return targ;
+        })
+        return targs;
+    }
+    return targs;
 }

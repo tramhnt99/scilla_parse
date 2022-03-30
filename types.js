@@ -1,6 +1,4 @@
 //Types that exist in Scilla
-import { Constructor, ScillaDataTypes } from './datatypes.js';
-import { BystrX } from './literals.js';
 import SP from './scillaParser.js'; //short for ScillaParser
 
 /***************************************************
@@ -94,27 +92,29 @@ export function resolveAddressTyp(ctx) {
         return new CodeAddr();
     }
     if (ctx instanceof SP.ContrAddrContext) {
-        const fields = ctx.fs.map(field => 
-                {id: field.id.getText(); typ: generateSType(field.ty)}
-            );
+        
+        const fields = ctx.fs.map(field => {
+            return {id: field.id.getText(), typ: generateSType(field.ty)};
+        });
         return new ContrAddr(fields);
     }
 }
 
 export function resolveTMapValueTArgs(ctx) {
-    if (ctx.t instanceof SP.TMP1Context) {
-        if (ctx.targs === []) {
+    if (ctx instanceof SP.TMP1Context) {
+        if (ctx.t_args === []) {
             return to_type(ctx.d.getText());
         } else {
-            const argTList = ctx.targs.map(targ =>
+            const argTList = ctx.t_args.map(targ =>
                 resolveTMapValueArgs(targ)
             );
             return new ADT(ctx.d.getText(), argTList);
         }
     }
-    if (ctx.t instanceof SP.TMP2Context) {
+    if (ctx instanceof SP.TMP2Context) {
         return resolveTMapValue(ctx.t_map_value());
     }
+    console.log("resolveTMapValueTArgs: Couldn't match ctx."); 
 }
 
 export function resolveTMapValueArgs(ctx){
@@ -142,6 +142,7 @@ export function resolveTMapValue(ctx){
     if (ctx instanceof SP.TMPAddrContext) {
         return resolveAddressTyp(ctx.vt);
     }
+    console.log("resolveTMapValue: Did not match any contexts.");
 }
 
 export function resolveMapType(ctx) {
@@ -153,7 +154,6 @@ export function resolveMapType(ctx) {
     
     //Map Value can only be another prim (scid), map, 
     const map_v_t = resolveTMapValue(ctx.v);
-
     return new MapType(map_k_t, map_v_t);
 }
 
@@ -359,3 +359,5 @@ export class ContrAddr extends AddressType {
 export class LibAddr extends AddressType {}
 
 export class CodeAddr extends AddressType {}
+
+export const allAddr = [new AnyAddr(), new ContrAddr(), new LibAddr(), new CodeAddr()]

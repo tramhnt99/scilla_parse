@@ -8,12 +8,444 @@ import ScillaType, * as ST from './types.js';
 import _ from 'lodash';
 import * as BI from './builtin.js';
 import * as DT from './datatypes.js';
-import { isError, getError, setError } from './general.js';
+import { isError, getError, setError, resetErrorSettings, parseLib } from './general.js';
 import * as TCU from './typecheckerUtil.js'; //Type Checker Utilities
 
 
 const SL = new ScillaLiterals();
 
+/*
+ * Type Library Entry
+ */
+//Returns updated tenv and ADTDict in STC
+export function typeLentry(lentry, tenv, STC) {
+    if (lentry instanceof SS.LibVar) {
+        const tenv_ = _.cloneDeep(tenv);
+        const funTy = STC.typeExpr(lentry.e, tenv_);
+        if (lentry.tyopt) {
+            const typAssign = TCU.typeAssignable(lentry.tyopt, STC.getTy(funTy));
+            if (typAssign) {
+                tenv[lentry.x] = STC.getTy(funTy);
+                return {tenv: tenv, STC: STC};
+            } else {
+                setError(new Error("startingTenv: Type of function is not assinable to declared type."));
+                return {tenv: tenv, STC: STC};
+            }
+        } else {
+            if (!(funTy instanceof Error)) {
+                tenv[lentry.x] = STC.getTy(funTy);
+                return {tenv: tenv, STC: STC};
+            }
+            setError(new Error("Library Entry is not type checking."));
+        }
+    }
+
+    if (lentry instanceof SS.LibType) {
+        //We add the new ADT
+        const adt = new DT.ScillaDataTypes();
+        adt.tname = lentry.x;
+        var constrs = []; //constructors - contain name and arity
+        lentry.c.forEach(c => {
+            const constr = new DT.Constructor();
+            constr.cname = c.cname;
+            constr.arity = c.cArgTypes.length;
+            adt.tmap[c.cname] = _.cloneDeep(c.cArgTypes);
+            constrs.push(constr);
+        });
+        adt.tconstr = constrs;
+        //adt.tparams seem to always be empty for libraries
+
+        //Update ADT dictionaries in this instance of Scilla Type Checker
+        STC.ADTDict.ADTDict[adt.tname] = adt;
+        constrs.forEach(c => {
+            STC.ADTDict.ConstrDict[c.cname] = [c, adt];
+        });
+        return {tenv: tenv, STC: STC};;
+    }
+}
+
+/*
+ * Type Library Module
+ */
+//Returns updated tenv and ADTDict in STC, and also all the lmods it typechecked
+export function typeLmod(lmod, tenv, STC) {
+    const lmodDone = [];
+    //Type Check elibs first to add function types and ADTs in tenv and STC
+    if (lmod.elibs) {
+        lmod.elibs.forEach(elib => {
+            if (lmodDone.find(l => l === elib[0])) {
+                return {tenv: tenv, STC: STC, lmodDone: lmodDone};
+            }
+            typeLmod(elib[2], tenv, STC);
+            lmodDone.push(elib[0]);
+        });
+    }
+
+    //Now type check the lmod
+    const lentries = lmod.lib.lentries;
+    for (let i = 0; i < lentries.length; i++) {
+        const lentry = lentries[i];
+        resetErrorSettings();
+        typeLentry(lentry, tenv, STC);
+    }
+    lmodDone.push(lmod.lib.lname);
+    return {tenv: tenv, STC: STC, lmodDone: lmodDone};
+}
+
+/*
+ * Type Contract Module
+ */
+export function typeCMod(cmod, tenv, STC) {
+    //Type elibs - elibs are already parsed and stored
+    if (cmod.elibs.length > 0) {
+        var lmodDone = [];
+        for (let i = 0; i < cmod.elibs.length; i++) {
+            if (cmod.elibs[i][0] in lmodDone) { continue; }
+            const res = typeLmod(cmod.elibs[i][2], tenv, STC);
+            tenv = res.tenv;
+            STC = res.STC;
+            lmodDone.concat(res.lmodDone);
+        }
+    }
+
+    //Type library
+    if (cmod.lib) {
+        const lentries = cmod.lib.lentries;
+        for (let i = 0; i < lentries.length; i++) {
+            const lentry = lentries[i];
+            typeLentry(lentry, tenv, STC);
+        }
+    }
+
+    //Type Contract
+    if (cmod.contr) {
+        typeContract(cmod.contr, tenv, STC);
+    }
+
+    if (isError()) {
+        console.log(getError());
+        if (getError().s.search("list") !== -1 || 
+            getError().s.search("builtin") !== -1 ) {
+                return; //do not print those
+            }
+        console.log(getError());
+    }
+}
+
+
+/*
+ * Type Contract
+ */
+export function typeContract(contract, tenv, STC) {
+    //Type contract parameters
+    for (let i = 0; i < contract.cparams.length; i++) {
+        const cparam = contract.cparams[i];
+        const isWF = TCU.isWellFormedType(cparam[1], tenv, STC.ADTDict.ADTDict);
+        if (!isWF) {
+            setError(new Error("typeContract: Type of contract param is not well formed"));
+            return;
+        }
+        //Check if it's of a legal type
+        if (cparam[1] instanceof ST.MessageTyp || cparam[1] instanceof ST.PolyFun ||
+            cparam[1] instanceof ST.Unit) {
+            setError(new Error("typeContract: Type of contract param is illegal."));
+            return;
+        }
+        TCU.setTenv(tenv, cparam[0], cparam[1]);
+    }
+
+    //Type constraint
+    if (contract.cconstraint) {
+        const tenv_ = _.cloneDeep(tenv);
+        const ty = STC.typeExpr(contract.cconstraint, tenv_);
+        if (isError()) {return;}
+        //Check constraint of assignable to type Bool
+        const check = TCU.typeAssignable(new ST.ADT("Bool", []), ty.ty);
+        if (!check) {
+            setError(new Error("typeContract: Constraint is not assignable to type Bool."));
+            return;
+        }
+    }
+
+    //Type fields
+    if (contract.cfields) {
+        //For each field, check if the expression type checks and is assignable to its declared types
+        //Also check if legal field type
+        for (let i = 0; i < contract.cfields.length; i++) {
+            const field = contract.cfields[i];
+            const tenv_ = _.cloneDeep(tenv);
+            const eTy = STC.typeExpr(field.e, tenv_);
+            if (isError()) { return; }
+            const check = TCU.typeAssignable(field.type, eTy.ty);
+            if (!check) {
+                setError(new Error("typeContract: Field's expressions type is not assignable to its declared type."));
+                return;
+            }
+            if (eTy.ty instanceof ST.MessageTyp || eTy.ty instanceof ST.PolyFun ||
+                eTy.ty instanceof ST.Unit) {
+                setError(new Error("typeContract: Type of field is illegal."));
+                return;
+            }
+            TCU.setTenv(tenv, field.name, eTy.ty);
+        }
+        //Add a balance field
+        TCU.setTenv(tenv, "_balance", new ST.Uint128());
+    }
+
+    //Type components - check all return true
+    if (contract.ccomps) {
+        contract.ccomps.every(ccomp => typeComponent(ccomp, tenv, STC));
+    }
+    
+}
+
+export function typeComponent(component, tenv, STC) {
+    //Type componant parameters
+    if (component.compParams) {
+        for (let i = 0; i < component.compParams.length; i++) {
+            const cparam = component.compParams[i];
+            
+            //Check if param has legal types for its respective component type
+            if (component.compType instanceof SS.CompTrans) {
+                const ty = cparam[1];
+                if (ty instanceof ST.MessageTyp || ty instanceof ST.PolyFun ||
+                    ty instanceof ST.Unit || ty instanceof ST.MapType) {
+                        setError(new Error("typeComponent: Transition component param is of illegal type"));
+                        return;
+                    }
+                const tyWF = TCU.isWellFormedType(ty, tenv, STC.ADTDict.ADTDict);
+                if (!tyWF) {
+                    setError(new Error("typeComponent: Transition component param is not well formed."));
+                }
+                TCU.setTenv(tenv, cparam[0], cparam[1]);
+            }
+            if (component.compType instanceof SS.CompProc) {
+                const ty = cparam[1];
+                if (ty instanceof ST.PolyFun ||
+                    ty instanceof ST.Unit || ty instanceof ST.MapType) {
+                        setError(new Error("typeComponent: Procedure component param is of illegal type"));
+                        return;
+                }
+                const tyWF = TCU.isWellFormedType(ty, tenv, STC.ADTDict.ADTDict);
+                if (!tyWF) {
+                    setError(new Error("typeComponent: Procedure component param is not well formed."));
+                }
+                TCU.setTenv(tenv, cparam[0], cparam[1]);
+            }
+        }
+    }
+
+    //Type component body
+    console.log("Component: " + component.compName);
+    const tenv_ = _.cloneDeep(tenv);
+
+    //Add implicit parameters before evaluating component
+    tenv_["_amount"] = new ST.Uint128();
+    tenv_["_sender"] = new ST.AnyAddr();
+    tenv_["_origin"] = new ST.AnyAddr();
+
+    //Add implicit constants from blockchain
+    tenv_["BLOCKNUMBER"] = new ST.BNum();
+    tenv_["CHAINID"] = new ST.Uint64();
+    tenv_["TIMESTAMP"] = new ST.Uint64();
+    typeStmts(component.compBody, tenv_, STC);
+    return true;
+}
+
+//Returns undefined (we just update tenv)
+export function typeStmts(stmts, tenv, STC) {
+    if (isError()) { return; }
+    if (stmts.length === 0) { return ; }
+    const s = stmts[0];
+    const sts = stmts.slice(1);
+    if (s instanceof SS.Load) {
+        const ty = tenv[s.r];
+        if (!ty) {
+            setError(new Error("typeStmts: " + s.r + " is not bound in type environment."));
+            return;
+        }
+        const tenv_ = _.cloneDeep(tenv);
+        tenv_[s.x] = ty;
+        return typeStmts(sts, tenv_, STC);
+    }
+    if (s instanceof SS.RemoteLoad) {
+        const adr_ty = tenv[s.addr];
+        if (!adr_ty) {
+            setError(new Error("typeStmts: " + s.addr + " is not bound in type environment."));
+            return;
+        }
+        const ty = TCU.addressFieldType(s.r, adr_ty);
+        if (isError()) { return; }
+        const tenv_ = _.cloneDeep(tenv);
+        tenv_[s.x] = ty;
+        return typeStmts(sts, tenv_, STC);
+    }
+    if (s instanceof SS.Store) {
+        if (s.x === "_balance") {
+            setError(new Error("typeStmts: We are not allowed to store in the _balance field."));
+            return;
+        }
+        const fty = tenv[s.x];
+        const rty = tenv[s.r];
+        if (fty === undefined || rty === undefined) {
+            setError(new Error("typeStmts: Either the field or the argument is not bound."));
+            return;
+        }
+        const check = TCU.typeAssignable(fty, rty);
+        if (!check) {
+            setError(new Error("typeStmts: Argument is not assignable to field"));
+            return;
+        }
+        const tenv_ = _.cloneDeep(tenv);
+        return typeStmts(sts, tenv_, STC);
+    }
+    if (s instanceof SS.Bind) {
+        const tenv_ = _.cloneDeep(tenv);
+        const tyExp = STC.typeExpr(s.e, tenv_);
+        if (isError()) {return;}
+        const tenv__ = _.cloneDeep(tenv);
+        tenv__[s.x] = tyExp.ty;
+        return typeStmts(sts, tenv__, STC);
+    }
+
+    if (s instanceof SS.MapUpdate) {
+        //Type map access
+        const mtype = tenv[s.m];
+        if (!mtype) {
+            setError(new Error("typeStmts: Type of map " + s.m + " is not bound."));
+            return;
+        }
+        const kltype = s.klist.map(k => tenv[k]);
+        if (undefined in kltype) {
+            setError(new Error("typeStmts: Some key is not bound."));
+            return;
+        }
+        const resTy = TCU.typeMapAccess(mtype, kltype);
+        if (isError()) { return; }
+        if (s.ropt) {
+            const r = tenv[s.ropt];
+            if (!r) {
+                setError(new Error("typeStmts: MapUpdate value is not bound."));
+                return;
+            }
+            const check = TCU.typeAssignable(r, resTy);
+            if (!check) {
+                setError(new Error("typeStmts: MapUpdate value is not assignable."));
+                return;
+            }
+        }
+        const tenv_ = _.cloneDeep(tenv);
+        return typeStmts(sts, tenv_, STC);
+    }
+
+    if (s instanceof SS.MapGet) {
+        const mtype = tenv[s.m];
+        if (!mtype) {
+            setError(new Error("typeStmts: Type of map " + s.m + " is not bound in MapGet."));
+            return;
+        }
+        const kltype = s.klist.map(k => tenv[k]);
+        if (undefined in kltype) {
+            setError(new Error("typeStmts: Some key is not bound in MapGet."));
+            return;
+        }
+        const resTy = TCU.typeMapAccess(mtype, kltype);
+        if (isError()) { return; }
+        const resTy_ = s.fetchval ? new ST.ADT("Option", [resTy]) : new ST.ADT("Bool", []);
+        const tenv_ = _.cloneDeep(tenv);
+        tenv_[s.x] = resTy_;
+        return typeStmts(sts, tenv_, STC);
+    }
+
+    if (s instanceof SS.RemoteMapGet) {
+        const kltype = s.klist.map(k => tenv[k]);
+        if (undefined in kltype) {
+            setError(new Error("typeStmts: Some key is not bound in RemoteMapGet."));
+            return;
+        }
+        const adrtype = tenv[s.adr];
+        if (!adrtype) {
+            setError(new Error("typeSTmts: AdrType not bound."));
+            return;
+        }
+        const mtype = TCU.addressFieldType(s.m, adrType);
+        if (isError()) { return; }
+        const resTy = TCU.typeMapAccess(mtype, kltype);
+        if (isError()) { return; }
+        const resTy_ = s.fetchval ? new ST.ADT("Option", [resTy]) : new ST.ADT("Bool", []);
+        const tenv_ = _.cloneDeep(tenv);
+        tenv[s.x] = resTy_;
+        return typeStmts(sts, tenv_, STC);
+    }
+
+    if (s instanceof SS.TypeCast) {
+        //Only allow casts to address types
+        const check1 = TCU.typeAssignable(new ST.AnyAddr, s.t);
+        if (!check1) {
+            setError(new Error("typeStmts: Type casting to a non-address type."));
+            return;
+        }
+        const rtyp = tenv[s.r];
+        if (!rtyp) {
+            setError(new Error("typeStmts: rtyp is not bound."));
+            return;
+        }
+        //Only allow casts of types that could be an address type
+        const check2 = TCU.typeAssignable(new ST.ByStrXTyp(20), rtyp);
+        if (!check2) {
+            setError(new Error("typeStmts: Did not pass check2."));
+            return;
+        }
+        const resTyp = new ST.ADT("Option", [t]);
+        if (isError()) { return; }
+        const tenv_ = _.cloneDeep(tenv);
+        tenv_[s.x] = resTyp;
+        return typeStmts(sts, tenv_, STC);
+    }
+
+    if (s instanceof SS.MatchStmt) {
+        if (s.clauses.length === 0) {
+            setError("typeStmts: Match statement has no clauses.");
+            return;
+        }
+        const xtyp = tenv[s.x];
+        if (!xtyp) {
+            setError(new Error("typeStmts: Match x is not bound"));
+        }
+
+        //Run just to see if we get any errors
+        for (let i = 0; i < s.clauses.length; i++) {
+            const clause = s.clauses[i];
+            const tenv_ = _.cloneDeep(tenv);
+            const tenv__ = TCU.updateTenvOfPattern(clause.pat, xtyp, tenv_, STC.ADTDict);
+            if (!tenv__) {
+                setError(new Error("typeStmts: Failed to update tenv in MatchStmt."));
+                return;
+            }
+            typeStmts(clause.stmts, tenv__, STC);
+            if (isError()) { return; }
+        }
+        if (isError()) { return; }
+        const tenv_ = _.cloneDeep(tenv);
+        return typeStmts(sts, tenv_, STC);
+    }
+
+    if (s instanceof SS.AcceptPayment) {
+        const tenv_ = _.cloneDeep(tenv);
+        return typeStmts(sts, tenv_, STC);
+    }
+
+
+
+    const tenv_ = _.cloneDeep(tenv);
+    return typeStmts(sts, tenv_, STC);
+    
+
+    //TODO: ReadFromBC, SendMsgs, CreateEvnt, CallProc, Throw
+}
+
+
+//Handles Pure Scilla
 export default class ScillaTypeChecker{
     constructor(){
         this.error_msg = undefined;
@@ -160,9 +592,9 @@ export default class ScillaTypeChecker{
             }
             //Remove TFuns
             const func_ = BI.resolveBIFunType(e.b, resolvedTypArgs);
+            const resolvedTypArgs_ = BI.resolveBITargs(e.b, resolvedTypArgs);
             if (isError()) { return; }
-
-            const resType = TCU.functionTypeApplies(func_, resolvedTypArgs);
+            const resType = TCU.functionTypeApplies(func_, resolvedTypArgs_);
             if (isError()) { return; }
 
             const resTypeWF = TCU.isWellFormedType(resType, tenv, this.ADTDict.ADTDict);
@@ -202,9 +634,6 @@ export default class ScillaTypeChecker{
             const refresh = TCU.refereshADTTVars(cparams, ADTparams, tenv);
             const ADTParams_ = refresh.newap;
             const cparamsNoShadow = refresh.newcp;
-            // console.log("cparamsNoShadow");
-            // console.log(cparamsNoShadow);
-            // console.log(e);
 
             //2. Apply type params and update tenv accordingly
             const appliedCParams = cparamsNoShadow.map(cparam => {
@@ -240,64 +669,11 @@ export default class ScillaTypeChecker{
 
             //Ensure all clauses have the same type
             var clausesTyp = [];
-            //Depending on the binder clause, we update the environment and run
-            //typechecking on the respective expressions
-            function updateTenvOfPattern(pat, xty, tenv, ADTDict) {
-                if (isError()) { return; }
-                if (pat instanceof SS.Pattern.WildCard) {
-                    const tenv_ = _.cloneDeep(tenv); 
-                    return tenv_;
-                }
-                if (pat instanceof SS.Pattern.Binder) {
-                    const tenv_ = _.cloneDeep(tenv);
-                    TCU.setTenv(tenv_, pat.x, xty);
-                    return tenv_;
-                }
-                if (pat instanceof SS.Pattern.ConstructorPat) {
-                    //1. Find the constructor by name and its respective ADT
-                    const constr = ADTDict.ConstrDict[pat.c][0];  
-                    const adt = ADTDict.ConstrDict[pat.c][1]; 
-
-                    //2. Extract args that it needs. Check length vs. arity
-                    if (constr.arity !== pat.ps.length) {
-                        return setError(new Error("typeExpr: Constructor Type Arguments Pattern arity mismatch."));
-                    }
-
-                    //3. Find the actual types and run with updated tenv
-                    //Since it's mapped to a contructor, its type is definitely ADT
-                    if (!(xty instanceof ST.ADT)) {
-                        return setError(new Error("typeExpr: Constructor Pattern is not of type ADT"));
-                    }
-
-                    //4. xty is the ADT type - includes any application to tparams of a adt
-                    //   adt.map[pat.c] (call tyToInit) would give us what a constructor's argument types are
-                    //   we initialise tyToInit with info in xty
-                    //   then update respective argument type of construtor
-                    if (constr.arity === 0) {
-                        const tenv_ = _.cloneDeep(tenv); 
-                        return tenv_; //No more bindings
-                    } else {
-                        const tenv_ = _.cloneDeep(tenv);
-                        const tyToInit = adt.tmap[pat.c];
-                        const fresh = TCU.refereshADTTVars(tyToInit, adt.tparams, tenv_); //No shadowing
-                        const ADTParams = fresh.newap;
-                        const cparams = fresh.newcp;
-                        const appliedCParams = cparams.map(cparam => {
-                            return ADTParams.reduce((stype, str_tvar, index) => {
-                                TCU.setTenv(tenv_, str_tvar, xty.t[index]);
-                                return ST.substTypeinType(str_tvar, xty.t[index], stype);
-                            }, cparam);
-                        });
-                        if (isError()) {return;}
-                        return pat.ps.reduce((tenv_, pat_, index) => updateTenvOfPattern(pat_, appliedCParams[index], tenv_, ADTDict), tenv_);
-                    }
-                }
-            }
             const tenv_ = _.cloneDeep(tenv);
             
             for (let i = 0; i < e.clauses.length; i++) {
                 const clause = e.clauses[i];
-                const clauseTyp = this.typeExpr(clause.exp, updateTenvOfPattern(clause.pat, xTyp, tenv_, this.ADTDict));
+                const clauseTyp = this.typeExpr(clause.exp, TCU.updateTenvOfPattern(clause.pat, xTyp, tenv_, this.ADTDict));
                 if (!clauseTyp) {
                     setError("typeExpr: Match clauses's type is met an error");
                     return;
@@ -375,6 +751,7 @@ export default class ScillaTypeChecker{
             if (isError()) {return;};
 
             function payloadTyp(es, ADTDict) {
+                if (isError()) {return;};
                 const STC =  new ScillaTypeChecker(); //not sure why this is a bug
                 STC.ADTDict = ADTDict;
                 function checkFieldType(seenTyp) {
@@ -382,10 +759,8 @@ export default class ScillaTypeChecker{
                     //We check the literal passed to it is of the right type
                     if (ST.msgFieldTypes[es.i] !== undefined) {
                         if (!TCU.typeAssignable(ST.msgFieldTypes[es.i], seenTyp)) {
-                            console.log(ST.msgFieldTypes[es.i]);
-                            console.log(seenTyp);
-                            console.log(es.i);
                             setError(new Error("checkFieldType: Message field type is not assignable."));
+                            return; 
                         }
                     }
                 }
@@ -403,7 +778,7 @@ export default class ScillaTypeChecker{
                     //A variable is passed to message
                     const ty = tenv[es.v];
                     if (ty === undefined) {
-                        setError(new Error("payloadTyp: Message variable is not in the environemt."));
+                        setError(new Error("payloadTyp: Message variable " + es.v + " is not in the environemt."));
                         return;;
                     }
                     checkFieldType(ty);

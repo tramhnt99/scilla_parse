@@ -208,7 +208,7 @@ Pattern.ConstructorPat = ConstructorPat;
 
 export class ScillaStmt {}
 
-class Load extends ScillaStmt {
+export class Load extends ScillaStmt {
     /** 
      * @param {String} x
      * @param {String} r
@@ -221,7 +221,7 @@ class Load extends ScillaStmt {
 }
 ScillaStmt.Load = Load;
 
-class RemoteLoad extends ScillaStmt {
+export class RemoteLoad extends ScillaStmt {
     /**
      * @param {String} x
      * @param {String} adr
@@ -237,7 +237,7 @@ class RemoteLoad extends ScillaStmt {
 ScillaStmt.RemoteLoad = RemoteLoad;
 
 
-class Store extends ScillaStmt {
+export class Store extends ScillaStmt {
     /**
      * @param {String} x
      * @param {String} r
@@ -250,7 +250,7 @@ class Store extends ScillaStmt {
 }
 ScillaStmt.Store = Store;
 
-class Bind extends ScillaStmt {
+export class Bind extends ScillaStmt {
     /**
      * @param {String} x
      * @param {ScillaExpr} e
@@ -263,27 +263,27 @@ class Bind extends ScillaStmt {
 }
 ScillaStmt.Bind = Bind;
 
-class MapUpdate extends ScillaStmt {
+export class MapUpdate extends ScillaStmt {
     /**
      * @param {String} m
      * @param {String[]} klist
      * @param {Option String} ropt
      */
-    constructor(x, klist, ropt) {
+    constructor(m, klist, ropt) {
         super();
-        this.x = x;
+        this.m = m;
         this.klist = klist;
         this.ropt = ropt;
     }
 }
 ScillaStmt.MapUpdate = MapUpdate;
 
-class MapGet extends ScillaStmt{
+export class MapGet extends ScillaStmt{
     /**
      * @param {String} x
      * @param {String} m
      * @param {String[]} klist
-     * @param {Bool} fetchval
+     * @param {JS Bool} fetchval
      */
     constructor(x, m, klist, fetchval) {
         super();
@@ -295,7 +295,7 @@ class MapGet extends ScillaStmt{
 }
 ScillaStmt.MapGet = MapGet;
 
-class RemoteMapGet extends ScillaStmt {
+export class RemoteMapGet extends ScillaStmt {
     /**
      * @param {String} x
      * @param {String} adr
@@ -314,7 +314,7 @@ class RemoteMapGet extends ScillaStmt {
 }
 ScillaStmt.RemoteMapGet = RemoteMapGet;
 
-class ReadFromBC extends ScillaStmt {
+export class ReadFromBC extends ScillaStmt {
     /**
      * @param {String} x
      * @param {BCInfoQuery} bf
@@ -327,7 +327,7 @@ class ReadFromBC extends ScillaStmt {
 }
 ScillaStmt.ReadFromBC = ReadFromBC;
 
-class TypeCast extends ScillaStmt {
+export class TypeCast extends ScillaStmt {
     /**
      * @param {String} x
      * @param {String} r
@@ -355,7 +355,7 @@ export class Clause {
 }
 ScillaStmt.Clause = Clause;
 
-class MatchStmt extends ScillaStmt {
+export class MatchStmt extends ScillaStmt {
     /**
      * @param {String} x
      * @param {Clause[]} clauses
@@ -369,10 +369,10 @@ class MatchStmt extends ScillaStmt {
 ScillaStmt.MatchStmt = MatchStmt;
 
 
-class AcceptPayment extends ScillaStmt {}
+export class AcceptPayment extends ScillaStmt {}
 ScillaStmt.AcceptPayment = AcceptPayment;
 
-class SendMsgs extends ScillaStmt {
+export class SendMsgs extends ScillaStmt {
     /**
      * @param {String} ms
      */
@@ -383,7 +383,7 @@ class SendMsgs extends ScillaStmt {
 }
 ScillaStmt.SendMsgs = SendMsgs;
 
-class CreateEvnt extends ScillaStmt {
+export class CreateEvnt extends ScillaStmt {
     /**
      * @param {String} params
      */
@@ -395,7 +395,7 @@ class CreateEvnt extends ScillaStmt {
 ScillaStmt.CreateEvnt = CreateEvnt;
 
 
-class CallProc extends ScillaStmt {
+export class CallProc extends ScillaStmt {
     /**
      * @param {String} p
      * @param {String[]} actuals
@@ -408,7 +408,7 @@ class CallProc extends ScillaStmt {
 }
 ScillaStmt.CallProc = CallProc;
 
-class Iterate extends ScillaStmt {
+export class Iterate extends ScillaStmt {
     /**
      * @param {String} l
      * @param {String} p
@@ -421,7 +421,7 @@ class Iterate extends ScillaStmt {
 }
 ScillaStmt.Iterate = Iterate;
 
-class Throw extends ScillaStmt {
+export class Throw extends ScillaStmt {
     /**
      * @param {Option String} eopt
      */
@@ -550,15 +550,15 @@ export class Cmodule {
     /**
      * @param {Int} smver
      * @param {Option Library} libs 
-     * @param {(String * Lmodule)[]} elibs;
+     * @param {(String * String * Lmodule)[]} elibs;
      * @param {Contract} contr
      */
     constructor(smver, libs, elibs, contr) {
         this.smver = smver;
         //Scilla major version of the contract.
-        this.libs = libs;
+        this.lib = libs;
         //lib functions defined in the module
-        this.elibs = elibs;
+        this.elibs = elibs ? elibs : [];
         //List of imports / external libs with an optional namespace.
         this.contr = contr;
     }
