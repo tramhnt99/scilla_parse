@@ -1,6 +1,7 @@
 import SP from "./scillaParser.js";
 import ScillaType, * as ST from "./types.js";
 import { Error, Literal } from "./syntax.js";
+import _ from "lodash";
 
 export class ScillaLiterals extends Literal {
   printError(funcname, msg) {
@@ -41,10 +42,7 @@ export class ScillaLiterals extends Literal {
     }
     if (ctx instanceof SP.LitEmpContext) {
       return new Map(
-        new ST.MapType(
-          ST.resolveTMapKey(ctx.kt),
-          ST.resolveTMapValue(ctx.vt)
-        ),
+        new ST.MapType(ST.resolveTMapKey(ctx.kt), ST.resolveTMapValue(ctx.vt)),
         []
       );
     }
@@ -228,11 +226,22 @@ export class Map extends ScillaLiterals {
   }
 
   remove(k) {
-    this.kv[k] = undefined;
+    // this.kv[k] = undefined;
+    this.kv = _.remove(this.kv, function (kv) {
+      return kv.hasOwnProperty(k);
+    });
   }
 
   update(k, v) {
-    this.kv[k] = v;
+    // this.kv[k] = v;
+    const isExist = _.findIndex(this.kv, function (kv) {
+      return kv.hasOwnProperty(k);
+    });
+    if (isExist !== -1) {
+      this.kv[isExist] = { [k]: v };
+    } else {
+      this.kv.push({ [k]: v });
+    }
   }
 }
 
