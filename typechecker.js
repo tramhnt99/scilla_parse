@@ -255,8 +255,7 @@ export function typeComponent(component, tenv, STC) {
     }
 
     //Type component body
-    console.log("Component: " + component.compName);
-
+    // console.log("Component: " + component.compName);
     typeStmts(component.compBody, tenv, STC);
     return true;
 }
