@@ -252,7 +252,7 @@ stmt
     | r=remote_fetch_stmt #RemoteFetch
     | l=identifier ASSIGN r=sid #Store 
     | l=identifier EQ r=exp #Bind 
-    | l=identifier FETCH AND c=cid #ReadFromBC
+    | l=identifier FETCH AND c=cid args_opt=bcfetch_args? #ReadFromBC
     | l=identifier FETCH r=identifier (keys+=map_access)+ #MapGet
     | l=identifier FETCH EXISTS r=identifier (keys+=map_access)+ #MapGetExists
     | l=identifier (keys+=map_access)+ ASSIGN r=sid #MapUpdate
@@ -264,6 +264,10 @@ stmt
     | MATCH x=sid WITH (cs+=stmt_pm_clause)+ END #MatchStmt
     | p=component_id (args+=sid)* #CallProc
     | FORALL l=sid p=component_id #Iterate
+    ;
+
+bcfetch_args
+    : LPAREN (args+=sid)+ RPAREN
     ;
 
 remote_fetch_stmt 

@@ -12,6 +12,7 @@ import { Cmodule, Library, ContractDef,
         ScillaStmt as SS,
         LibEntry as LE,
         Lmodule} from './syntax.js';
+import * as SSS from './syntax.js';
 import SyntaxVisitor from './syntaxVisitor.js';
 import antlr4 from 'antlr4';
 import fs from 'fs';
@@ -39,30 +40,31 @@ export default class TranslateVisitor{
         }
         if (ctx instanceof SP.RemoteFetchContext){
             if (ctx.r instanceof SP.RemoteLoadSidContext ||
-                ctx.r instanceof SP.RemoteLoadSidContext) {
+                ctx.r instanceof SP.RemoteLoadSpidContext) {
                 const x = ctx.r.l.getText();
                 const adr = ctx.r.adr_id.getText();
                 const r = ctx.r.r.getText();
+                const res = new SS.RemoteLoad(x, adr, r);
                 return new SS.RemoteLoad(x, adr, r);
             }
             if (ctx.r instanceof SP.RemoteMapGetTrueContext) {
                 const x = ctx.r.l.getText();
                 const adr = ctx.r.adr_id.getText();
                 const m = ctx.r.r_id.getText();
-                const klist = ctx.r.keys.map(key => key.getText());
+                const klist = ctx.r.keys.map(key => key.i.getText());
                 return new SS.RemoteMapGet(x, adr, m, klist, true);
             }
             if (ctx.r instanceof SP.RemoteMapGetFalseContext) {
                 const x = ctx.r.l.getText();
                 const adr = ctx.r.adr_id.getText();
                 const m = ctx.r.r_id.getText();
-                const klist = ctx.r.keys.map(key => key.getText());
+                const klist = ctx.r.keys.map(key => key.i.getText());
                 return new SS.RemoteMapGet(x, adr, m, klist, false);
             }
             if (ctx.r instanceof SP.TypeCastContext) {
                 const x = ctx.r.l.getText();
                 const r = ctx.r.adr.getText();
-                const t = ctx.r.t.getText();
+                const t = ST.resolveAddressTyp(ctx.r.t);
                 return new SS.TypeCast(x, r, t);
             }
         }
@@ -108,8 +110,18 @@ export default class TranslateVisitor{
 
         if (ctx instanceof SP.ReadFromBCContext) {
             const x = ctx.l.getText();
-            const bf = ctx.c.getText(); //TODO: Create BCInfoQuery
-            return new SS.ReadFromBC(x, bf);
+            const bf = ctx.c.getText();
+            if (bf === "BLOCKNUMBER") {
+                return new SS.ReadFromBC(x, new SSS.CurBlockNum());
+            } 
+            if (bf === "CHAINID") {
+                return new SS.ReadFromBC(x, new SSS.ChainID());
+            }
+            if (bf === "TIMESTAMP") {
+                const arg = ctx.args_opt.args[0].getText();
+                return new SS.ReadFromBC(x, new SSS.TimeStamp(arg)); //TODO: add iden to timestamp
+            }
+            this.printError("translateStmts", "Couldn't match ReadFromBC");
         }
 
         if (ctx instanceof SP.AcceptContext) {

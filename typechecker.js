@@ -123,7 +123,7 @@ export function typeCMod(cmod, tenv, STC) {
     }
 
     if (isError()) {
-        console.log(getError());
+        // console.log(getError());
         if (getError().s.search("list") !== -1 || 
             getError().s.search("builtin") !== -1 ) {
                 return; //do not print those
@@ -137,6 +137,14 @@ export function typeCMod(cmod, tenv, STC) {
  * Type Contract
  */
 export function typeContract(contract, tenv, STC) {
+    //Add implicit parameters before evaluating component
+    tenv["_amount"] = new ST.Uint128();
+    tenv["_sender"] = new ST.AnyAddr();
+    tenv["_origin"] = new ST.AnyAddr();
+    tenv["_this_address"] = new ST.ByStrXTyp(20);
+    tenv["_creation_block"] = new ST.BNum();
+
+
     //Type contract parameters
     for (let i = 0; i < contract.cparams.length; i++) {
         const cparam = contract.cparams[i];
@@ -186,7 +194,7 @@ export function typeContract(contract, tenv, STC) {
                 setError(new Error("typeContract: Type of field is illegal."));
                 return;
             }
-            TCU.setTenv(tenv, field.name, eTy.ty);
+            TCU.setTenv(tenv, field.name, field.type);
         }
         //Add a balance field
         TCU.setTenv(tenv, "_balance", new ST.Uint128());
@@ -194,7 +202,14 @@ export function typeContract(contract, tenv, STC) {
 
     //Type components - check all return true
     if (contract.ccomps) {
-        contract.ccomps.every(ccomp => typeComponent(ccomp, tenv, STC));
+        contract.ccomps.every(ccomp => {
+            const res = typeComponent(ccomp, tenv, STC);
+            //Bind procedures in the environemnt to the list of arguments they take
+            if (ccomp.compType instanceof SS.CompProc) {
+                tenv[ccomp.compName] = ccomp.compParams.map(p => p[1]);
+            }
+            return res;
+        });
     }
     
 }
@@ -237,18 +252,8 @@ export function typeComponent(component, tenv, STC) {
 
     //Type component body
     console.log("Component: " + component.compName);
-    const tenv_ = _.cloneDeep(tenv);
 
-    //Add implicit parameters before evaluating component
-    tenv_["_amount"] = new ST.Uint128();
-    tenv_["_sender"] = new ST.AnyAddr();
-    tenv_["_origin"] = new ST.AnyAddr();
-
-    //Add implicit constants from blockchain
-    tenv_["BLOCKNUMBER"] = new ST.BNum();
-    tenv_["CHAINID"] = new ST.Uint64();
-    tenv_["TIMESTAMP"] = new ST.Uint64();
-    typeStmts(component.compBody, tenv_, STC);
+    typeStmts(component.compBody, tenv, STC);
     return true;
 }
 
@@ -288,11 +293,19 @@ export function typeStmts(stmts, tenv, STC) {
         const fty = tenv[s.x];
         const rty = tenv[s.r];
         if (fty === undefined || rty === undefined) {
+            console.log(s.x);
+            console.log(fty);
+            console.log(s.r);
+            console.log(rty);
             setError(new Error("typeStmts: Either the field or the argument is not bound."));
             return;
         }
         const check = TCU.typeAssignable(fty, rty);
         if (!check) {
+            console.log(s.x);
+            console.log(fty);
+            console.log(s.r);
+            console.log(rty);
             setError(new Error("typeStmts: Argument is not assignable to field"));
             return;
         }
@@ -328,8 +341,11 @@ export function typeStmts(stmts, tenv, STC) {
                 setError(new Error("typeStmts: MapUpdate value is not bound."));
                 return;
             }
-            const check = TCU.typeAssignable(r, resTy);
+            const check = TCU.typeAssignable(resTy, r);
             if (!check) {
+                console.log(r);
+                console.log(resTy);
+                console.log(s);
                 setError(new Error("typeStmts: MapUpdate value is not assignable."));
                 return;
             }
@@ -368,13 +384,13 @@ export function typeStmts(stmts, tenv, STC) {
             setError(new Error("typeSTmts: AdrType not bound."));
             return;
         }
-        const mtype = TCU.addressFieldType(s.m, adrType);
+        const mtype = TCU.addressFieldType(s.m, adrtype);
         if (isError()) { return; }
         const resTy = TCU.typeMapAccess(mtype, kltype);
         if (isError()) { return; }
         const resTy_ = s.fetchval ? new ST.ADT("Option", [resTy]) : new ST.ADT("Bool", []);
         const tenv_ = _.cloneDeep(tenv);
-        tenv[s.x] = resTy_;
+        tenv_[s.x] = resTy_;
         return typeStmts(sts, tenv_, STC);
     }
 
@@ -396,7 +412,7 @@ export function typeStmts(stmts, tenv, STC) {
             setError(new Error("typeStmts: Did not pass check2."));
             return;
         }
-        const resTyp = new ST.ADT("Option", [t]);
+        const resTyp = new ST.ADT("Option", [s.t]);
         if (isError()) { return; }
         const tenv_ = _.cloneDeep(tenv);
         tenv_[s.x] = resTyp;
@@ -435,13 +451,128 @@ export function typeStmts(stmts, tenv, STC) {
         return typeStmts(sts, tenv_, STC);
     }
 
+    if (s instanceof SS.ReadFromBC) {
+        var bf = undefined;
+        if (s.bf instanceof SS.CurBlockNum) {
+            bf = new ST.BNum();
+        } else if (s.bf instanceof SS.ChainID) {
+            bf = new ST.Uint32();
+        } else if (s.bf instanceof SS.TimeStamp) {
+            const targ = tenv[s.bf];
+            if (!targ) {
+                setError(new Error("typeStmts: Time Stamp targ is not bound."));
+                return;
+            }
+            const check = TCU.typeAssignable(new ST.BNum(), targ);
+            if (!check) {
+                setError(new Error("typeStmts: Time Stamp targ is not assignable to Bnum type."));
+                return;
+            }
+            bf = new ST.ADT("Option", [new ST.Uint64()]);
+        } else {
+            setError(new Error("typeStmts: Couldn't match s.bf"));
+            return;
+        }
+        const tenv_ = _.cloneDeep(tenv);
+        tenv_[s.x] = bf;
 
+        return typeStmts(sts, tenv_, STC);
+    }
 
-    const tenv_ = _.cloneDeep(tenv);
-    return typeStmts(sts, tenv_, STC);
+    if (s instanceof SS.SendMsgs) {
+        const ty = tenv[s.ms];
+        if (!ty) {
+            setError(new Error("typeStmts: Message variable is not bound"));
+            return;
+        }
+        const ty_expected = new ST.ADT("List", [new ST.MessageTyp]);
+        const check = TCU.typeAssignable(ty_expected, ty);
+        if (!check) {
+            setError(new Error("typeStmts: SendMsgs message did not pass the check"));
+            return;
+        }
+        const tenv_ = _.cloneDeep(tenv);
+        return typeStmts(sts, tenv_, STC);
+    }
+
+    if (s instanceof SS.CreateEvnt) {
+        const ty = tenv[s.param];
+        if (!ty) {
+            setError(new Error("typeStmts: Even variable is not bound."));
+            return;
+        }
+        const check = TCU.typeAssignable(new ST.EventTyp, ty);
+        if (!check) {
+            setError(new Error("typeStmts: CreateEvnt is not of type event."));
+            return;
+        }
+        const tenv_ = _.cloneDeep(tenv);
+        return typeStmts(sts, tenv_, STC);
+    }
+
+    if (s instanceof SS.CallProc) {
+        const procArgs = tenv[s.p];
+        if (!procArgs) {
+            setError(new Error("typeStmts: Procedure is not bound."));
+            return;
+        }
+        const actualsTy = s.actuals.map(a => tenv[a]);
+        if (undefined in actualsTy) {
+            setError(new Error("typeStmts: Some CallProc arg is not bound."));
+            return;
+        }
+        const check = procArgs.reduce((is_true, argTy, index) => {
+            const check = TCU.typeAssignable(argTy, actualsTy[index]);
+            return is_true && check;
+        }, true);
+        if (!check) {
+            setError(new Error("typeStmts: Some actual is not assignable to proc arg."));
+            return;
+        }
+        const tenv_ = _.cloneDeep(tenv);
+        return typeStmts(sts, tenv_, STC);
+    }
+
+    if (s instanceof SS.Throw) {
+        if (!s.eopt) {
+            return;
+        } else {
+            const ty = tenv[s.eopt];
+            if (!ty) {
+                setError(new Error("typeStmts: Throw variable is not bound."));
+                return;
+            }
+            const check = TCU.typeAssignable(new ST.ExceptionTyp, ty);
+            if (!check) {
+                setError(new Error("typeStmts: Throw is not of type event."));
+                return;
+            }
+            const tenv_ = _.cloneDeep(tenv);
+            return typeStmts(sts, tenv_, STC);
+        }
+    }
     
-
-    //TODO: ReadFromBC, SendMsgs, CreateEvnt, CallProc, Throw
+    if (s instanceof SS.Iterate) {
+        const tyl = tenv[s.l];
+        if (!tyl) {
+            setError(new Error("typeStmts: Iterate l is not bound"));
+            return;
+        }
+        const proc = tenv[s.p];
+        if (!proc) {
+            setError(new Error("typeStmts: Proc is not found"));
+            return;
+        }
+        const check = TCU.typeAssignable(new ST.ADT("List", proc), tyl);
+        if (!check) {
+            setError(new Error("typeStmts: Iterate didn't pass check"));
+            return;
+        }
+        const tenv_ = _.cloneDeep(tenv);
+        return typeStmts(sts, tenv_, STC);
+    }
+    setError(new Error("typeStmts: Couldn't match a statement"));
+    return;
 }
 
 
@@ -502,6 +633,7 @@ export default class ScillaTypeChecker{
         if (e instanceof SS.Var) {
             const ty = tenv[e.s];
             if (ty === undefined) {
+                console.log(tenv);
                 setError(new Error("typeExpr: Variable " + e.s + " not found in Type Environment."));
                 return;;
             }
@@ -600,7 +732,7 @@ export default class ScillaTypeChecker{
             const resTypeWF = TCU.isWellFormedType(resType, tenv, this.ADTDict.ADTDict);
             if (!resTypeWF) { 
                 setError(new Error("typeExpr: Builtin result type is not well formed."));
-                return;; 
+                return;
             }
 
             return this.makeRes(e, resType);

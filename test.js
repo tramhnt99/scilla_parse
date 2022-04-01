@@ -422,7 +422,7 @@ if (runTCexp) {
  * Typechecking cmods
  * 
  */
-const runTCcmod = false;
+const runTCcmod = true;
 if (runTCcmod) {
   for (let i = 0; i < contracts.length; i++) {
     resetErrorSettings();
@@ -438,7 +438,7 @@ if (runTCcmod) {
     TC.typeCMod(cmod, {}, STC);
   }
 }
-const input = fs.readFileSync('contracts/'.concat("crowdfunding.scilla")).toString();
+const input = fs.readFileSync('contracts/'.concat("remote_state_reads_2.scilla")).toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);

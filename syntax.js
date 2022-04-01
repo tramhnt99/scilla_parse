@@ -227,7 +227,7 @@ export class RemoteLoad extends ScillaStmt {
      * @param {String} adr
      * @param {String} r
      */
-    constructor(x, r, addr) {
+    constructor(x, addr, r) {
         super();
         this.x = x;
         this.r = r;
@@ -308,11 +308,27 @@ export class RemoteMapGet extends ScillaStmt {
         this.x = x;
         this.adr = adr; 
         this.m = m;
-        this.list = list;
+        this.klist = list;
         this.fetchval = fetchval;
     }
 }
 ScillaStmt.RemoteMapGet = RemoteMapGet;
+
+export class BCInfoQuery {}
+
+export class CurBlockNum extends BCInfoQuery {}
+
+export class ChainID extends BCInfoQuery {}
+
+export class TimeStamp extends BCInfoQuery {
+    /**
+     * @param {String} x 
+     */
+    constructor(x) {
+        super();
+        this.x = x;
+    }
+}
 
 export class ReadFromBC extends ScillaStmt {
     /**
@@ -385,11 +401,11 @@ ScillaStmt.SendMsgs = SendMsgs;
 
 export class CreateEvnt extends ScillaStmt {
     /**
-     * @param {String} params
+     * @param {String} param
      */
-    constructor(params) {
+    constructor(param) {
         super();
-        this.params = params;
+        this.param = param;
     }
 }
 ScillaStmt.CreateEvnt = CreateEvnt;

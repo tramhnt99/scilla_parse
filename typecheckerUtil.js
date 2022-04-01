@@ -67,7 +67,6 @@ export function refereshADTTVars(cparams, adtParams, tenv) {
 //given an environment
 export function isWellFormedType(ty, tenv, ADTDict) {
     if (isError()) { return false; }
-
     function isWellFormedType_(t_, tb) {
         if (t_ === undefined) {
             setError(new Error("isWellFormedType_: type is undefined"));
@@ -113,9 +112,10 @@ export function isWellFormedType(ty, tenv, ADTDict) {
             return isWellFormedType_(t_.t, tb.push(t_.name));
         }
         if (t_ instanceof ST.ContrAddr) {
-            const res = t_.fs.reduce((is_true, t) => is_true && isWellFormedType_(t.typ, tb));
+            const res = t_.fs.reduce((is_true, t) => is_true && isWellFormedType_(t.typ, tb), true);
             return res;
         }
+        console.log(t_);
         setError(new Error("isWellFormedType_: Missed a type."));
         return false;
     }
@@ -192,6 +192,7 @@ export function typeAssignable(tyTo, tyFrom) {
                 return is_true && (typeAssignable(toF.typ, fromF.typ));
             }
             , true)
+            return res;
         }
     }
     if (tyTo instanceof ST.ByStrXTyp && tyFrom instanceof ST.AddressType) {
@@ -256,10 +257,6 @@ export function functionTypeApplies(fty, actualsty) {
 
 //Access the type of a field in an address type
 export function addressFieldType(fname, addr_ty) {
-    if (!(addr_ty instanceof ST.AddressType)) {
-        setError(new Error("addressFieldType: addr_ty is not of an Address Type."));
-        return;
-    }
     const preKnownType = fname === "_balance" 
                         ? new ST.Uint128()
                         : fname === "_codehash" 

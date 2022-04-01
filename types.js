@@ -60,7 +60,7 @@ export function resolveTMapKey(ctx) {
         return to_type(ctx.scid().getText());
     }
     if (ctx.address_typ() !== null) {
-        return new AddressType();
+        return resolveAddressTyp(ctx.kt);
     }
     console.log("resolveTMapKey: Couldn't resolve type of map's key");
 }
@@ -74,7 +74,7 @@ export function resolveTArg(ctx) {
         : ctx instanceof SP.TvarTargContext
         ? new TypeVar(ctx.TID().getText())
         : ctx instanceof SP.AddrTargContext
-        ? new AddressType()
+        ? resolveAddressTyp(ctx.t_to_map)
         : ctx instanceof SP.MapTargContext
         ? new MapType(resolveTMapKey(ctx.k), resolveTMapValue(ctx.v))
         : console.log("resolveTArg: Couldn't resolve TArg " + ctx.getText());
@@ -98,6 +98,7 @@ export function resolveAddressTyp(ctx) {
         });
         return new ContrAddr(fields);
     }
+    console.log("resolveAddressTyp: Couldn't match map key type.");
 }
 
 export function resolveTMapValueTArgs(ctx) {
@@ -150,7 +151,7 @@ export function resolveMapType(ctx) {
     const map_k_t = 
         ctx.k.kt_to_map !== null 
         ? to_type(ctx.k.kt_to_map.getText()) 
-        : resolveAddressTyp(ctx.k.kt.getText());
+        : resolveAddressTyp(ctx.k.kt);
     
     //Map Value can only be another prim (scid), map, 
     const map_v_t = resolveTMapValue(ctx.v);
