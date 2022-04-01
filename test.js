@@ -438,7 +438,7 @@ if (runTCcmod) {
     TC.typeCMod(cmod, {}, STC);
   }
 }
-const input = fs.readFileSync('contracts/'.concat("remote_state_reads_2.scilla")).toString();
+const input = fs.readFileSync('contracts/'.concat("address_list_traversal.scilla")).toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);
@@ -447,6 +447,7 @@ const tree = parser.cmodule();
 const cmod = tree.accept(new TranslateVisitor());
 const STC = new ScillaTypeChecker();
 TC.typeCMod(cmod, {}, STC);
+if (isError()) { console.log(getError());}
 
 // for (let i = 0; i < stdlib.length; i++) {
 //     const input = fs.readFileSync('stdlib/'.concat(stdlib[i]).concat('.scillib')).toString();

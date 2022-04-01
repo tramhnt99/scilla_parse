@@ -223,7 +223,7 @@ export function substTypeinType(tvar, tp, tm) {
     if (tm instanceof ContrAddr) {
         const fs = tm.fs.map(f => {
             const ST = new ScillaType();
-            return {id: f.id, typ: ST.substTypeinType(tvar, tp, f.typ)}
+            return {id: f.id, typ: this.substTypeinType(tvar, tp, f.typ)}
         });
         return new ContrAddr(fs);
     }

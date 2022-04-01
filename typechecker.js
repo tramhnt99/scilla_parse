@@ -19,6 +19,8 @@ const SL = new ScillaLiterals();
  */
 //Returns updated tenv and ADTDict in STC
 export function typeLentry(lentry, tenv, STC) {
+    // console.log("Lentry: " + lentry.x);
+    if (isError()) {return;}
     if (lentry instanceof SS.LibVar) {
         const tenv_ = _.cloneDeep(tenv);
         const funTy = STC.typeExpr(lentry.e, tenv_);
@@ -85,8 +87,9 @@ export function typeLmod(lmod, tenv, STC) {
     const lentries = lmod.lib.lentries;
     for (let i = 0; i < lentries.length; i++) {
         const lentry = lentries[i];
-        resetErrorSettings();
+        // resetErrorSettings();
         typeLentry(lentry, tenv, STC);
+        if (isError()) { return; }
     }
     lmodDone.push(lmod.lib.lname);
     return {tenv: tenv, STC: STC, lmodDone: lmodDone};
@@ -102,6 +105,7 @@ export function typeCMod(cmod, tenv, STC) {
         for (let i = 0; i < cmod.elibs.length; i++) {
             if (cmod.elibs[i][0] in lmodDone) { continue; }
             const res = typeLmod(cmod.elibs[i][2], tenv, STC);
+            if (isError()) { return; }
             tenv = res.tenv;
             STC = res.STC;
             lmodDone.concat(res.lmodDone);
@@ -114,6 +118,7 @@ export function typeCMod(cmod, tenv, STC) {
         for (let i = 0; i < lentries.length; i++) {
             const lentry = lentries[i];
             typeLentry(lentry, tenv, STC);
+            if (isError()) { return; }
         }
     }
 
@@ -123,9 +128,8 @@ export function typeCMod(cmod, tenv, STC) {
     }
 
     if (isError()) {
-        // console.log(getError());
-        if (getError().s.search("list") !== -1 || 
-            getError().s.search("builtin") !== -1 ) {
+        console.log(getError());
+        if (getError().s.search("builtin") !== -1 ) {
                 return; //do not print those
             }
         console.log(getError());
@@ -668,7 +672,9 @@ export default class ScillaTypeChecker{
             //Arguments Type - undefined arg types are checked in TCU.functionTypeApplies
             const actualsTy = e.args.map(arg => tenv[arg]);
             const resType = TCU.functionTypeApplies(fty, actualsTy);
-            if (isError()) { return; }
+            if (isError()) {
+                console.log(tenv["foldl_while"].t1);
+            }
             
             const resTypeWF = TCU.isWellFormedType(resType, tenv, this.ADTDict.ADTDict);
             if (!resTypeWF) {
@@ -840,13 +846,15 @@ export default class ScillaTypeChecker{
                 setError(new Error("typeExpr: TApp type arguments are not well formed."));
                 return;;
             }
-            const funTy = tenv[e.f];
+            const funTy = BI.BuiltInDict[e.f] 
+                        ? BI.BuiltInDict[e.f].funTyp
+                        : tenv[e.f];
             if (!funTy) {
                 setError(new Error("typeExpr: TApp's function type of function " + e.f + " is not bound"));
-                return;;
+                return;
             }
             function applyToTFun(tfun, targs) {
-                if (isError()) {return;};
+                if (isError()) {return;}
                 if (tfun instanceof ST.PolyFun) {
                     if (targs.length > 0) {
                         const tenv_ = _.cloneDeep(tenv);
@@ -860,9 +868,17 @@ export default class ScillaTypeChecker{
                     return tfun;
                 }
             }
-            const funTy_ = applyToTFun(funTy, e.targs);
+            const funTy_ = TCU.refreshPolyFun(funTy, tenv);
+            const funTy__ = applyToTFun(TCU.refreshPolyFun(funTy_, tenv), e.targs);
+            if (!funTy__) {
+                console.log(funTy);
+                console.log(e.targs);
+                console.log(funTy_);
+                setError(new Error("typeExpr: TApp's funTy is undefined"));
+                return;
+            }
             if (isError()) {return;};
-            return this.makeRes(e, funTy_);
+            return this.makeRes(e, funTy__);
         }
 
         if (e instanceof SS.Message) {

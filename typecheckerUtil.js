@@ -16,10 +16,14 @@ export function setTenv(tenv, x, v) {
     if (tenv[x]) {
         if (tenv[x].constructor === v.constructor //workaround
             || x.search("'") === -1 //Allow reassigning of variables - not type variables
+            || tenv[x].constructor === (new ST.TypeVar(x)).constructor //TypeVar is used as a place holder
             ) { //workaround
             tenv[x] = v;
             return tenv;
         } else {
+            console.log('tenv error:');
+            console.log(tenv[x]);
+            console.log(v);
             setError(new Error("setTenv: " + x + " already exists in tenv"));
         }
     } else {
@@ -59,6 +63,26 @@ export function refereshADTTVars(cparams, adtParams, tenv) {
         });
     const ADTParams_ = makeFreshTVars(adtParams, tenv).new;
     return {newcp: cparamsNoShadow, newap: ADTParams_};
+}
+
+
+//Refresh a polymorphic function type for type variables to be unique
+export function refreshPolyFun(tfun, tenv) {
+    if (tfun instanceof ST.PolyFun) {
+        const tvar = tfun.name;
+        if (tvar in tenv) {
+            const newTvar = makeFreshTVars([tvar], tenv).new[0]; //String[]
+            const newFun = ST.substTypeinType(tvar, new ST.TypeVar(newTvar), tfun.t);
+            const tenv_ = _.cloneDeep(tenv);
+            tenv_[newTvar] = new ST.TypeVar(newTvar); //Random place holder
+            const newNewFun = refreshPolyFun(newFun, tenv_);
+            return new ST.PolyFun(newTvar, newNewFun);
+        } else {
+            return new ST.PolyFun(tvar, refreshPolyFun(tfun.t, tenv));
+        }
+    } else {
+        return tfun;
+    }
 }
 
 
@@ -239,10 +263,14 @@ export function functionTypeApplies(fty, actualsty) {
             if (assignable) {
                 return functionTypeApplies(fty.t2, actualsty.slice(1, actualsty.length));
             } else {
+                // console.log();
+                // console.log();
                 console.log(fty.t1);
                 console.log(actualsty[0]);
-                console.log(fty);
-                console.log(actualsty);
+                // console.log();
+                // console.log();
+                // console.log(fty);
+                // console.log(actualsty);
                 return setError(new Error("functionTypeApplies: Argument type is not assignable to function parameter."));
             }
         }

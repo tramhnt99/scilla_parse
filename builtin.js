@@ -2,7 +2,7 @@
  * Type information on Builtin Functions
  */
 import * as ST from './types.js';
-import {Error} from './syntax.js';
+import {Error, Fun} from './syntax.js';
 import * as ER from './general.js';
 import { BystrX } from './literals.js';
 
@@ -276,6 +276,62 @@ export class BI_isqrt {
  * Unsigned integers specific builtins (skip)
 */
 
+/**
+ * Recursive Functions
+ */
+export class BI_list_foldl {
+    constructor() {
+        this.arity = 3;
+        this.types = [new ST.String()].concat(ST.allUints.concat(ST.allInts.concat(ST.allAddr.concat(ST.allBystr))))
+        this.funTyp = 
+        new ST.PolyFun("'A", 
+        new ST.PolyFun("'B",
+            new ST.FunType(
+                new ST.FunType(new ST.TypeVar("'B"), new ST.FunType(new ST.TypeVar("'A"), new ST.TypeVar("'B"))),
+                new ST.FunType(new ST.TypeVar("'B"), 
+                new ST.FunType(new ST.ADT("List", [new ST.TypeVar("'A")]), 
+                new ST.TypeVar("'B"))))));
+        //('B -> 'A -> 'B) -> 'B -> (List 'A) -> 'B
+    }
+}
+
+export class BI_list_foldr {
+    constructor() {
+        this.arity = 3;
+        this.types = [new ST.String()].concat(ST.allUints.concat(ST.allInts.concat(ST.allAddr.concat(ST.allBystr))))
+        this.funTyp = 
+        new ST.PolyFun("'A",
+        new ST.PolyFun("'B",
+            new ST.FunType(
+                new ST.FunType(new ST.TypeVar("'A"), new ST.FunType(new ST.TypeVar("'B"), new ST.TypeVar("'B"))),
+                new ST.FunType(new ST.TypeVar("'B"), 
+                new ST.FunType(new ST.ADT("List", [new ST.TypeVar("'A")]), 
+                new ST.TypeVar("'B"))))));
+        //('A -> 'B -> 'B) -> 'B -> (List 'A) -> 'B
+    }
+}
+
+export class BI_list_foldk {
+    constructor() {
+        this.arity = 3;
+        this.types = [new ST.String()].concat(ST.allUints.concat(ST.allInts.concat(ST.allAddr.concat(ST.allBystr))))
+        this.funTyp = 
+        new ST.PolyFun("'A", 
+        new ST.PolyFun("'B",
+            new ST.FunType(
+                //('B -> 'A -> ('B -> 'B) -> 'B)      
+                new ST.FunType(
+                    new ST.TypeVar("'B"), 
+                    new ST.FunType(new ST.TypeVar("'A"), 
+                    new ST.FunType(new ST.FunType(new ST.TypeVar("'B"), new ST.TypeVar("'B")), 
+                    new ST.TypeVar("'B")))), 
+                new ST.FunType(new ST.TypeVar("'B"), new ST.FunType(new ST.ADT("List", [new ST.TypeVar("'A")]), new ST.TypeVar("'B")))
+                
+            )));
+        //('B -> 'A -> ('B -> 'B) -> 'B) -> 'B -> (List 'A) -> 'B
+    }
+}
+
 
 export const BuiltInDict = {
     "eq": new BI_eq(),
@@ -301,7 +357,10 @@ export const BuiltInDict = {
     "rem": new BI_rem(),
     "pow": new BI_pow(),
     "isqrt": new BI_isqrt(),
-    "blt": new BI_blt()
+    "blt": new BI_blt(),
+    "list_foldl": new BI_list_foldl(),
+    "list_foldr": new BI_list_foldr(),
+    "list_foldk": new BI_list_foldk()
 }
 
 /**
