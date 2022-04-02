@@ -52,16 +52,6 @@ export default class Evaluator {
     console.log("[ERROR]" + funcname + ": " + msg);
   }
 
-  parseJSON(env) {
-    try {
-      const result = JSON.parse(env);
-      return result;
-    } catch (err) {
-      // 👇️ This runs
-      console.log("Error: ", err.message);
-    }
-  }
-
   //Returns match context
   matchClause(v, p) {
     if (p instanceof Pattern.WildCard) {
@@ -181,7 +171,7 @@ export default class Evaluator {
     }
   }
 
-  evalCid(ctx) {
+  evalCid(ctx, env) {
     return ctx;
     // return ctx instanceof SP.CidCidContext
     //   ? this.evalCID(ctx.id)
@@ -190,7 +180,7 @@ export default class Evaluator {
     //   : this.printError("evalCid", "Couldn't match cid type");
   }
 
-  evalSid(ctx) {
+  evalSid(ctx, env) {
     return ctx; // does not account for SidCid
 
     // console.log("Looking for SID " + ctx.getText());
@@ -203,23 +193,23 @@ export default class Evaluator {
     //   : this.printError("evalSid", "Couldn't match sid");
   }
 
-  evalScid(ctx) {
+  evalScid(ctx, env) {
     return ctx;
   }
 
-  evalCIDBystr(ctx) {
+  evalCIDBystr(ctx, env) {
     return ctx.BYSTR().getText()
       ? ctx.BYSTR().getText()
       : this.printError("evalCIDBystr", "Couldn't match CIDBystr");
   }
 
-  evalCID(ctx) {
+  evalCID(ctx, env) {
     return ctx.CID().getText()
       ? ctx.CID().getText()
       : this.printError("evalCID", "Couldn't match CID");
   }
 
-  evalID(ctx) {
+  evalID(ctx, env) {
     // console.log("Looking for ID " + ctx.getText());
     return ctx;
     // return ctx.ID().getText()
@@ -227,27 +217,26 @@ export default class Evaluator {
     //   : this.printError("evalID", "Couldn't match ID");
   }
 
-  evalTArg(ctx) {
+  evalTArg(ctx, env) {
     return to_type(ctx);
     // if (ctx instanceof TypTarg)
   }
 
-  evalWildcard(ctx) {
+  evalWildcard(ctx, env) {
     return ctx.getText();
   }
 
-  evalBuiltinArgs(ctx) {
+  evalBuiltinArgs(ctx, env) {
     return ctx.map((arg) => this.evalSid(arg));
   }
 
-  evalExpPmClause(ctx) {
-    const p = this.evalPattern(ctx.p);
-    const e = this.evalExp(ctx.e);
+  evalExpPmClause(ctx, env) {
+    const p = this.evalPattern(ctx.p, env);
+    const e = this.evalExp(ctx.e, env);
     return new ExpPmClause(p, e);
   }
 
-  evalPattern(value, ctx) {
-    let env = _.cloneDeep(this.getEnv());
+  evalPattern(value, ctx, env) {
     if (ctx instanceof Pattern.WildCard) {
       //continue, Wildcard
     } else if (ctx instanceof Pattern.Binder) {
@@ -263,7 +252,7 @@ export default class Evaluator {
           }
           _.merge(
             env,
-            this.evalPattern(this.lookup(value[a], this.getEnv()), ctx.ps[a])
+            this.evalPattern(this.lookup(value[a], env), ctx.ps[a], env)
           );
         }
       }
@@ -271,50 +260,59 @@ export default class Evaluator {
     return env;
   }
 
-  evalLet(ctx) {
+  evalLet(ctx, env) {
     if (!ctx) {
       return;
     }
     const x = ctx.x;
-    const value = this.evalSimpleExp(ctx.lhs);
-    this.setEnv(x, value);
-    return this.evalExp(ctx.rhs);
+    const value = this.evalSimpleExp(ctx.lhs, env);
+    env[x] = value;
+    // this.setEnv(x, value);
+    return this.evalExp(ctx.rhs, env);
   }
 
   //Returns a closure
-  evalFun(ctx) {
+  evalFun(ctx, env) {
     if (ctx === undefined) {
       this.printError("evalFun", "Ctx is undefined.");
     }
     const param = ctx.id;
-    const clo = function (x, env) {
-      const newEvaluator = new Evaluator(env); // evaluate in new environment
-      newEvaluator.setEnv(param, x); // set param binding
-      return newEvaluator.evalExp(ctx.e);
+    const clo = (x, env) => {
+      env[param] = x;
+      return this.evalExp(ctx.e, env);
     };
-    return this.wrap(clo, _.cloneDeep(this.getEnv()));
+    // const clo = function (x, env) {
+    //   // const newEvaluator = new Evaluator(env); // evaluate in new environment
+    //   // newEvaluator.setEnv(param, x); // set param binding
+    //   // return newEvaluator.evalExp(ctx.e);
+    //   console.log("param", param);
+    //   env[param] = x;
+    //   console.log(this.value);
+    //   return E_.evalExp(ctx.e, env);
+    // };
+    return new SL.Clo(this.wrap(clo, _.cloneDeep(env)));
   }
 
   //Note, this is written in a slightly convoluted way because the keyword
   //`this` doesn't operate properly inside `reduce` since reduce is also
   //a closure.
-  evalApp(ctx) {
-    const func_id = this.evalSid(ctx.f_var); // gets the identifier
-    const func = this.lookup(func_id, this.getEnv());
+  evalApp(ctx, env) {
+    const func_id = this.evalSid(ctx.f_var, env); // gets the identifier
+    const func = this.lookup(func_id, env);
     const argsLit = ctx.args.map((arg) =>
-      this.lookup(this.evalSid(arg), this.getEnv())
+      this.lookup(this.evalSid(arg, env), env)
     );
 
     const fullyAppliedRes = argsLit.reduce(function (res, arg) {
       //Apply closure to argument
-      const partialRes = res.value(arg, res.env);
+      const partialRes = res.clo.value(arg, res.clo.env);
       //   env = partialRes.env;
       return partialRes;
     }, func);
     return fullyAppliedRes;
   }
 
-  evalMessage(ctx) {
+  evalMessage(ctx, env) {
     if (ctx === undefined) {
       this.printError("evalMessage", "Ctx is undefined.");
     }
@@ -322,7 +320,7 @@ export default class Evaluator {
       if (pair?.i !== undefined && pair?.l !== undefined) {
         return new SL.MsgEntry(pair.i, SL_.literalType(pair.l), pair.l);
       } else if (pair?.i !== undefined && pair?.v !== undefined) {
-        pair.v = this.lookup(pair.v, this.getEnv());
+        pair.v = this.lookup(pair.v, env);
         return new SL.MsgEntry(pair.i, SL_.literalType(pair.v), pair.v);
       } else {
         return `Error: evalMessage ${pair}`;
@@ -332,7 +330,7 @@ export default class Evaluator {
     return new SL.Msg(messageKVPairs);
   }
 
-  evalBuiltin(ctx) {
+  evalBuiltin(ctx, env) {
     const id = this.evalID(ctx.b);
     const builtinFunc = BI.parseBuiltinIdentifier(id);
     if (builtinFunc === undefined) {
@@ -347,7 +345,7 @@ export default class Evaluator {
 
     // console.log(this.getEnv(), ctx.xs);
     const builtinArgs = this.evalBuiltinArgs(ctx.xs).map((arg) => {
-      return this.lookup(arg, this.getEnv());
+      return this.lookup(arg, env);
     });
     // console.log("typeArgs", typeArgs);
     // console.log("ctx.xs", ctx.xs);
@@ -361,10 +359,10 @@ export default class Evaluator {
     return builtinFuncResult;
   }
 
-  evalDataConstructor(ctx) {
-    const c = this.evalScid(ctx.c);
+  evalDataConstructor(ctx, env) {
+    const c = this.evalScid(ctx.c, env);
     const targs = ctx.ts;
-    const args = ctx.args.map((arg) => this.evalSid(arg));
+    const args = ctx.args.map((arg) => this.evalSid(arg, env));
     return new SL.ADTValue(c, targs, args);
   }
 
@@ -382,8 +380,8 @@ export default class Evaluator {
   //   }
   // }
 
-  evalMatchExp(ctx) {
-    const value = this.lookup(ctx.x, this.getEnv());
+  evalMatchExp(ctx, env) {
+    const value = this.lookup(ctx.x, env);
     // Scilla requires exhaustive match statements, we do a check for this
     // current assumption is that if expecting an ADT constructor
     // only ADT constructors are used as patterns
@@ -429,13 +427,14 @@ export default class Evaluator {
       else {
         // evalPattern returns an env for evaluating the expression
         // of the pattern
-        const env = this.evalPattern(value, clause.pat);
-        return new Evaluator(env).evalExp(clause.exp);
+        const nextEnv = this.evalPattern(value, clause.pat, env);
+        return this.evalExp(clause.exp, nextEnv);
+        // return new Evaluator(env).evalExp(clause.exp);
       }
     }
   }
 
-  evalTFun(ctx) {
+  evalTFun(ctx, env) {
     console.log(ctx);
     if (ctx === undefined) {
       this.printError("evalTFun", "Ctx is undefined.");
@@ -457,7 +456,7 @@ export default class Evaluator {
     // return new TFun(tvar, this.evalSimpleExp(ctx.e.f));
   }
 
-  evalTApp(ctx) {
+  evalTApp(ctx, env) {
     // console.log("At Tapp for " + ctx.getText());
     const tfunc_id = this.evalSid(ctx.f);
     const tfunc = this.lookup(tfunc_id, this.getEnv());
@@ -482,7 +481,7 @@ export default class Evaluator {
   //     : this.printError("evalAtomic", "Couldn't match atomic expression.");
   // }
 
-  evalLiteral(ctx) {
+  evalLiteral(ctx, env) {
     // console.log("oh literal! ", ctx);
     return ctx;
     // const val =
@@ -508,48 +507,49 @@ export default class Evaluator {
     // return val;
   }
 
-  evalVar(ctx) {
-    return this.lookup(this.evalSid(ctx.s), this.globalEnv);
+  evalVar(ctx, env) {
+    return this.lookup(this.evalSid(ctx.s), env);
   }
 
-  evalSimpleExp(ctx) {
+  evalSimpleExp(ctx, env) {
     if (!ctx) {
       return;
     }
 
     return ctx instanceof SE.Let
-      ? this.evalLet(ctx)
+      ? this.evalLet(ctx, env)
       : ctx instanceof SL.ScillaLiterals
-      ? this.evalLiteral(ctx)
+      ? this.evalLiteral(ctx, env)
       : ctx instanceof SE.Var
-      ? this.evalVar(ctx)
+      ? this.evalVar(ctx, env)
       : ctx instanceof SE.Fun
-      ? this.evalFun(ctx)
+      ? this.evalFun(ctx, env)
       : ctx instanceof SE.App
-      ? this.evalApp(ctx)
+      ? this.evalApp(ctx, env)
       : ctx instanceof SE.Message
-      ? this.evalMessage(ctx)
+      ? this.evalMessage(ctx, env)
       : ctx instanceof SE.Builtin
-      ? this.evalBuiltin(ctx) //All builtins will be saved as closures
+      ? this.evalBuiltin(ctx, env) //All builtins will be saved as closures
       : ctx instanceof SE.DataConstructor
-      ? this.evalDataConstructor(ctx)
+      ? this.evalDataConstructor(ctx, env)
       : ctx instanceof SE.Match
-      ? this.evalMatchExp(ctx)
+      ? this.evalMatchExp(ctx, env)
       : ctx instanceof SE.TFun
-      ? this.evalTFun(ctx)
+      ? this.evalTFun(ctx, env)
       : ctx instanceof SE.TApp
-      ? this.evalTApp(ctx)
+      ? this.evalTApp(ctx, env)
       : undefined;
   }
 
-  evalExp(ctx) {
-    return this.evalSimpleExp(ctx);
+  evalExp(ctx, env) {
+    return this.evalSimpleExp(ctx, env);
   }
 
   evalChildren(ctx) {
     if (!ctx) {
       return;
     }
-    return ctx instanceof SE ? this.evalSimpleExp(ctx) : undefined;
+    const env = this.getEnv();
+    return ctx instanceof SE ? this.evalSimpleExp(ctx, env) : undefined;
   }
 }

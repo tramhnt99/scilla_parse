@@ -272,6 +272,7 @@ export class Clo extends ScillaLiterals {
    * @param {JS Closures} clo
    */
   constructor(clo) {
+    super();
     this.clo = clo;
   }
 }
