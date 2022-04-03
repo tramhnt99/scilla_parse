@@ -343,7 +343,6 @@ export default class Evaluator {
           )
         : undefined;
 
-    // console.log(this.getEnv(), ctx.xs);
     const builtinArgs = this.evalBuiltinArgs(ctx.xs).map((arg) => {
       return this.lookup(arg, env);
     });
@@ -396,26 +395,50 @@ export default class Evaluator {
             return `Error: Wildcard cannot be used before last pattern in a match statement`;
           }
         }
-      }
-      // check for exhaustive match
-
-      // check for arity match
-      const adtConstructors = adt.tconstr;
-      if (clausePatterns.length !== adtConstructors.length) {
-        return `Error: Pattern matching arity mismatch for ADT`;
-      }
-
-      // check that all ADT constructors are provided as patterns to match
-      for (let j = 0; j < adtConstructors.length; j++) {
-        let foundFlag = false;
-        for (let k = 0; k < clausePatterns.length; k++) {
-          if (adtConstructors[j].cname === clausePatterns[k].c) {
-            foundFlag = true;
+        // check if last pattern is Wildcard, if so, we need to ensure that
+        // the prior sequence of patterns come from the ADT constructor
+        // and has at least 1 more pattern to match (otherwise Wildcard is
+        // useless)
+        if (
+          clausePatterns[clausePatterns.length - 1] instanceof Pattern.WildCard
+        ) {
+          const typesArr = adt.tconstr.map((constr) => constr.cname);
+          for (let i = 0; i < clausePatterns.length - 1; i++) {
+            if (typesArr.includes(clausePatterns[i].c)) {
+              _.remove(typesArr, function (a) {
+                return a === clausePatterns[i].c;
+              });
+              // return `Error: Wildcard cannot be used before last pattern in a match statement`;
+            } else {
+              return `Error: Unreachable pattern or incorrect ADT constructor detected.`;
+            }
           }
-        }
-        if (!foundFlag) {
-          console.log(adtConstructors);
-          return `Error: Invalid constructor provided in pattern match`;
+          if (typesArr.length === 0) {
+            return `Error: Unreachable Wildcard pattern detected.`;
+          }
+        } else {
+          // in this case, no Wildcard used, it must be that
+          // the number of the clause patterns matches the
+          // number of ADT constructors
+          // check for arity match
+          const adtConstructors = adt.tconstr;
+          if (clausePatterns.length !== adtConstructors.length) {
+            return `Error: Pattern matching arity mismatch for ADT`;
+          }
+
+          // check that all ADT constructors are provided as patterns to match
+          for (let j = 0; j < adtConstructors.length; j++) {
+            let foundFlag = false;
+            for (let k = 0; k < clausePatterns.length; k++) {
+              if (adtConstructors[j].cname === clausePatterns[k].c) {
+                foundFlag = true;
+              }
+            }
+            if (!foundFlag) {
+              console.log(adtConstructors);
+              return `Error: Invalid constructor provided in pattern match`;
+            }
+          }
         }
       }
     }
