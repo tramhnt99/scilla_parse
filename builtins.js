@@ -16,7 +16,10 @@ import {
   BystrX,
   Map,
   BNumLit,
+  ScillaLiterals,
 } from "./literals.js";
+
+const SL_ = new ScillaLiterals();
 
 function reverseString(str) {
   const stringArray = str.split("");
@@ -28,6 +31,22 @@ function reverseString(str) {
 export default class Builtins {
   printError(funcname, msg) {
     console.log("[ERROR]" + funcname + ": " + msg);
+  }
+
+  getJSValueFromLiteral(lit) {
+    return lit instanceof StringLit
+      ? lit.s
+      : lit instanceof IntLit
+      ? lit.i
+      : lit instanceof UintLit
+      ? lit.i
+      : lit instanceof Bystr
+      ? lit.s
+      : lit instanceof BystrX
+      ? lit.s
+      : lit instanceof BNumLit
+      ? lit.i
+      : undefined;
   }
 
   parseBuiltinIdentifier(id) {
@@ -85,6 +104,22 @@ export default class Builtins {
       ? this.to_ascii
       : id === "put"
       ? this.put
+      : id === "get"
+      ? this.get
+      : id === "contains"
+      ? this.contains
+      : id === "remove"
+      ? this.remove
+      : id === "to_list"
+      ? this.to_list
+      : id === "size"
+      ? this.size
+      : id === "blt"
+      ? this.blt
+      : id === "badd"
+      ? this.badd
+      : id === "bsub"
+      ? this.bsub
       : undefined;
   }
 
@@ -481,96 +516,56 @@ export default class Builtins {
     console.log(`to_ascii TODO`);
   };
 
-  // NOT USED SINCE DIFFERENT TYPES HAVE DIFFERENT ACCESSORS
-  // put = (m) => (k) => (v) => {
-  //   console.log("hi");
-  //   console.log("m", m);
-  //   console.log("k", k);
-  //   console.log("v", v);
-  //   if (m instanceof Map) {
-  //     if (
-  //       k instanceof StringLit ||
-  //       k instanceof IntLit ||
-  //       k instanceof UintLit ||
-  //       k instanceof Bystr ||
-  //       k instanceof BystrX ||
-  //       k instanceof BNumLit
-  //     ) {
-  //       if (v) {
-  //         // todo
-  //         console.log(m);
-  //         const res = _.cloneDeep(m);
-  //         res.update(k, v);
-  //         return res;
-  //       } else {
-  //       }
-  //     } else {
-  //     }
-  //   } else {
-  //     `Error: put m ${m} needs to be of type Map`;
-  //   }
-  // };
-
   put = (m) => (k) => (v) => {
     if (m instanceof Map) {
-      if (k instanceof StringLit) {
-        const res = _.cloneDeep(m);
-        res.update(k.s, v);
-        return res;
-      } else {
-      }
-      if (k instanceof IntLit) {
-        const res = _.cloneDeep(m);
-        res.update(k.i, v);
-        return res;
-      } else {
-      }
-      if (k instanceof UintLit) {
-        const res = _.cloneDeep(m);
-        res.update(k.i, v);
-        return res;
-      } else {
-      }
-      if (k instanceof Bystr) {
-        const res = _.cloneDeep(m);
-        res.update(k.s, v);
-        return res;
-      } else {
-      }
-      if (k instanceof BystrX) {
-        const res = _.cloneDeep(m);
-        res.update(k.s, v);
-        return res;
-      } else {
-      }
-      if (k instanceof BNumLit) {
-        const res = _.cloneDeep(m);
-        res.update(k.i, v);
-        return res;
-      } else {
-      }
-      {
-        if (v) {
-          // todo
-          console.log(m);
-        } else {
-        }
-      }
+      const mapKey = this.getJSValueFromLiteral(k);
+      const newMap = _.cloneDeep(m);
+      newMap.update(mapKey, v);
+      return newMap;
     } else {
       `Error: put m ${m} needs to be of type Map`;
     }
   };
 
   get = (m) => (k) => {
-    console.log("MAP get TODO");
+    if (m instanceof Map) {
+      const mapKey = this.getJSValueFromLiteral(k);
+      if (_.has(m.kv, mapKey)) {
+        return new ADTValue(
+          "Some",
+          SL_.literalType(m.kv[mapKey]),
+          m.kv[mapKey]
+        );
+      } else {
+        return new ADTValue("None", [], []);
+      }
+    } else {
+      return `Error: get m ${m} needs to be of type Map`;
+    }
   };
 
   contains = (m) => (k) => {
-    console.log("MAP contains TODO");
+    if (m instanceof Map) {
+      const mapKey = this.getJSValueFromLiteral(k);
+      return _.has(m.kv, mapKey)
+        ? new ADTValue("True", [], [])
+        : new ADTValue("False", [], []);
+    } else {
+      return `Error: contains m ${m} needs to be of type Map`;
+    }
   };
 
   remove = (m) => (k) => {
-    console.log("MAP remove TODO");
+    if (m instanceof Map) {
+      const mapKey = this.getJSValueFromLiteral(k);
+      const newMap = _.cloneDeep(m);
+      if (_.has(m.kv, mapKey)) {
+        delete newMap.kv[mapKey];
+      }
+      return newMap;
+    } else {
+      return `Error: remove m ${m} needs to be of type Map`;
+    }
   };
 
   to_list = (m) => {
@@ -578,7 +573,11 @@ export default class Builtins {
   };
 
   size = (m) => {
-    console.log("MAP size TODO");
+    if (m instanceof Map) {
+      return Object.keys(m).length;
+    } else {
+      return `Error: size m ${m} needs to be of type Map`;
+    }
   };
 
   blt = (b1) => (b2) => {

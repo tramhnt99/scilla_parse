@@ -84,7 +84,7 @@ export default class Evaluator {
     //TODO: Handles only Map and ADT literals
     //Update the context - global
     if (lit instanceof SL.Map) {
-      console.log("substTypeInLit Map TODO");
+      console.log("substTypeInLit Map TODO", lit);
     } else if (lit instanceof SL.ADTValue) {
       const cloneLit = new SL.ADTValue(lit.name, null, null);
       cloneLit.typl = lit.typl.map((typ) => ST.substTypeinType(typ));
@@ -100,16 +100,6 @@ export default class Evaluator {
   //in the rest of the code
   //Return updated Expr
   substTypeInExpr(tvar, tp, expr) {
-    console.log(
-      "in",
-      "substTypeInExpr",
-      `
-    tvar = ${tvar},
-    tp = ${tp},
-    expr = ${expr}
-    `
-    );
-    console.log("cons", expr.constructor.name);
     if (expr instanceof SE.Var) {
       //If Var, change nothing
       return expr;
@@ -139,8 +129,8 @@ export default class Evaluator {
       }
     }
 
-    if (expr instanceof SP.ConstructorContext) {
-      console.log("we in constructor", expr);
+    if (expr instanceof SE.DataConstructor) {
+      expr.ts = expr.ts.map((ty) => substTypeinType(tvar, tp, ty));
       return expr; //TODO: implement constructors
     }
 
@@ -216,7 +206,6 @@ export default class Evaluator {
   }
 
   evalTArg(ctx, env) {
-    console.log("targ", ctx, ctx instanceof Int);
     return ctx;
     // return to_type(ctx);
     // if (ctx instanceof TypTarg)
@@ -461,26 +450,12 @@ export default class Evaluator {
     if (ctx === undefined) {
       this.printError("evalTFun", "Ctx is undefined.");
     }
-    console.log("tfun", ctx);
     const tvar = ctx.i;
-    console.log(tvar, ctx.e);
-
     const clo = (tp, env) => {
-      // const newEvaluator = new Evaluator(env);
-      // const exp = newEvaluator.substTypeInExpr(tvar, tp, ctx.e);
-      // return newEvaluator.evalSimpleExp(exp);
       const exp = this.substTypeInExpr(tvar, tp, ctx.e);
       return this.evalSimpleExp(exp, env);
     };
     return new SL.Clo(this.wrap(clo, _.cloneDeep(env)));
-    // const tvar = ctx.TID().getText();
-    // const clo = function (tp) {
-    //   const newEvaluator = new Evaluator(env);
-    //   const exp = newEvaluator.substTypeInExpr(tvar, tp, ctx.e.f);
-    //   return newEvaluator.evalSimpleExp(exp, env);
-    // };
-    // return this.wrap(clo, env);
-    // return new TFun(tvar, this.evalSimpleExp(ctx.e.f));
   }
 
   evalTApp(ctx, env) {
@@ -495,7 +470,6 @@ export default class Evaluator {
 
       return partialRes;
     }, tfunc);
-    console.log("TAPP", fullyAppliedTRes);
 
     return fullyAppliedTRes;
     // return new TApp(tfunc, argsLit);

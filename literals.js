@@ -43,7 +43,7 @@ export class ScillaLiterals extends Literal {
     if (ctx instanceof SP.LitEmpContext) {
       return new Map(
         new ST.MapType(ST.resolveTMapKey(ctx.kt), ST.resolveTMapValue(ctx.vt)),
-        []
+        {}
       );
     }
     this.printError("generateLiteral", "Couldn't match literal.");
@@ -226,22 +226,22 @@ export class Map extends ScillaLiterals {
   }
 
   remove(k) {
-    // this.kv[k] = undefined;
-    this.kv = _.remove(this.kv, function (kv) {
-      return kv.hasOwnProperty(k);
-    });
+    this.kv[k] = undefined;
+    // this.kv = _.remove(this.kv, function (kv) {
+    //   return kv.hasOwnProperty(k);
+    // });
   }
 
   update(k, v) {
-    // this.kv[k] = v;
-    const isExist = _.findIndex(this.kv, function (kv) {
-      return kv.hasOwnProperty(k);
-    });
-    if (isExist !== -1) {
-      this.kv[isExist] = { [k]: v };
-    } else {
-      this.kv.push({ [k]: v });
-    }
+    this.kv[k] = v;
+    // const isExist = _.findIndex(this.kv, function (kv) {
+    //   return kv.hasOwnProperty(k);
+    // });
+    // if (isExist !== -1) {
+    //   this.kv[isExist] = { [k]: v };
+    // } else {
+    //   this.kv.push({ [k]: v });
+    // }
   }
 }
 
