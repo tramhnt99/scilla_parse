@@ -4,7 +4,7 @@ import antlr4 from "antlr4";
 import fs from "fs";
 import SP from "./scillaParser.js"; //short for ScillaParser
 // import { ScillaType as ST } from './types.js'; //ScillaTypes
-import ScillaType, { substTypeinType, to_type } from "./types.js";
+import ScillaType, { Int, substTypeinType, to_type } from "./types.js";
 import { get } from "http";
 import { ScillaExpr as SE, Pattern, ClauseExp, TFun } from "./syntax.js";
 import exp from "constants";
@@ -86,16 +86,14 @@ export default class Evaluator {
     if (lit instanceof SL.Map) {
       console.log("substTypeInLit Map TODO");
     } else if (lit instanceof SL.ADTValue) {
+      const cloneLit = new SL.ADTValue(lit.name, null, null);
+      cloneLit.typl = lit.typl.map((typ) => ST.substTypeinType(typ));
+      cloneLit.ll = lit.ll.map((l) => this.substTypeInLit(l));
+      return cloneLit;
     } else {
       return lit;
     }
   }
-
-  // substTypeInType(tvar, type, t) {
-  //   //TODO: substitite type in type
-  //   //Update the context t - returns unit.
-  //   return ST.substTypeInType;
-  // }
 
   //Since we will be returning updated context in this case,
   //we must only use constructor fields instead of methods like identifier()
@@ -127,7 +125,7 @@ export default class Evaluator {
 
     if (expr instanceof SE.Fun) {
       //Update type in fun type - Note: doesn't do anything yet
-      ST.substTypeinType(tvar, tp, expr.ty);
+      substTypeinType(tvar, tp, expr.ty);
       this.substTypeInExpr(tvar, tp, expr.e);
       return expr;
     }
@@ -142,7 +140,7 @@ export default class Evaluator {
     }
 
     if (expr instanceof SP.ConstructorContext) {
-      console.log(expr);
+      console.log("we in constructor", expr);
       return expr; //TODO: implement constructors
     }
 
@@ -158,7 +156,7 @@ export default class Evaluator {
 
     if (expr instanceof SE.Let) {
       if (expr.ty !== undefined) {
-        ST.substTypeInType(tvar, tp, expr.ty);
+        substTypeinType(tvar, tp, expr.ty);
       }
       this.substTypeInExpr(tvar, tp, expr.f); //lhs
       this.substTypeInExpr(tvar, tp, expr.e.f); //rhs
@@ -166,7 +164,7 @@ export default class Evaluator {
     }
 
     if (expr instanceof SE.TApp) {
-      ST.substTypeInType(tvar, tp, expr.f);
+      substTypeInType(tvar, tp, expr.f);
       return expr;
     }
   }
@@ -218,7 +216,9 @@ export default class Evaluator {
   }
 
   evalTArg(ctx, env) {
-    return to_type(ctx);
+    console.log("targ", ctx, ctx instanceof Int);
+    return ctx;
+    // return to_type(ctx);
     // if (ctx instanceof TypTarg)
   }
 
@@ -458,17 +458,21 @@ export default class Evaluator {
   }
 
   evalTFun(ctx, env) {
-    console.log(ctx);
     if (ctx === undefined) {
       this.printError("evalTFun", "Ctx is undefined.");
     }
+    console.log("tfun", ctx);
     const tvar = ctx.i;
-    const clo = function (tp, env) {
-      const newEvaluator = new Evaluator(env);
-      const exp = newEvaluator.substTypeInExpr(tvar, tp, ctx.e);
-      return newEvaluator.evalSimpleExp(exp);
+    console.log(tvar, ctx.e);
+
+    const clo = (tp, env) => {
+      // const newEvaluator = new Evaluator(env);
+      // const exp = newEvaluator.substTypeInExpr(tvar, tp, ctx.e);
+      // return newEvaluator.evalSimpleExp(exp);
+      const exp = this.substTypeInExpr(tvar, tp, ctx.e);
+      return this.evalSimpleExp(exp, env);
     };
-    return this.wrap(clo, _.cloneDeep(this.getEnv()));
+    return new SL.Clo(this.wrap(clo, _.cloneDeep(env)));
     // const tvar = ctx.TID().getText();
     // const clo = function (tp) {
     //   const newEvaluator = new Evaluator(env);
@@ -481,16 +485,17 @@ export default class Evaluator {
 
   evalTApp(ctx, env) {
     // console.log("At Tapp for " + ctx.getText());
-    const tfunc_id = this.evalSid(ctx.f);
-    const tfunc = this.lookup(tfunc_id, this.getEnv());
-    const argsLit = ctx.targs.map((targ) => this.evalTArg(targ));
+    const tfunc_id = this.evalSid(ctx.f, env);
+    const tfunc = this.lookup(tfunc_id, env);
+    const argsLit = ctx.targs.map((targ) => this.evalTArg(targ, env));
 
     const fullyAppliedTRes = argsLit.reduce(function (tres, arg) {
       //Apply closure to arg
-      const partialRes = tres.value(arg, tres.env);
+      const partialRes = tres.clo.value(arg, tres.clo.env);
 
       return partialRes;
     }, tfunc);
+    console.log("TAPP", fullyAppliedTRes);
 
     return fullyAppliedTRes;
     // return new TApp(tfunc, argsLit);

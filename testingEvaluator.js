@@ -260,7 +260,7 @@ import TranslateVisitor from "./translate.js";
 // console.log(contractAst);
 
 // Single test debugging expressions
-const input = fs.readFileSync("scilexp/pm1.scilexp").toString();
+const input = fs.readFileSync("scilexp/type_subst1.scilexp").toString();
 const chars = new antlr4.InputStream(input);
 const lexer = new ScillaLexer(chars);
 const tokens = new antlr4.CommonTokenStream(lexer);
