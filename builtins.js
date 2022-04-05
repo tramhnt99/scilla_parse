@@ -17,9 +17,8 @@ import {
   Map,
   BNumLit,
   ScillaLiterals,
+  literalType
 } from "./literals.js";
-
-const SL_ = new ScillaLiterals();
 
 function reverseString(str) {
   const stringArray = str.split("");
@@ -533,7 +532,7 @@ export default class Builtins {
       if (_.has(m.kv, mapKey)) {
         return new ADTValue(
           "Some",
-          SL_.literalType(m.kv[mapKey]),
+          literalType(m.kv[mapKey]),
           m.kv[mapKey]
         );
       } else {

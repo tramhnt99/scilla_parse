@@ -49,44 +49,44 @@ export class ScillaLiterals extends Literal {
     this.printError("generateLiteral", "Couldn't match literal.");
     return undefined;
   }
+}
 
-  literalType(l) {
-    return l instanceof Int32L
-      ? new ST.Int32()
-      : l instanceof Int64L
-      ? new ST.Int64()
-      : l instanceof Int128L
-      ? new ST.Int128()
-      : l instanceof Int256L
-      ? new ST.Int256()
-      : l instanceof Uint32L
-      ? new ST.Uint32()
-      : l instanceof Uint64L
-      ? new ST.Uint64()
-      : l instanceof Uint128L
-      ? new ST.Uint128()
-      : l instanceof Uint256L
-      ? new ST.Uint256()
-      : l instanceof BNumLit
-      ? new ST.BNum()
-      : l instanceof StringLit
-      ? new ST.String()
-      : l instanceof Bystr
-      ? new ST.ByStrTyp()
-      : l instanceof BystrX
-      ? new ST.ByStrXTyp(l.width)
-      : l instanceof Msg
-      ? new ST.Message()
-      : l instanceof Map
-      ? l.mtyp
-      : l instanceof ADTValue
-      ? new ST.ADT(l.name, l.typl)
-      : l instanceof CLo
-      ? new Error("Cannot type runtime closure")
-      : l instanceof TAbs
-      ? new Error("Cannot type runtime type function")
-      : this.printError("literalType", "Couldn't match literal to a type");
-  }
+export function literalType(l) {
+  return l instanceof Int32L
+    ? new ST.Int32()
+    : l instanceof Int64L
+    ? new ST.Int64()
+    : l instanceof Int128L
+    ? new ST.Int128()
+    : l instanceof Int256L
+    ? new ST.Int256()
+    : l instanceof Uint32L
+    ? new ST.Uint32()
+    : l instanceof Uint64L
+    ? new ST.Uint64()
+    : l instanceof Uint128L
+    ? new ST.Uint128()
+    : l instanceof Uint256L
+    ? new ST.Uint256()
+    : l instanceof BNumLit
+    ? new ST.BNum()
+    : l instanceof StringLit
+    ? new ST.String()
+    : l instanceof Bystr
+    ? new ST.ByStrTyp()
+    : l instanceof BystrX
+    ? new ST.ByStrXTyp(l.width)
+    : l instanceof Msg
+    ? new ST.Message()
+    : l instanceof Map
+    ? l.mtyp
+    : l instanceof ADTValue
+    ? new ST.ADT(l.name, l.typl)
+    : l instanceof CLo
+    ? new Error("Cannot type runtime closure")
+    : l instanceof TAbs
+    ? new Error("Cannot type runtime type function")
+    : this.printError("literalType", "Couldn't match literal to a type");
 }
 
 /**

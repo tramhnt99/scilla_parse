@@ -454,6 +454,25 @@ ScillaStmt.Throw = Throw;
  *
  ****************************************************** */
 
+//Messages sent to initiate transition
+export class ContrMessage {
+    /**
+     * 
+     * @param {String} tname //Name of transition
+     * @param {Uint128L} amount 
+     * @param {BystrX} sender 
+     * @param {(String * Literal)[]} params 
+     * @param {BytrX} origin 
+     */
+    constructor(tname, amount, sender, params, origin) {
+        this.tname = tname;
+        this.amount = amount;
+        this.sender = sender;
+        this.params = params;
+        this.origin = origin;
+    }
+}
+
 export class Field {
     /**
      * @param {String} name;
@@ -547,7 +566,7 @@ export class Library {
 export class Contract {
     /**
      * @param {String} cname
-     * @param {(Strign * SType)[]} cparams
+     * @param {(String * SType)[]} cparams
      * @param {ScillaExpr} cconstraint
      * @param {Fields[]} cfields
      * @param {Component[]} ccomps

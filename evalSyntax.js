@@ -20,7 +20,6 @@ const ST = new ScillaType();
 const SV = new SyntaxVisitor();
 const BI = new Builtins();
 const DT = new DataTypeDict();
-const SL_ = new SL.ScillaLiterals();
 
 export default class Evaluator {
   constructor(env) {
@@ -307,10 +306,10 @@ export default class Evaluator {
     }
     const messageKVPairs = ctx.es.map((pair) => {
       if (pair?.i !== undefined && pair?.l !== undefined) {
-        return new SL.MsgEntry(pair.i, SL_.literalType(pair.l), pair.l);
+        return new SL.MsgEntry(pair.i, SL.literalType(pair.l), pair.l);
       } else if (pair?.i !== undefined && pair?.v !== undefined) {
         pair.v = this.lookup(pair.v, env);
-        return new SL.MsgEntry(pair.i, SL_.literalType(pair.v), pair.v);
+        return new SL.MsgEntry(pair.i, SL.literalType(pair.v), pair.v);
       } else {
         return `Error: evalMessage ${pair}`;
       }

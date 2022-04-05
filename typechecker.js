@@ -2,7 +2,7 @@
  * Scilla Static Type Checker
  */
 import * as SS from './syntax.js';
-import { ScillaLiterals } from './literals.js';
+import { ScillaLiterals, literalType } from './literals.js';
 import { Error } from './syntax.js';
 import ScillaType, * as ST from './types.js';
 import _ from 'lodash';
@@ -11,15 +11,11 @@ import * as DT from './datatypes.js';
 import { isError, getError, setError, resetErrorSettings, parseLib } from './general.js';
 import * as TCU from './typecheckerUtil.js'; //Type Checker Utilities
 
-
-const SL = new ScillaLiterals();
-
 /*
  * Type Library Entry
  */
 //Returns updated tenv and ADTDict in STC
 export function typeLentry(lentry, tenv, STC) {
-    // console.log("Lentry: " + lentry.x);
     if (isError()) {return;}
     if (lentry instanceof SS.LibVar) {
         const tenv_ = _.cloneDeep(tenv);
@@ -629,7 +625,7 @@ export default class ScillaTypeChecker{
         }
 
         if (e instanceof SS.Literal) {
-            const res = SL.literalType(e);
+            const res = literalType(e);
             if (isError()) { return; }
             return this.makeRes(e, res);
         }

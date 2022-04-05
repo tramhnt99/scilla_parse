@@ -294,7 +294,7 @@ const expressionsTC = [
   "uint_conversions.scilexp",
 ];
 
-const contracts = [
+export const contracts = [
   "Polynetwork.scilla",
   "UintParam.scilla",
   "addfunds.scilla",
@@ -422,7 +422,7 @@ if (runTCexp) {
  * Typechecking cmods
  * 
  */
-const runTCcmod = true;
+const runTCcmod = false;
 if (runTCcmod) {
   for (let i = 0; i < contracts.length; i++) {
     resetErrorSettings();
