@@ -55,8 +55,10 @@ export function evalLentry(lentry, env, DTD) {
   if (isError()) {
     return;
   }
+  console.log("Lentry: " + lentry.x);
   if (lentry instanceof SS.LibVar) {
-    env[lentry.x] = E.evalSimpleExp(lentry.e, env);
+    const env_ = _.cloneDeep(env);
+    env[lentry.x] = E.evalSimpleExp(lentry.e, env_);
     // env[lentry.x] = new ExpPlaceHolder();
     return { env: env, DTD: DTD };
   }

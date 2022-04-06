@@ -147,13 +147,13 @@ export default class Evaluator {
       if (expr.ty !== undefined) {
         substTypeinType(tvar, tp, expr.ty);
       }
-      this.substTypeInExpr(tvar, tp, expr.f); //lhs
-      this.substTypeInExpr(tvar, tp, expr.e.f); //rhs
+      this.substTypeInExpr(tvar, tp, expr.lhs); //lhs
+      this.substTypeInExpr(tvar, tp, expr.rhs); //rhs
       return expr;
     }
 
     if (expr instanceof SE.TApp) {
-      substTypeInType(tvar, tp, expr.f);
+      substTypeinType(tvar, tp, expr.f);
       return expr;
     }
   }
@@ -265,9 +265,10 @@ export default class Evaluator {
       this.printError("evalFun", "Ctx is undefined.");
     }
     const param = ctx.id;
-    const clo = (x, env) => {
-      env[param] = x;
-      return this.evalExp(ctx.e, env);
+    const clo = (x) => {
+      const env_ = _.cloneDeep(env);
+      env_[param] = x;
+      return this.evalExp(ctx.e, env_);
     };
     // const clo = function (x, env) {
     //   // const newEvaluator = new Evaluator(env); // evaluate in new environment
@@ -278,13 +279,14 @@ export default class Evaluator {
     //   console.log(this.value);
     //   return E_.evalExp(ctx.e, env);
     // };
-    return new SL.Clo(this.wrap(clo, _.cloneDeep(env)));
+    return new SL.Clo(clo);
   }
 
   //Note, this is written in a slightly convoluted way because the keyword
   //`this` doesn't operate properly inside `reduce` since reduce is also
   //a closure.
   evalApp(ctx, env) {
+    console.log("eval app " + ctx.f_var);
     const func_id = this.evalSid(ctx.f_var, env); // gets the identifier
     const func = this.lookup(func_id, env);
     const argsLit = ctx.args.map((arg) =>
@@ -293,7 +295,7 @@ export default class Evaluator {
 
     const fullyAppliedRes = argsLit.reduce(function (res, arg) {
       //Apply closure to argument
-      const partialRes = res.clo.value(arg, res.clo.env);
+      const partialRes = res.clo(arg);
       //   env = partialRes.env;
       return partialRes;
     }, func);
@@ -450,11 +452,12 @@ export default class Evaluator {
       this.printError("evalTFun", "Ctx is undefined.");
     }
     const tvar = ctx.i;
-    const clo = (tp, env) => {
+    const clo = (tp) => {
+      const env_ = _.cloneDeep(env);
       const exp = this.substTypeInExpr(tvar, tp, ctx.e);
-      return this.evalSimpleExp(exp, env);
+      return this.evalSimpleExp(exp, env_);
     };
-    return new SL.Clo(this.wrap(clo, _.cloneDeep(env)));
+    return new SL.Clo(clo);
   }
 
   evalTApp(ctx, env) {
@@ -462,10 +465,10 @@ export default class Evaluator {
     const tfunc_id = this.evalSid(ctx.f, env);
     const tfunc = this.lookup(tfunc_id, env);
     const argsLit = ctx.targs.map((targ) => this.evalTArg(targ, env));
-
+    console.log(tfunc);
     const fullyAppliedTRes = argsLit.reduce(function (tres, arg) {
       //Apply closure to arg
-      const partialRes = tres.clo.value(arg, tres.clo.env);
+      const partialRes = tres.clo(arg);
 
       return partialRes;
     }, tfunc);

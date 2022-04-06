@@ -256,17 +256,19 @@ import TranslateVisitor from "./translate.js";
 const DTD_ = new DataTypeDict();
 const stdLibObj = parseAllStdLibs();
 const libEnv = {};
-const lmodDone = [];
+var lmodDone = [];
 for (const lmod in stdLibObj) {
   //stdlib.length
-  console.log("here");
+  console.log("Input: " + lmod);
   if (stdLibObj[lmod].lib.lname in lmodDone) {
     continue;
   } else {
-    evalLmod(stdLibObj[lmod], libEnv, DTD_);
+    const res = evalLmod(stdLibObj[lmod], libEnv, DTD_);
+    lmodDone = lmodDone.concat(res.lmodDone);
   }
   // libEnv = { ...libEnv, ...evalLmod(stdLibObj[stdlib[i]], libEnv, DTD_).env };
 }
+console.log(lmodDone);
 console.log(libEnv);
 // // Single test debugging contracts
 // const input = fs
@@ -282,7 +284,7 @@ console.log(libEnv);
 // console.log(contractAst);
 
 // Single test debugging expressions
-// const input = fs.readFileSync("scilexp/list_append.scilexp").toString();
+// const input = fs.readFileSync("scilexp/app.scilexp").toString();
 // const chars = new antlr4.InputStream(input);
 // const lexer = new ScillaLexer(chars);
 // const tokens = new antlr4.CommonTokenStream(lexer);
