@@ -332,6 +332,30 @@ export class BI_list_foldk {
     }
 }
 
+export class BI_nat_fold {
+    constructor() {
+        this.arity = 3;
+        this.types = [new ST.String()].concat(ST.allUints.concat(ST.allInts.concat(ST.allAddr.concat(ST.allBystr))));
+        this.funTyp = 
+        new ST.PolyFun("'T",
+        new ST.FunType(
+            new ST.FunType(new ST.TypeVar("'T"), new ST.FunType(new ST.ADT("Nat", []), new ST.TypeVar("'T"))),
+            new ST.FunType(new ST.TypeVar("'T"), 
+                new ST.FunType(new ST.ADT("Nat", []), new ST.TypeVar("'T")))
+        ));
+        //('T -> Nat -> 'T) -> 'T -> Nat -> 'T
+
+    }
+}
+
+export class BI_to_nat{
+    constructor() {
+        this.arity = 1;
+        this.types = [new ST.Uint32];
+        this.funTyp = new ST.FunType(new ST.Uint32, new ST.ADT("Nat", []));
+    }
+}
+
 
 export const BuiltInDict = {
     "eq": new BI_eq(),
@@ -360,7 +384,9 @@ export const BuiltInDict = {
     "blt": new BI_blt(),
     "list_foldl": new BI_list_foldl(),
     "list_foldr": new BI_list_foldr(),
-    "list_foldk": new BI_list_foldk()
+    "list_foldk": new BI_list_foldk(),
+    "nat_fold": new BI_nat_fold(),
+    "to_nat": new BI_to_nat()
 }
 
 /**
@@ -431,7 +457,7 @@ export function resolveBIFunType(fname, targs) {
     }
 
     //Other builtins
-    if (fname === "blt") {
+    if (BuiltInDict[fname]) {
         return BuiltInDict[fname].funTyp;
     }
 }

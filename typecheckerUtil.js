@@ -133,7 +133,7 @@ export function isWellFormedType(ty, tenv, ADTDict) {
             return false;
         }
         if (t_ instanceof ST.PolyFun) {
-            return isWellFormedType_(t_.t, tb.push(t_.name));
+            return isWellFormedType_(t_.t, tb.concat([t_.name]));
         }
         if (t_ instanceof ST.ContrAddr) {
             const res = t_.fs.reduce((is_true, t) => is_true && isWellFormedType_(t.typ, tb), true);

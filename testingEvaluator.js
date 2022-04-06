@@ -3,7 +3,7 @@ import antlr4 from "antlr4";
 import fs from "fs";
 import _ from "lodash";
 import { DataTypeDict } from "./datatypes.js";
-import { evalLmod } from "./evalImpure.js";
+import { evalLentry, evalLmod } from "./evalImpure.js";
 import Evaluator from "./evalSyntax.js";
 import { parseAllStdLibs } from "./general.js";
 import ScillaLexer from "./scillaLexer.js";
@@ -255,10 +255,16 @@ import TranslateVisitor from "./translate.js";
 // console.log(evalLmod(parseAllStdLibs().BoolUtils, {}, new DataTypeDict()));
 const DTD_ = new DataTypeDict();
 const stdLibObj = parseAllStdLibs();
-let libEnv = {};
-for (let i = 0; i < stdlib.length; i++) {
+const libEnv = {};
+const lmodDone = [];
+for (const lmod in stdLibObj) {
   //stdlib.length
-  _.merge(libEnv, evalLmod(stdLibObj[stdlib[i]], libEnv, DTD_).env);
+  console.log("here");
+  if (stdLibObj[lmod].lib.lname in lmodDone) {
+    continue;
+  } else {
+    evalLmod(stdLibObj[lmod], libEnv, DTD_);
+  }
   // libEnv = { ...libEnv, ...evalLmod(stdLibObj[stdlib[i]], libEnv, DTD_).env };
 }
 console.log(libEnv);

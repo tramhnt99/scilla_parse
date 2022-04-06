@@ -96,6 +96,9 @@ export function startingTEnv() {
             continue;
         }
         const res = TC.typeLmod(parsedLibs[lmod], tenv, STC);
+        if (isError()) { 
+            resetErrorSettings();
+            continue; }
         tenv = res.tenv;
         STC = res.STC;
         lmodDone.concat(res.lmodDone);

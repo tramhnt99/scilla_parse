@@ -416,6 +416,21 @@ if (runTCexp) {
       }
   }
 }
+const tenvSTC = startingTEnv();
+if (isError()) { console.log(getError())};
+const tenv = tenvSTC[0];
+const STC = tenvSTC[1];
+const input = fs.readFileSync('scilexp/church_nat2.scilexp').toString();
+const chars = new antlr4.InputStream(input);
+const lexer = new ScillaLexer(chars);
+const tokens = new antlr4.CommonTokenStream(lexer);
+const parser = new ScillaParser(tokens);
+const tree = parser.simple_exp();
+const exprAst = tree.accept(new SyntaxVisitor());
+const tenv_ = _.cloneDeep(tenv);
+const typed = STC.typeExpr(exprAst, tenv_);
+if (isError()) { console.log(getError())};
+// console.log(typed.ty.t.t1);
 
 /**
  * 
@@ -438,16 +453,16 @@ if (runTCcmod) {
     TC.typeCMod(cmod, {}, STC);
   }
 }
-const input = fs.readFileSync('contracts/'.concat("address_list_traversal.scilla")).toString();
-const chars = new antlr4.InputStream(input);
-const lexer = new ScillaLexer(chars);
-const tokens = new antlr4.CommonTokenStream(lexer);
-const parser = new ScillaParser(tokens);
-const tree = parser.cmodule();
-const cmod = tree.accept(new TranslateVisitor());
-const STC = new ScillaTypeChecker();
-TC.typeCMod(cmod, {}, STC);
-if (isError()) { console.log(getError());}
+// const input = fs.readFileSync('contracts/'.concat("address_list_traversal.scilla")).toString();
+// const chars = new antlr4.InputStream(input);
+// const lexer = new ScillaLexer(chars);
+// const tokens = new antlr4.CommonTokenStream(lexer);
+// const parser = new ScillaParser(tokens);
+// const tree = parser.cmodule();
+// const cmod = tree.accept(new TranslateVisitor());
+// const STC = new ScillaTypeChecker();
+// TC.typeCMod(cmod, {}, STC);
+// if (isError()) { console.log(getError());}
 
 // for (let i = 0; i < stdlib.length; i++) {
 //     const input = fs.readFileSync('stdlib/'.concat(stdlib[i]).concat('.scillib')).toString();

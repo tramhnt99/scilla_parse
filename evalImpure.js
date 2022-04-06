@@ -95,7 +95,6 @@ export function evalLmod(lmod, env, DTD) {
       lmodDone.push(elib[0]);
     });
   }
-
   //Now evaluate the lmod
   const lentries = lmod.lib.lentries;
   for (let i = 0; i < lentries.length; i++) {

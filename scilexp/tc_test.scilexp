@@ -1,0 +1,21 @@
+(* some helper functions one would hope to find in stdlib *)
+let nat_succ : Nat -> Nat =
+  fun (n : Nat) => Succ n
+in
+
+(* [nat_iter 'A f n] = f^n -- functional power operator *)
+let nat_iter : forall 'A. ('A -> 'A) -> Nat -> ('A -> 'A) =
+  tfun 'A =>
+  fun (f : 'A -> 'A) =>
+  fun (n : Nat) =>
+  fun (x0 : 'A) =>
+  let folder = @nat_fold 'A in
+  let step = fun (x : 'A) => fun (unused : Nat) => f x in
+  folder step x0 n
+in
+
+let iter_nat_nat = @nat_iter (Nat -> Nat) in
+iter_nat_nat
+
+(* tests *)
+
