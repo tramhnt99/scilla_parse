@@ -1,7 +1,11 @@
 // test.js
 import antlr4 from "antlr4";
 import fs from "fs";
+import _ from "lodash";
+import { DataTypeDict } from "./datatypes.js";
+import { evalLmod } from "./evalImpure.js";
 import Evaluator from "./evalSyntax.js";
+import { parseAllStdLibs } from "./general.js";
 import ScillaLexer from "./scillaLexer.js";
 import ScillaParser from "./scillaParser.js";
 
@@ -213,6 +217,18 @@ const contracts = [
   "zil-game.scilla",
 ];
 
+export const stdlib = [
+  "BoolUtils",
+  "Conversions",
+  "CryptoUtils",
+  "IntUtils",
+  "ListUtils",
+  "NatUtils",
+  "PairUtils",
+  "Polynetwork",
+  "ShogiLib",
+];
+
 import SyntaxVisitor from "./syntaxVisitor.js";
 // for (let i = 0; i < expressions.length; i++) {
 //     const input = fs.readFileSync('scilexp/'.concat(expressions[i])).toString();
@@ -235,17 +251,17 @@ import TranslateVisitor from "./translate.js";
 //     const tree = parser.cmodule();
 //     tree.accept(new TranslateVisitor());
 // }
-// for (let i = 0; i < stdlib.length; i++) {
-//     const input = fs.readFileSync('stdlib/'.concat(stdlib[i]).concat('.scillib')).toString();
-//     console.log("Input: " + 'stdlib/'.concat(stdlib[i]).concat('.scillib'));
-//     const chars = new antlr4.InputStream(input);
-//     const lexer = new ScillaLexer(chars);
-//     const tokens = new antlr4.CommonTokenStream(lexer);
-//     const parser = new ScillaParser(tokens);
-//     const tree = parser.lmodule();
-//     tree.accept(new TranslateVisitor());
-// }
 
+// console.log(evalLmod(parseAllStdLibs().BoolUtils, {}, new DataTypeDict()));
+const DTD_ = new DataTypeDict();
+const stdLibObj = parseAllStdLibs();
+let libEnv = {};
+for (let i = 0; i < stdlib.length; i++) {
+  //stdlib.length
+  _.merge(libEnv, evalLmod(stdLibObj[stdlib[i]], libEnv, DTD_).env);
+  // libEnv = { ...libEnv, ...evalLmod(stdLibObj[stdlib[i]], libEnv, DTD_).env };
+}
+console.log(libEnv);
 // // Single test debugging contracts
 // const input = fs
 //   .readFileSync("contracts/address_list_traversal.scilla")
@@ -260,16 +276,16 @@ import TranslateVisitor from "./translate.js";
 // console.log(contractAst);
 
 // Single test debugging expressions
-const input = fs.readFileSync("scilexp/pm_nesting.scilexp").toString();
-const chars = new antlr4.InputStream(input);
-const lexer = new ScillaLexer(chars);
-const tokens = new antlr4.CommonTokenStream(lexer);
-export const parser = new ScillaParser(tokens);
-const tree = parser.simple_exp();
-const exprAst = tree.accept(new SyntaxVisitor());
-const SEEvaluator = new Evaluator({});
-const value = SEEvaluator.evalChildren(exprAst);
-console.log(value);
+// const input = fs.readFileSync("scilexp/list_append.scilexp").toString();
+// const chars = new antlr4.InputStream(input);
+// const lexer = new ScillaLexer(chars);
+// const tokens = new antlr4.CommonTokenStream(lexer);
+// export const parser = new ScillaParser(tokens);
+// const tree = parser.simple_exp();
+// const exprAst = tree.accept(new SyntaxVisitor());
+// const SEEvaluator = new Evaluator(libEnv);
+// const value = SEEvaluator.evalChildren(exprAst);
+// console.log(value);
 // console.log(value, SEEvaluator.globalEnv);
 
 //Testing Type Checking
