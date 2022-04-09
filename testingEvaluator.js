@@ -1,11 +1,18 @@
 // test.js
 import antlr4 from "antlr4";
+import exp from "constants";
 import fs from "fs";
 import _ from "lodash";
 import { DataTypeDict } from "./datatypes.js";
 import { evalLentry, evalLmod } from "./evalImpure.js";
 import Evaluator from "./evalSyntax.js";
-import { parseAllStdLibs } from "./general.js";
+import {
+  getError,
+  isError,
+  parseAllStdLibs,
+  resetErrorSettings,
+  startingEEnv,
+} from "./general.js";
 import ScillaLexer from "./scillaLexer.js";
 import ScillaParser from "./scillaParser.js";
 
@@ -253,23 +260,24 @@ import TranslateVisitor from "./translate.js";
 // }
 
 // console.log(evalLmod(parseAllStdLibs().BoolUtils, {}, new DataTypeDict()));
-const DTD_ = new DataTypeDict();
-const stdLibObj = parseAllStdLibs();
-const libEnv = {};
-var lmodDone = [];
-for (const lmod in stdLibObj) {
-  //stdlib.length
-  console.log("Input: " + lmod);
-  if (stdLibObj[lmod].lib.lname in lmodDone) {
-    continue;
-  } else {
-    const res = evalLmod(stdLibObj[lmod], libEnv, DTD_);
-    lmodDone = lmodDone.concat(res.lmodDone);
-  }
-  // libEnv = { ...libEnv, ...evalLmod(stdLibObj[stdlib[i]], libEnv, DTD_).env };
-}
-console.log(lmodDone);
-console.log(libEnv);
+// const DTD_ = new DataTypeDict();
+// const stdLibObj = parseAllStdLibs();
+// const libEnv = {};
+// var lmodDone = [];
+// for (const lmod in stdLibObj) {
+//   //stdlib.length
+//   console.log("Input: " + lmod);
+//   if (stdLibObj[lmod].lib.lname in lmodDone) {
+//     continue;
+//   } else {
+//     const res = evalLmod(stdLibObj[lmod], libEnv, DTD_);
+//     lmodDone = lmodDone.concat(res.lmodDone);
+//   }
+//   // libEnv = { ...libEnv, ...evalLmod(stdLibObj[stdlib[i]], libEnv, DTD_).env };
+// }
+// console.log(lmodDone);
+// console.log(libEnv);
+
 // // Single test debugging contracts
 // const input = fs
 //   .readFileSync("contracts/address_list_traversal.scilla")
@@ -283,15 +291,37 @@ console.log(libEnv);
 // const contractAst = tree.accept(new TranslateVisitor());
 // console.log(contractAst);
 
+const runEVALexp = true;
+if (runEVALexp) {
+  const envScillaEvaluator = startingEEnv();
+  resetErrorSettings();
+  const env = envScillaEvaluator[0];
+  const SEEvaluator = envScillaEvaluator[1];
+  // Single test debugging expressions
+  const input = fs.readFileSync("scilexp/pm1.scilexp").toString();
+  const chars = new antlr4.InputStream(input);
+  const lexer = new ScillaLexer(chars);
+  const tokens = new antlr4.CommonTokenStream(lexer);
+  const parser = new ScillaParser(tokens);
+  const tree = parser.simple_exp();
+  const exprAst = tree.accept(new SyntaxVisitor());
+  const value = SEEvaluator.evalChildren(exprAst);
+  if (isError()) {
+    console.log(getError().s);
+  } else {
+    console.log(value);
+  }
+}
+
 // Single test debugging expressions
-// const input = fs.readFileSync("scilexp/app.scilexp").toString();
+// const input = fs.readFileSync("scilexp/pm3.scilexp").toString();
 // const chars = new antlr4.InputStream(input);
 // const lexer = new ScillaLexer(chars);
 // const tokens = new antlr4.CommonTokenStream(lexer);
 // export const parser = new ScillaParser(tokens);
 // const tree = parser.simple_exp();
 // const exprAst = tree.accept(new SyntaxVisitor());
-// const SEEvaluator = new Evaluator(libEnv);
+// const SEEvaluator = new Evaluator({});
 // const value = SEEvaluator.evalChildren(exprAst);
 // console.log(value);
 // console.log(value, SEEvaluator.globalEnv);

@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { setError } from "./general.js";
 import {
   ADTValue,
   IntLit,
@@ -17,8 +18,9 @@ import {
   Map,
   BNumLit,
   ScillaLiterals,
-  literalType
+  literalType,
 } from "./literals.js";
+import { Error } from "./syntax.js";
 
 function reverseString(str) {
   const stringArray = str.split("");
@@ -136,7 +138,8 @@ export default class Builtins {
         ? new ADTValue("True", [], [])
         : new ADTValue("False", [], []);
     } else {
-      return `Error: eq of ${x} and ${y}`;
+      setError(new Error(`Error: builtin eq of ${x} and ${y}`));
+      return;
     }
   };
 
@@ -162,7 +165,8 @@ export default class Builtins {
         return new Uint32L(x.i + y.i);
       }
     } else {
-      return `Error: add of ${x} and ${y}`;
+      setError(new Error(`Error: builtin add of ${x} and ${y}`));
+      return;
     }
   };
 
@@ -188,7 +192,8 @@ export default class Builtins {
         return new Uint32L(x.i - y.i);
       }
     } else {
-      return `Error: sub of ${x} and ${y}`;
+      setError(new Error(`Error: builtin sub of ${x} and ${y}`));
+      return;
     }
   };
 
@@ -214,14 +219,20 @@ export default class Builtins {
         return new Uint32L(x.i * y.i);
       }
     } else {
-      return `Error: mul of ${x} and ${y}`;
+      setError(new Error(`Error: builtin mul of ${x} and ${y}`));
+      return;
     }
   };
 
   div = (x) => (y) => {
     if (x instanceof IntLit && y instanceof IntLit) {
       if (y.i === 0) {
-        throw "Divisor cannot be zero";
+        setError(
+          new Error(
+            `Error: builtin div of ${x} and ${y}, divisor cannot be zero`
+          )
+        );
+        return;
       }
       if (x instanceof Int256L || y instanceof Int256L) {
         return new Int256L(Math.floor(x.i / y.i));
@@ -243,7 +254,8 @@ export default class Builtins {
         return new Uint32L(Math.floor(x.i / y.i));
       }
     } else {
-      return `Error: div of ${x} and ${y}`;
+      setError(new Error(`Error: builtin div of ${x} and ${y}`));
+      return;
     }
   };
 
@@ -269,7 +281,8 @@ export default class Builtins {
         return new Uint32L(x.i % y.i);
       }
     } else {
-      return `Error: rem of ${x} and ${y}`;
+      setError(new Error(`Error: builtin rem of ${x} and ${y}`));
+      return;
     }
   };
 
@@ -287,7 +300,8 @@ export default class Builtins {
         ? new ADTValue("True", [], [])
         : new ADTValue("False", [], []);
     } else {
-      return `Error: eq of ${x} and ${y}`;
+      setError(new Error(`Error: builtin lt of ${x} and ${y}`));
+      return;
     }
   };
 
@@ -313,7 +327,8 @@ export default class Builtins {
         return new Uint32L(Math.pow(x.i, y.i));
       }
     } else {
-      return `Error: pow of ${x} and ${y}`;
+      setError(new Error(`Error: builtin pow of ${x} and ${y}`));
+      return;
     }
   };
 
@@ -339,7 +354,8 @@ export default class Builtins {
         return new Uint32L(Math.floor(Math.sqrt(x.i)));
       }
     } else {
-      return `Error: isqrt of ${x} and ${y}`;
+      setError(new Error(`Error: builtin isqrt of ${x} and ${y}`));
+      return;
     }
   };
 
@@ -355,7 +371,7 @@ export default class Builtins {
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? new Int32L(Number(x.s))
-        : `Error: to_int32 of ${x}`;
+        : setError(new Error(`Error: builtin to_int32 of ${x}`));
     }
   };
 
@@ -367,7 +383,7 @@ export default class Builtins {
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? new Int64L(Number(x.s))
-        : `Error: to_int64 of ${x}`;
+        : setError(new Error(`Error: builtin to_int64 of ${x}`));
     }
   };
 
@@ -379,7 +395,7 @@ export default class Builtins {
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? new Int128L(Number(x.s))
-        : `Error: to_int128 of ${x}`;
+        : setError(new Error(`Error: builtin to_int128 of ${x}`));
     }
   };
 
@@ -391,63 +407,87 @@ export default class Builtins {
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? new Int256L(Number(x.s))
-        : `Error: to_int256 of ${x}`;
+        : setError(new Error(`Error: builtin to_int256 of ${x}`));
     }
   };
 
   to_uint32 = (x) => {
     if (x instanceof IntLit) {
-      return x.i >= 0 ? new Uint32L(x.i) : `Error: to_uint32 of ${x}`;
+      return x.i >= 0
+        ? new Uint32L(x.i)
+        : setError(new Error(`Error: builtin to_uint32 of ${x}`));
     } else if (x instanceof UintLit) {
       return new Uint32L(x.i);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? Number(x.s) >= 0
           ? new Uint32L(Number(x.s))
-          : `Error: to_uint32 of ${x}, unsigned int cannot be negative`
-        : `Error: to_uint32 of ${x}`;
+          : setError(
+              new Error(
+                `Error: builtin to_uint32 of ${x}, unsigned int cannot be negative`
+              )
+            )
+        : setError(new Error(`Error: builtin to_uint32 of ${x}`));
     }
   };
 
   to_uint64 = (x) => {
     if (x instanceof IntLit) {
-      return x.i >= 0 ? new Uint64L(x.i) : `Error: to_uint64 of ${x}`;
+      return x.i >= 0
+        ? new Uint64L(x.i)
+        : setError(new Error(`Error: builtin to_uint64 of ${x}`));
     } else if (x instanceof UintLit) {
       return new Uint64L(x.i);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? Number(x.s) >= 0
           ? new Uint64L(Number(x.s))
-          : `Error: to_uint64 of ${x}, unsigned int cannot be negative`
-        : `Error: to_uint64 of ${x}`;
+          : setError(
+              new Error(
+                `Error: builtin to_uint64 of ${x}, unsigned int cannot be negative`
+              )
+            )
+        : setError(new Error(`Error: builtin to_uint64 of ${x}`));
     }
   };
 
   to_uint128 = (x) => {
     if (x instanceof IntLit) {
-      return x.i >= 0 ? new Uint128L(x.i) : `Error: to_uint128 of ${x}`;
+      return x.i >= 0
+        ? new Uint128L(x.i)
+        : setError(new Error(`Error: builtin to_uint128 of ${x}`));
     } else if (x instanceof UintLit) {
       return new Uint128L(x.i);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? Number(x.s) >= 0
           ? new Uint128L(Number(x.s))
-          : `Error: to_uint128 of ${x}, unsigned int cannot be negative`
-        : `Error: to_uint128 of ${x}`;
+          : setError(
+              new Error(
+                `Error: builtin to_uint128 of ${x}, unsigned int cannot be negative`
+              )
+            )
+        : setError(new Error(`Error: builtin to_uint128 of ${x}`));
     }
   };
 
   to_uint256 = (x) => {
     if (x instanceof IntLit) {
-      return x.i >= 0 ? new Uint256L(x.i) : `Error: to_uint256 of ${x}`;
+      return x.i >= 0
+        ? new Uint256L(x.i)
+        : setError(new Error(`Error: builtin to_uint256 of ${x}`));
     } else if (x instanceof UintLit) {
       return new Uint256L(x.i);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? Number(x.s) >= 0
           ? new Uint256L(Number(x.s))
-          : `Error: to_uint256 of ${x}, unsigned int cannot be negative`
-        : `Error: to_uint256 of ${x}`;
+          : setError(
+              new Error(
+                `Error: builtin to_uint256 of ${x}, unsigned int cannot be negative`
+              )
+            )
+        : setError(new Error(`Error: builtin to_uint256 of ${x}`));
     }
   };
 
@@ -455,7 +495,8 @@ export default class Builtins {
     if (s1 instanceof StringLit && s2 instanceof StringLit) {
       return new StringLit(s1.s + s2.s);
     } else {
-      return `Error: concat of ${s1} and ${s2}`;
+      setError(new Error(`Error: builtin concat of ${s1} and ${s2}`));
+      return;
     }
   };
 
@@ -467,16 +508,30 @@ export default class Builtins {
             const substr = s.substring(idx, idx + len);
             return new StringLit(substr);
           } catch (error) {
-            return `Error: substring ${error}`;
+            setError(new Error(`Error: builtin substring ${error}`));
+            return;
           }
         } else {
-          return `Error: substring len ${len} needs to be of type Uint32`;
+          setError(
+            new Error(
+              `Error: builtin substring len ${len} needs to be of type Uint32`
+            )
+          );
+          return;
         }
       } else {
-        return `Error: substring idx ${idx} needs to be of type Uint32`;
+        setError(
+          new Error(
+            `Error: builtin substring idx ${idx} needs to be of type Uint32`
+          )
+        );
+        return;
       }
     } else {
-      return `Error: substring s ${s} needs to be of type String`;
+      setError(
+        new Error(`Error: builtin substring s ${s} needs to be of type String`)
+      );
+      return;
     }
   };
 
@@ -486,8 +541,11 @@ export default class Builtins {
     } else if (x instanceof Bystr || x instanceof BystrX) {
       return new StringLit(String(x.s));
     } else {
-      `Error: to_string X ${x} needs to be of type IntLit or UintLit or ByStr
-       or ByStrX`;
+      setError(
+        new Error(`Error: builtin to_string X ${x} needs to be of type IntLit or UintLit or ByStr
+       or ByStrX`)
+      );
+      return;
     }
   };
 
@@ -497,7 +555,12 @@ export default class Builtins {
     } else if (s instanceof Bystr) {
       return new Uint32L(s.width());
     } else {
-      `Error: strlen s ${s} needs to be of type String or ByStr`;
+      setError(
+        new Error(
+          `Error: builtin strlen s ${s} needs to be of type String or ByStr`
+        )
+      );
+      return;
     }
   };
 
@@ -507,7 +570,12 @@ export default class Builtins {
     } else if (s instanceof Bystr || s instanceof BystrX) {
       return new StringLit(reverseString(s.s));
     } else {
-      `Error: strrev s ${s} needs to be of type String or ByStr or ByStrX`;
+      setError(
+        new Error(
+          `Error: builtin strrev s ${s} needs to be of type String or ByStr or ByStrX`
+        )
+      );
+      return;
     }
   };
 
@@ -522,7 +590,8 @@ export default class Builtins {
       newMap.update(mapKey, v);
       return newMap;
     } else {
-      `Error: put m ${m} needs to be of type Map`;
+      setError(new Error(`Error: builtin put m ${m} needs to be of type Map`));
+      return;
     }
   };
 
@@ -530,16 +599,13 @@ export default class Builtins {
     if (m instanceof Map) {
       const mapKey = this.getJSValueFromLiteral(k);
       if (_.has(m.kv, mapKey)) {
-        return new ADTValue(
-          "Some",
-          literalType(m.kv[mapKey]),
-          m.kv[mapKey]
-        );
+        return new ADTValue("Some", literalType(m.kv[mapKey]), m.kv[mapKey]);
       } else {
         return new ADTValue("None", [], []);
       }
     } else {
-      return `Error: get m ${m} needs to be of type Map`;
+      setError(new Error(`Error: builtin get m ${m} needs to be of type Map`));
+      return;
     }
   };
 
@@ -550,7 +616,10 @@ export default class Builtins {
         ? new ADTValue("True", [], [])
         : new ADTValue("False", [], []);
     } else {
-      return `Error: contains m ${m} needs to be of type Map`;
+      setError(
+        new Error(`Error: builtin contains m ${m} needs to be of type Map`)
+      );
+      return;
     }
   };
 
@@ -563,7 +632,10 @@ export default class Builtins {
       }
       return newMap;
     } else {
-      return `Error: remove m ${m} needs to be of type Map`;
+      setError(
+        new Error(`Error: builtin remove m ${m} needs to be of type Map`)
+      );
+      return;
     }
   };
 
@@ -575,7 +647,8 @@ export default class Builtins {
     if (m instanceof Map) {
       return Object.keys(m).length;
     } else {
-      return `Error: size m ${m} needs to be of type Map`;
+      setError(new Error(`Error: builtin size m ${m} needs to be of type Map`));
+      return;
     }
   };
 

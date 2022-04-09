@@ -6,7 +6,7 @@ import SP from "./scillaParser.js"; //short for ScillaParser
 // import { ScillaType as ST } from './types.js'; //ScillaTypes
 import ScillaType, { Int, substTypeinType, to_type } from "./types.js";
 import { get } from "http";
-import { ScillaExpr as SE, Pattern, ClauseExp, TFun } from "./syntax.js";
+import { ScillaExpr as SE, Pattern, ClauseExp, TFun, Error } from "./syntax.js";
 import exp from "constants";
 import { inspect } from "util";
 import SyntaxVisitor from "./syntaxVisitor.js";
@@ -15,6 +15,7 @@ import Builtins from "./builtins.js";
 import { allowedNodeEnvironmentFlags } from "process";
 import _ from "lodash";
 import { DataTypeDict } from "./datatypes.js";
+import { isError, setError } from "./general.js";
 
 const ST = new ScillaType();
 const SV = new SyntaxVisitor();
@@ -30,7 +31,7 @@ export default class Evaluator {
     // console.log("lookup", env, x, env[x]);
     return _.has(env, x)
       ? env[x]
-      : this.printError("lookup", "didn't find " + x);
+      : setError(new Error(`Error: environment lookup, didn't find ${x}`));
   }
 
   setEnv(k, v) {
@@ -83,7 +84,18 @@ export default class Evaluator {
     //TODO: Handles only Map and ADT literals
     //Update the context - global
     if (lit instanceof SL.Map) {
-      console.log("substTypeInLit Map TODO", lit);
+      const kts = substTypeinType(tvar, type, lit.mtyp.t1);
+      const vts = substTypeinType(tvar, type, lit.mtyp.t2);
+      const newMap = new Map(
+        new ST.MapType(ST.resolveTMapKey(kts), ST.resolveTMapValue(lts))
+      );
+      const ltsKeys = Object.keys(lit.kv);
+      ltsKeys.forEach((lKey) => {
+        const keySubst = this.substTypeInLit(tvar, type, lKey);
+        const valSubst = this.substTypeInLit(tvar, type, lit.kv[lKey]);
+        newMap[keySubst] = valSubst;
+      });
+      return newMap;
     } else if (lit instanceof SL.ADTValue) {
       const cloneLit = new SL.ADTValue(lit.name, null, null);
       cloneLit.typl = lit.typl.map((typ) => ST.substTypeinType(typ));
@@ -197,17 +209,11 @@ export default class Evaluator {
   }
 
   evalID(ctx, env) {
-    // console.log("Looking for ID " + ctx.getText());
     return ctx;
-    // return ctx.ID().getText()
-    //   ? ctx.ID().getText()
-    //   : this.printError("evalID", "Couldn't match ID");
   }
 
   evalTArg(ctx, env) {
     return ctx;
-    // return to_type(ctx);
-    // if (ctx instanceof TypTarg)
   }
 
   evalWildcard(ctx, env) {
@@ -254,6 +260,12 @@ export default class Evaluator {
     }
     const x = ctx.x;
     const value = this.evalSimpleExp(ctx.lhs, env);
+
+    // return if evaluation of lhs produced an error
+    if (isError()) {
+      return;
+    }
+
     env[x] = value;
     // this.setEnv(x, value);
     return this.evalExp(ctx.rhs, env);
@@ -270,15 +282,6 @@ export default class Evaluator {
       env_[param] = x;
       return this.evalExp(ctx.e, env_);
     };
-    // const clo = function (x, env) {
-    //   // const newEvaluator = new Evaluator(env); // evaluate in new environment
-    //   // newEvaluator.setEnv(param, x); // set param binding
-    //   // return newEvaluator.evalExp(ctx.e);
-    //   console.log("param", param);
-    //   env[param] = x;
-    //   console.log(this.value);
-    //   return E_.evalExp(ctx.e, env);
-    // };
     return new SL.Clo(clo);
   }
 
@@ -293,6 +296,11 @@ export default class Evaluator {
       this.lookup(this.evalSid(arg, env), env)
     );
 
+    // check for an error at lookup
+    if (isError()) {
+      return;
+    }
+
     const fullyAppliedRes = argsLit.reduce(function (res, arg) {
       //Apply closure to argument
       const partialRes = res.clo(arg);
@@ -303,9 +311,6 @@ export default class Evaluator {
   }
 
   evalMessage(ctx, env) {
-    if (ctx === undefined) {
-      this.printError("evalMessage", "Ctx is undefined.");
-    }
     const messageKVPairs = ctx.es.map((pair) => {
       if (pair?.i !== undefined && pair?.l !== undefined) {
         return new SL.MsgEntry(pair.i, SL.literalType(pair.l), pair.l);
@@ -313,7 +318,8 @@ export default class Evaluator {
         pair.v = this.lookup(pair.v, env);
         return new SL.MsgEntry(pair.i, SL.literalType(pair.v), pair.v);
       } else {
-        return `Error: evalMessage ${pair}`;
+        setError(new Error(`Error: ${ctx.constructor.name} ${pair}`));
+        return;
       }
     });
 
@@ -324,8 +330,12 @@ export default class Evaluator {
     const id = this.evalID(ctx.b);
     const builtinFunc = BI.parseBuiltinIdentifier(id);
     if (builtinFunc === undefined) {
-      return `Error: ${id} is not recognised as a builtin function`;
+      setError(
+        new Error(`Error: ${id} is not recognised as a builtin function`)
+      );
+      return;
     }
+
     const typeArgs =
       ctx.targs !== undefined
         ? ctx.targs.map((targ) =>
@@ -336,6 +346,12 @@ export default class Evaluator {
     const builtinArgs = this.evalBuiltinArgs(ctx.xs).map((arg) => {
       return this.lookup(arg, env);
     });
+
+    // check if an error occurred during lookup
+    if (isError()) {
+      return;
+    }
+
     // console.log("typeArgs", typeArgs);
     // console.log("ctx.xs", ctx.xs);
     // console.log("builtinArgs", builtinArgs);
@@ -350,6 +366,20 @@ export default class Evaluator {
 
   evalDataConstructor(ctx, env) {
     const c = this.evalScid(ctx.c, env);
+
+    const constr = DT.lookUpConstr(c);
+    if (constr === undefined) {
+      setError(
+        new Error(`${ctx.constructor.name}: ADT constructor does not exist`)
+      );
+      return;
+    }
+    if (constr.arity !== ctx.args.length) {
+      setError(
+        new Error(`${ctx.constructor.name}: Constructor arity mismatch`)
+      );
+      return;
+    }
     const targs = ctx.ts;
     const args = ctx.args.map((arg) => this.evalSid(arg, env));
     return new SL.ADTValue(c, targs, args);
@@ -382,7 +412,13 @@ export default class Evaluator {
       if (clausePatterns.length > 1) {
         for (let i = 0; i < clausePatterns.length - 1; i++) {
           if (clausePatterns[i] instanceof Pattern.WildCard) {
-            return `Error: Wildcard cannot be used before last pattern in a match statement`;
+            setError(
+              new Error(
+                `Error: ${ctx.constructor.name} Wildcard cannot be used before 
+                last pattern in a match statement`
+              )
+            );
+            return;
           }
         }
         // check if last pattern is Wildcard, if so, we need to ensure that
@@ -398,13 +434,24 @@ export default class Evaluator {
               _.remove(typesArr, function (a) {
                 return a === clausePatterns[i].c;
               });
-              // return `Error: Wildcard cannot be used before last pattern in a match statement`;
             } else {
-              return `Error: Unreachable pattern or incorrect ADT constructor detected.`;
+              setError(
+                new Error(
+                  `Error: ${ctx.constructor.name} Unreachable pattern or 
+                  incorrect ADT constructor detected.`
+                )
+              );
+              return;
             }
           }
           if (typesArr.length === 0) {
-            return `Error: Unreachable Wildcard pattern detected.`;
+            setError(
+              new Error(
+                `Error: ${ctx.constructor.name} Unreachable Wildcard pattern 
+                detected.`
+              )
+            );
+            return;
           }
         } else {
           // in this case, no Wildcard used, it must be that
@@ -413,7 +460,13 @@ export default class Evaluator {
           // check for arity match
           const adtConstructors = adt.tconstr;
           if (clausePatterns.length !== adtConstructors.length) {
-            return `Error: Pattern matching arity mismatch for ADT`;
+            setError(
+              new Error(
+                `Error: ${ctx.constructor.name} Pattern matching arity mismatch
+                 for ADT.`
+              )
+            );
+            return;
           }
 
           // check that all ADT constructors are provided as patterns to match
@@ -425,32 +478,56 @@ export default class Evaluator {
               }
             }
             if (!foundFlag) {
-              console.log(adtConstructors);
-              return `Error: Invalid constructor provided in pattern match`;
+              setError(
+                new Error(
+                  `Error: ${ctx.constructor.name} Invalid constructor provided 
+                  in pattern match.`
+                )
+              );
+              return;
             }
           }
         }
       }
     }
 
+    let found = undefined;
+    let matchedPat = undefined;
+    let matchedExp = undefined;
     for (const clause of ctx.clauses) {
-      const found = this.matchClause(value, clause.pat);
-      if (found === undefined) {
-      } //continue
-      else {
-        // evalPattern returns an env for evaluating the expression
-        // of the pattern
-        const nextEnv = this.evalPattern(value, clause.pat, env);
-        return this.evalExp(clause.exp, nextEnv);
-        // return new Evaluator(env).evalExp(clause.exp);
+      found = this.matchClause(value, clause.pat);
+      if (found !== undefined) {
+        matchedPat = clause.pat;
+        matchedExp = clause.exp;
+        break;
       }
     }
+    // check if an error occurred while matching clauses
+    if (found === undefined) {
+      setError(new Error("matchClause: didn't find a matching clause."));
+      return;
+    }
+    // evalPattern returns an env for evaluating the expression
+    // of the pattern
+    const nextEnv = this.evalPattern(value, matchedPat, env);
+    return this.evalExp(matchedExp, nextEnv);
+    // for (const clause of ctx.clauses) {
+    //   const found = this.matchClause(value, clause.pat);
+    //   // check if an error occurred while matching clauses
+
+    //   if (found === undefined) {
+    //   } //continue
+    //   else {
+    //     // evalPattern returns an env for evaluating the expression
+    //     // of the pattern
+    //     const nextEnv = this.evalPattern(value, clause.pat, env);
+    //     return this.evalExp(clause.exp, nextEnv);
+    //     // return new Evaluator(env).evalExp(clause.exp);
+    //   }
+    // }
   }
 
   evalTFun(ctx, env) {
-    if (ctx === undefined) {
-      this.printError("evalTFun", "Ctx is undefined.");
-    }
     const tvar = ctx.i;
     const clo = (tp) => {
       const env_ = _.cloneDeep(env);
@@ -464,17 +541,19 @@ export default class Evaluator {
     // console.log("At Tapp for " + ctx.getText());
     const tfunc_id = this.evalSid(ctx.f, env);
     const tfunc = this.lookup(tfunc_id, env);
+    // check if an error occurred during lookup
+    if (isError()) {
+      return;
+    }
+
     const argsLit = ctx.targs.map((targ) => this.evalTArg(targ, env));
-    console.log(tfunc);
     const fullyAppliedTRes = argsLit.reduce(function (tres, arg) {
       //Apply closure to arg
       const partialRes = tres.clo(arg);
-
       return partialRes;
     }, tfunc);
 
     return fullyAppliedTRes;
-    // return new TApp(tfunc, argsLit);
   }
 
   // evalAtomic(ctx) {
@@ -512,7 +591,13 @@ export default class Evaluator {
   }
 
   evalVar(ctx, env) {
-    return this.lookup(this.evalSid(ctx.s), env);
+    const variable = this.lookup(this.evalSid(ctx.s), env);
+
+    // check if an error occurred during lookup
+    if (isError()) {
+      return;
+    }
+    return variable;
   }
 
   evalSimpleExp(ctx, env) {
