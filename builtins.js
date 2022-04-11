@@ -121,6 +121,8 @@ export default class Builtins {
       ? this.badd
       : id === "bsub"
       ? this.bsub
+      : id === "to_bystr"
+      ? this.to_bystr
       : undefined;
   }
 

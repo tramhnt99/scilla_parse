@@ -5,14 +5,10 @@ import fs from "fs";
 import SP from "./scillaParser.js"; //short for ScillaParser
 // import { ScillaType as ST } from './types.js'; //ScillaTypes
 import ScillaType, { Int, substTypeinType, to_type } from "./types.js";
-import { get } from "http";
 import { ScillaExpr as SE, Pattern, ClauseExp, TFun, Error } from "./syntax.js";
-import exp from "constants";
-import { inspect } from "util";
 import SyntaxVisitor from "./syntaxVisitor.js";
 import * as SL from "./literals.js";
 import Builtins from "./builtins.js";
-import { allowedNodeEnvironmentFlags } from "process";
 import _ from "lodash";
 import { DataTypeDict } from "./datatypes.js";
 import { isError, setError } from "./general.js";
@@ -255,9 +251,6 @@ export default class Evaluator {
   }
 
   evalLet(ctx, env) {
-    if (!ctx) {
-      return;
-    }
     const x = ctx.x;
     const value = this.evalSimpleExp(ctx.lhs, env);
 
@@ -459,10 +452,12 @@ export default class Evaluator {
           // number of ADT constructors
           // check for arity match
           const adtConstructors = adt.tconstr;
+          // console.log("cps", clausePatterns);
+          // console.log(adt, adtConstructors);
           if (clausePatterns.length !== adtConstructors.length) {
             setError(
               new Error(
-                `Error: ${ctx.constructor.name} Pattern matching arity mismatch
+                `Error: ${ctx.constructor.name} pattern matching arity mismatch
                  for ADT.`
               )
             );
@@ -510,6 +505,12 @@ export default class Evaluator {
     // evalPattern returns an env for evaluating the expression
     // of the pattern
     const nextEnv = this.evalPattern(value, matchedPat, env);
+
+    // error occurred durng evaluation of pattern
+    if (isError()) {
+      return;
+    }
+
     return this.evalExp(matchedExp, nextEnv);
     // for (const clause of ctx.clauses) {
     //   const found = this.matchClause(value, clause.pat);

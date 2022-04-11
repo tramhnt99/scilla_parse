@@ -291,6 +291,9 @@ import TranslateVisitor from "./translate.js";
 // const contractAst = tree.accept(new TranslateVisitor());
 // console.log(contractAst);
 
+// const to_list =
+//   ()
+
 const runEVALexp = true;
 if (runEVALexp) {
   const envScillaEvaluator = startingEEnv();
@@ -298,7 +301,7 @@ if (runEVALexp) {
   const env = envScillaEvaluator[0];
   const SEEvaluator = envScillaEvaluator[1];
   // Single test debugging expressions
-  const input = fs.readFileSync("scilexp/pm1.scilexp").toString();
+  const input = fs.readFileSync("scilexp/pair1.scilexp").toString();
   const chars = new antlr4.InputStream(input);
   const lexer = new ScillaLexer(chars);
   const tokens = new antlr4.CommonTokenStream(lexer);
