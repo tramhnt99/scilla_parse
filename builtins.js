@@ -21,6 +21,16 @@ import {
   literalType,
 } from "./literals.js";
 import { Error } from "./syntax.js";
+import {
+  Int128,
+  Int256,
+  Int32,
+  Int64,
+  Uint128,
+  Uint256,
+  Uint32,
+  Uint64,
+} from "./types.js";
 
 function reverseString(str) {
   const stringArray = str.split("");
@@ -367,129 +377,113 @@ export default class Builtins {
 
   to_int32 = (x) => {
     if (x instanceof IntLit) {
-      return new Int32L(x.i);
+      return new ADTValue("Some", [new Int32()], [new Int32L(x.i)]);
     } else if (x instanceof UintLit) {
-      return new Int32L(x.i);
+      return new ADTValue("Some", [new Int32()], [new Int32L(x.i)]);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
-        ? new Int32L(Number(x.s))
-        : setError(new Error(`Error: builtin to_int32 of ${x}`));
+        ? new ADTValue("Some", [new Int32()], [new Int32L(Number(x.s))])
+        : new ADTValue("None", [new Int32()], []);
     }
   };
 
   to_int64 = (x) => {
     if (x instanceof IntLit) {
-      return new Int64L(x.i);
+      return new ADTValue("Some", [new Int64()], [new Int64L(x.i)]);
     } else if (x instanceof UintLit) {
-      return new Int64L(x.i);
+      return new ADTValue("Some", [new Int64()], [new Int64L(x.i)]);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
-        ? new Int64L(Number(x.s))
-        : setError(new Error(`Error: builtin to_int64 of ${x}`));
+        ? new ADTValue("Some", [new Int64()], [new Int64L(Number(x.s))])
+        : new ADTValue("None", [new Int64()], []);
     }
   };
 
   to_int128 = (x) => {
     if (x instanceof IntLit) {
-      return new Int128L(x.i);
+      return new ADTValue("Some", [new Int128()], [new Int128L(x.i)]);
     } else if (x instanceof UintLit) {
-      return new Int128L(x.i);
+      return new ADTValue("Some", [new Int128()], [new Int128L(x.i)]);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
-        ? new Int128L(Number(x.s))
-        : setError(new Error(`Error: builtin to_int128 of ${x}`));
+        ? new ADTValue("Some", [new Int128()], [new Int128L(Number(x.s))])
+        : new ADTValue("None", [new Int128()], []);
     }
   };
 
   to_int256 = (x) => {
     if (x instanceof IntLit) {
-      return new Int256L(x.i);
+      return new ADTValue("Some", [new Int256()], [new Int256L(x.i)]);
     } else if (x instanceof UintLit) {
-      return new Int256L(x.i);
+      return new ADTValue("Some", [new Int256()], [new Int256L(x.i)]);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
-        ? new Int256L(Number(x.s))
-        : setError(new Error(`Error: builtin to_int256 of ${x}`));
+        ? new ADTValue("Some", [new Int256()], [new Int256L(Number(x.s))])
+        : new ADTValue("None", [new Int256()], []);
     }
   };
 
   to_uint32 = (x) => {
     if (x instanceof IntLit) {
       return x.i >= 0
-        ? new Uint32L(x.i)
-        : setError(new Error(`Error: builtin to_uint32 of ${x}`));
+        ? new ADTValue("Some", [new Uint32()], [new Uint32L(x.i)])
+        : new ADTValue("None", [new Uint32()], []);
     } else if (x instanceof UintLit) {
-      return new Uint32L(x.i);
+      return new ADTValue("Some", [new Uint32()], [new Uint32L(x.i)]);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? Number(x.s) >= 0
-          ? new Uint32L(Number(x.s))
-          : setError(
-              new Error(
-                `Error: builtin to_uint32 of ${x}, unsigned int cannot be negative`
-              )
-            )
-        : setError(new Error(`Error: builtin to_uint32 of ${x}`));
+          ? new ADTValue("Some", [new Uint32()], [new Uint32L(Number(x.s))])
+          : new ADTValue("None", [new Uint32()], [])
+        : new ADTValue("None", [new Uint32()], []);
     }
   };
 
   to_uint64 = (x) => {
     if (x instanceof IntLit) {
       return x.i >= 0
-        ? new Uint64L(x.i)
-        : setError(new Error(`Error: builtin to_uint64 of ${x}`));
+        ? new ADTValue("Some", [new Uint64()], [new Uint64L(x.i)])
+        : new ADTValue("None", [new Uint64()], []);
     } else if (x instanceof UintLit) {
-      return new Uint64L(x.i);
+      return new ADTValue("Some", [new Uint64()], [new Uint64L(x.i)]);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? Number(x.s) >= 0
-          ? new Uint64L(Number(x.s))
-          : setError(
-              new Error(
-                `Error: builtin to_uint64 of ${x}, unsigned int cannot be negative`
-              )
-            )
-        : setError(new Error(`Error: builtin to_uint64 of ${x}`));
+          ? new ADTValue("Some", [new Uint64()], [new Uint64L(Number(x.s))])
+          : new ADTValue("None", [new Uint64()], [])
+        : new ADTValue("None", [new Uint64()], []);
     }
   };
 
   to_uint128 = (x) => {
     if (x instanceof IntLit) {
       return x.i >= 0
-        ? new Uint128L(x.i)
-        : setError(new Error(`Error: builtin to_uint128 of ${x}`));
+        ? new ADTValue("Some", [new Uint128()], [new Uint128L(x.i)])
+        : new ADTValue("None", [new Uint128()], []);
     } else if (x instanceof UintLit) {
-      return new Uint128L(x.i);
+      return new ADTValue("Some", [new Uint128()], [new Uint128L(x.i)]);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? Number(x.s) >= 0
-          ? new Uint128L(Number(x.s))
-          : setError(
-              new Error(
-                `Error: builtin to_uint128 of ${x}, unsigned int cannot be negative`
-              )
-            )
-        : setError(new Error(`Error: builtin to_uint128 of ${x}`));
+          ? new ADTValue("Some", [new Uint128()], [new Uint128L(Number(x.s))])
+          : new ADTValue("None", [new Uint128()], [])
+        : new ADTValue("None", [new Uint128()], []);
     }
   };
 
   to_uint256 = (x) => {
     if (x instanceof IntLit) {
       return x.i >= 0
-        ? new Uint256L(x.i)
-        : setError(new Error(`Error: builtin to_uint256 of ${x}`));
+        ? new ADTValue("Some", [new Uint256()], [new Uint256L(x.i)])
+        : new ADTValue("None", [new Uint256()], []);
     } else if (x instanceof UintLit) {
-      return new Uint256L(x.i);
+      return new ADTValue("Some", [new Uint256()], [new Uint256L(x.i)]);
     } else if (x instanceof StringLit) {
       return Number(x.s) !== NaN
         ? Number(x.s) >= 0
-          ? new Uint256L(Number(x.s))
-          : setError(
-              new Error(
-                `Error: builtin to_uint256 of ${x}, unsigned int cannot be negative`
-              )
-            )
-        : setError(new Error(`Error: builtin to_uint256 of ${x}`));
+          ? new ADTValue("Some", [new Uint256()], [new Uint256L(Number(x.s))])
+          : new ADTValue("None", [new Uint256()], [])
+        : new ADTValue("None", [new Uint256()], []);
     }
   };
 
@@ -601,7 +595,11 @@ export default class Builtins {
     if (m instanceof Map) {
       const mapKey = this.getJSValueFromLiteral(k);
       if (_.has(m.kv, mapKey)) {
-        return new ADTValue("Some", literalType(m.kv[mapKey]), m.kv[mapKey]);
+        return new ADTValue(
+          "Some",
+          [literalType(m.kv[mapKey])],
+          [m.kv[mapKey]]
+        );
       } else {
         return new ADTValue("None", [], []);
       }

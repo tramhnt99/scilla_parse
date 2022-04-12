@@ -361,6 +361,7 @@ export default class Evaluator {
       // ConstructorPat case
       const valueADTConstr = this.ADTDict.lookUpConstr(value.name);
       const ctxADTConstr = this.ADTDict.lookUpConstr(ctx.c);
+
       if (valueADTConstr.cname !== ctxADTConstr.cname) {
         return undefined;
       } else {
@@ -374,11 +375,11 @@ export default class Evaluator {
         }
 
         for (let a = 0; a < ctxADTConstr.arity; a++) {
-          const currentADTvalue = value.ll[a];
+          // const currentADTvalue = value.ll[a];
           if (isError()) {
             return undefined;
           }
-          const nextEnv = this.evalArgPattern(currentADTvalue, ctx.ps[a], env);
+          const nextEnv = this.evalArgPattern(value.ll[a], ctx.ps[a], env);
           if (nextEnv === undefined) {
             return undefined;
           } else {
@@ -444,21 +445,21 @@ export default class Evaluator {
           clausePatterns[clausePatterns.length - 1] instanceof Pattern.WildCard
         ) {
           const typesArr = adt.tconstr.map((constr) => constr.cname);
-          for (let i = 0; i < clausePatterns.length - 1; i++) {
-            if (typesArr.includes(clausePatterns[i].c)) {
-              _.remove(typesArr, function (a) {
-                return a === clausePatterns[i].c;
-              });
-            } else {
-              setError(
-                new Error(
-                  `Error: ${ctx.constructor.name} Unreachable pattern or
-                  incorrect ADT constructor detected.`
-                )
-              );
-              return;
-            }
-          }
+          // for (let i = 0; i < clausePatterns.length - 1; i++) {
+          //   if (typesArr.includes(clausePatterns[i].c)) {
+          //     _.remove(typesArr, function (a) {
+          //       return a === clausePatterns[i].c;
+          //     });
+          //   } else {
+          //     setError(
+          //       new Error(
+          //         `Error: ${ctx.constructor.name} Unreachable pattern or
+          //         incorrect ADT constructor detected.`
+          //       )
+          //     );
+          //     return;
+          //   }
+          // }
           if (typesArr.length === 0) {
             setError(
               new Error(
@@ -525,7 +526,7 @@ export default class Evaluator {
       if (nextEnv !== undefined) {
         matchedPat = clause.pat;
         matchedExp = clause.exp;
-        // console.log("matchedExp", matchedExp);
+        console.log("matchedExp", matchedExp);
         return this.evalExp(matchedExp, nextEnv);
       }
     }
@@ -620,19 +621,6 @@ export default class Evaluator {
   // }
 
   evalLiteral(ctx, env) {
-    // console.log("oh literal! ", ctx);
-    // if (!(ctx instanceof SL.ADTValue)) {
-    //   return ctx;
-    // } else {
-    //   for (let i = 0; i < ctx.ll.length; i++) {
-    //     console.log("evalLit", ctx.ll, this.lookup(ctx.ll[i], env));
-    //     ctx.ll[i] = this.lookup(ctx.ll[i], env);
-    //     if (ctx.ll[i] instanceof SL.ADTValue) {
-    //       return this.evalLiteral(ctx.ll[i], env);
-    //     }
-    //   }
-    //   return ctx;
-    // }
     return ctx;
   }
 
