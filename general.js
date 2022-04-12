@@ -8,10 +8,11 @@ import ScillaTypeChecker, * as TC from "./typechecker.js";
 import _ from "lodash";
 import { stdlib } from "./testingTC.js";
 import TranslateVisitor from "./translate.js";
-import { Constructor, DataTypeDict, ScillaDataTypes } from "./datatypes.js";
+import { Constructor, DataTypeDict } from "./datatypes.js";
 import * as TCU from "./typecheckerUtil.js";
 import Evaluator from "./evalSyntax.js";
 import { evalLmod } from "./evalImpure.js";
+import SyntaxVisitor from "./syntaxVisitor.js";
 
 //How error is propagated - function will return the error if tcerror has received an error
 //Issue - sometimes when a function result is an error and it's not noticed, the Error() object
@@ -116,21 +117,20 @@ export function startingTEnv() {
 
 export function startingEEnv() {
   const parsedLibs = parseAllStdLibs();
-  let DTD_ = new DataTypeDict();
   let env = {};
   let ScillaEvaluator = new Evaluator(env);
-  let lmodDone = [];
 
-  //   for (const lmod in parsedLibs) {
-  //     //stdlib.length
-  //     console.log("Input: " + lmod);
-  //     if (parsedLibs[lmod].lib.lname in lmodDone) {
-  //       continue;
-  //     } else {
-  //       const res = evalLmod(parsedLibs[lmod], env, DTD_);
-  //       lmodDone = lmodDone.concat(res.lmodDone);
-  //     }
-  //   }
+  let lmodDone = [];
+  for (const lmod in parsedLibs) {
+    //stdlib.length
+    // console.log("Input: " + lmod);
+    if (parsedLibs[lmod].lib.lname in lmodDone) {
+      continue;
+    } else {
+      const res = evalLmod(parsedLibs[lmod], env, ScillaEvaluator.ADTDict);
+      lmodDone = lmodDone.concat(res.lmodDone);
+    }
+  }
 
   return [env, ScillaEvaluator];
 }

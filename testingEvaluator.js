@@ -291,8 +291,35 @@ import TranslateVisitor from "./translate.js";
 // const contractAst = tree.accept(new TranslateVisitor());
 // console.log(contractAst);
 
-// const to_list =
-//   ()
+`
+let list_foldk : forall 'A. forall 'B. ('B -> 'A -> ('B -> 'B) -> 'B) -> 'B -> (List 'A) -> 'B =
+  tfun 'A => tfun 'B =>
+  fun (f: 'B -> 'A -> ('B -> 'B) -> 'B) =>
+  fun (z : 'B) => fun (l: List 'A) =>
+  let g = fun (a: 'B) => fun (b: List 'A) =>
+    match b with
+    | Cons h t => let partial = fun (k : 'B) => g k t in
+      f a h partial
+    | Nil => a
+    end
+  g z l
+`;
+
+`
+let nat_foldk : (’T -> Nat -> (’T -> ’T) -> ’T) -> ’T -> Nat -> ’T =
+  tfun ’T =>
+  fun (fn : (’T -> Nat -> (’T -> ’T) -> ’T)) =
+  fun (f0 : ’T) => fun (n: Nat) =>
+  let g : ’T -> Nat -> ’T =
+    fun (f0 : ‘T) => fun (n: Nat) =>
+    match n with
+      | Succ n1 => let partial = fun (k : ‘T) => g k n1 in
+        fn f0 n partial
+      | Zero => f0
+    end
+  in
+  g f0 n
+`;
 
 const runEVALexp = true;
 if (runEVALexp) {
@@ -301,7 +328,7 @@ if (runEVALexp) {
   const env = envScillaEvaluator[0];
   const SEEvaluator = envScillaEvaluator[1];
   // Single test debugging expressions
-  const input = fs.readFileSync("scilexp/pair1.scilexp").toString();
+  const input = fs.readFileSync("scilexp/app5.scilexp").toString();
   const chars = new antlr4.InputStream(input);
   const lexer = new ScillaLexer(chars);
   const tokens = new antlr4.CommonTokenStream(lexer);
@@ -312,7 +339,7 @@ if (runEVALexp) {
   if (isError()) {
     console.log(getError().s);
   } else {
-    console.log(value);
+    console.log("output", value);
   }
 }
 

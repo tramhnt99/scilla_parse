@@ -642,6 +642,10 @@ export default class Builtins {
   };
 
   to_list = (m) => {
+    if (m instanceof Map) {
+      const pairTyp1 = m.mtyp.t1;
+      const pairTyp2 = m.mtyp.t2;
+    }
     console.log("MAP to_list TODO");
   };
 

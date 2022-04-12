@@ -51,22 +51,22 @@ export class DataTypeDict {
     //When entering a program, we already have a set of pre-defined
     //data types and their constructors.
     this.ADTDict = {
-      "Bool": new BoolDT(),
-      "Nat": new NatDT(),
-      "Option": new OptionDT(),
-      "List": new ListDT(),
-      "Pair": new ProductDT(),
+      Bool: new BoolDT(),
+      Nat: new NatDT(),
+      Option: new OptionDT(),
+      List: new ListDT(),
+      Pair: new ProductDT(),
     };
     this.ConstrDict = {
-      "True": [new True(), new BoolDT()],
-      "False": [new False(), new BoolDT()],
-      "Zero": [new Zero(), new NatDT()],
-      "Succ": [new Succ(), new NatDT()],
-      "Some": [new Some(), new OptionDT()],
-      "None": [new None(), new OptionDT()],
-      "Cons": [new Cons(), new ListDT()],
-      "Nil": [new Nil(), new ListDT()],
-      "Pair": [new Pair(), new ProductDT()],
+      True: [new True(), new BoolDT()],
+      False: [new False(), new BoolDT()],
+      Zero: [new Zero(), new NatDT()],
+      Succ: [new Succ(), new NatDT()],
+      Some: [new Some(), new OptionDT()],
+      None: [new None(), new OptionDT()],
+      Cons: [new Cons(), new ListDT()],
+      Nil: [new Nil(), new ListDT()],
+      Pair: [new Pair(), new ProductDT()],
     };
   }
 
@@ -79,7 +79,8 @@ export class DataTypeDict {
       //If ADT already exists, we do nothing.
       return this.ADTDict;
     }
-    this.ADTDcit[newAdt.tname] = newAdt;
+    this.ADTDict[newAdt.tname] = newAdt;
+    // this.ADTDcit[newAdt.tname] = newAdt;
     newAdt.tconstr.array.forEach((constr) => {
       if (this.ConstrDict[constr.cname] === undefined) {
         this.ConstrDict[constr.cname] = [constr, newAdt];
@@ -177,7 +178,7 @@ export class NatDT extends ScillaDataTypes {
     this.tname = "Nat";
     this.tparams = [];
     this.tconstr = [new Zero(), new Succ()];
-    this.tmap = { "Succ": [new ST.ADT("Nat", [])] };
+    this.tmap = { Succ: [new ST.ADT("Nat", [])] };
   }
 }
 
@@ -206,7 +207,7 @@ export class OptionDT extends ScillaDataTypes {
     this.tname = "Option";
     this.tparams = ["'A"];
     this.tconstr = [new Some(), new None()];
-    this.tmap = { "Some": [new ST.TypeVar("'A")] };
+    this.tmap = { Some: [new ST.TypeVar("'A")] };
   }
 }
 
@@ -236,7 +237,7 @@ export class ListDT extends ScillaDataTypes {
     this.tparams = ["'A"];
     this.tconstr = [new Cons(), new Nil()];
     this.tmap = {
-      "Cons": [new ST.TypeVar("'A"), new ST.ADT("List", [new ST.TypeVar("'A")])],
+      Cons: [new ST.TypeVar("'A"), new ST.ADT("List", [new ST.TypeVar("'A")])],
     };
   }
 }
@@ -258,6 +259,6 @@ export class ProductDT extends ScillaDataTypes {
     this.tname = "Pair";
     this.tparams = ["'A", "'B"];
     this.tconstr = [new Pair()];
-    this.tmap = { "Pair": [new ST.TypeVar("'A"), new ST.TypeVar("'B")] };
+    this.tmap = { Pair: [new ST.TypeVar("'A"), new ST.TypeVar("'B")] };
   }
 }
