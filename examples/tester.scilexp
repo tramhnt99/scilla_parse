@@ -1,0 +1,4 @@
+let x = 0xfb19 in
+let y = builtin to_bystr x in
+let xx_opt = builtin to_bystr2 y in
+x

@@ -294,6 +294,8 @@ export default class Evaluator {
 
   evalBuiltin(ctx, env) {
     const id = this.evalID(ctx.b);
+    console.log(this.lookup(ctx.xs[0], env));
+
     const builtinFunc = BI.parseBuiltinIdentifier(id);
     if (builtinFunc === undefined) {
       setError(
@@ -375,7 +377,6 @@ export default class Evaluator {
         }
 
         for (let a = 0; a < ctxADTConstr.arity; a++) {
-          // const currentADTvalue = value.ll[a];
           if (isError()) {
             return undefined;
           }
