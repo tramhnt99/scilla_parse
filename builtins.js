@@ -83,8 +83,6 @@ export default class Builtins {
       ? this.to_nat
       : id === "concat"
       ? this.concat
-      : id === "to_nat"
-      ? this.to_nat
       : id === "to_int32"
       ? this.to_int32
       : id === "to_int64"
@@ -366,7 +364,7 @@ export default class Builtins {
         return new Uint32L(Math.floor(Math.sqrt(x.i)));
       }
     } else {
-      setError(new Error(`Error: builtin isqrt of ${x} and ${y}`));
+      setError(new Error(`Error: builtin isqrt of ${x}`));
       return;
     }
   };
@@ -643,6 +641,13 @@ export default class Builtins {
     if (m instanceof Map) {
       const pairTyp1 = m.mtyp.t1;
       const pairTyp2 = m.mtyp.t2;
+      const keys = Object.keys(m.kv);
+      // const res = keys.reduce(
+      //   (prev, curr) =>
+      //     new ADTValue("Pair", [pairTyp1, pairTyp2], [m.kv[curr], prev]),
+      //   new ADTValue("Nil", [pairTyp1, pairTyp2], [])
+      // );
+      // return res;
     }
     console.log("MAP to_list TODO");
   };
@@ -666,5 +671,9 @@ export default class Builtins {
 
   bsub = (b1) => (b2) => {
     console.log("BNum bsub todo");
+  };
+
+  to_bystr = (h) => {
+    console.log("to_bystr todo");
   };
 }

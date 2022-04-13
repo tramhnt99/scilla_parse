@@ -328,8 +328,9 @@ if (runEVALexp) {
   const env = envScillaEvaluator[0];
   const SEEvaluator = envScillaEvaluator[1];
   // Single test debugging expressions
-  const input = fs.readFileSync("examples/tester.scilexp").toString();
-  // const input = fs.readFileSync("scilexp/uint_conversions.scilexp").toString();
+  // const input = fs.readFileSync("examples/tester.scilexp").toString();
+  // const input = fs.readFileSync("examples/church_naturals.scilexp").toString();
+  const input = fs.readFileSync("scilexp/list_zip_with.scilexp").toString();
   const chars = new antlr4.InputStream(input);
   const lexer = new ScillaLexer(chars);
   const tokens = new antlr4.CommonTokenStream(lexer);

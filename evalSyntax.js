@@ -1,11 +1,7 @@
 // Evaluator Class
 // https://medium.com/dailyjs/compiler-in-javascript-using-antlr-9ec53fd2780f
-import antlr4 from "antlr4";
-import fs from "fs";
-import SP from "./scillaParser.js"; //short for ScillaParser
-// import { ScillaType as ST } from './types.js'; //ScillaTypes
-import ScillaType, { Int, substTypeinType, to_type } from "./types.js";
-import { ScillaExpr as SE, Pattern, ClauseExp, TFun, Error } from "./syntax.js";
+import ScillaType, { substTypeinType } from "./types.js";
+import { ScillaExpr as SE, Pattern, Error } from "./syntax.js";
 import SyntaxVisitor from "./syntaxVisitor.js";
 import * as SL from "./literals.js";
 import Builtins from "./builtins.js";
@@ -21,6 +17,7 @@ export default class Evaluator {
   constructor(env) {
     this.globalEnv = env;
     this.ADTDict = new DT.DataTypeDict();
+    this.lastCalledFunction = undefined;
   }
 
   lookup(x, env) {
@@ -83,7 +80,7 @@ export default class Evaluator {
       const kts = substTypeinType(tvar, type, lit.mtyp.t1);
       const vts = substTypeinType(tvar, type, lit.mtyp.t2);
       const newMap = new Map(
-        new ST.MapType(ST.resolveTMapKey(kts), ST.resolveTMapValue(lts))
+        new ST.MapType(ST.resolveTMapKey(kts), ST.resolveTMapValue(vts))
       );
       const ltsKeys = Object.keys(lit.kv);
       ltsKeys.forEach((lKey) => {
@@ -220,11 +217,11 @@ export default class Evaluator {
     return ctx.map((arg) => this.evalSid(arg));
   }
 
-  evalExpPmClause(ctx, env) {
-    const p = this.evalPattern(ctx.p, env);
-    const e = this.evalExp(ctx.e, env);
-    return new ExpPmClause(p, e);
-  }
+  // evalExpPmClause(ctx, env) {
+  //   const p = this.evalPattern(ctx.p, env);
+  //   const e = this.evalExp(ctx.e, env);
+  //   return new ExpPmClause(p, e);
+  // }
 
   evalLet(ctx, env) {
     const x = ctx.x;
@@ -234,8 +231,7 @@ export default class Evaluator {
     if (isError()) {
       return;
     }
-    // this.setEnv(x, value);
-    // return this.evalExp(ctx.rhs, this.globalEnv);
+
     env[x] = value;
     return this.evalExp(ctx.rhs, env);
   }
@@ -257,6 +253,7 @@ export default class Evaluator {
   evalApp(ctx, env) {
     const func_id = this.evalSid(ctx.f_var, env); // gets the identifier
     const func = this.lookup(func_id, env);
+
     const argsLit = ctx.args.map((arg) =>
       this.lookup(this.evalSid(arg, env), env)
     );
@@ -294,7 +291,7 @@ export default class Evaluator {
 
   evalBuiltin(ctx, env) {
     const id = this.evalID(ctx.b);
-    console.log(this.lookup(ctx.xs[0], env));
+    // console.log(this.lookup(ctx.xs[0], env));
 
     const builtinFunc = BI.parseBuiltinIdentifier(id);
     if (builtinFunc === undefined) {
@@ -359,7 +356,7 @@ export default class Evaluator {
       // bind value to variable to environment
       env[ctx.x] = value;
       return env;
-    } else {
+    } else if (ctx instanceof Pattern.ConstructorPat) {
       // ConstructorPat case
       const valueADTConstr = this.ADTDict.lookUpConstr(value.name);
       const ctxADTConstr = this.ADTDict.lookUpConstr(ctx.c);
@@ -389,6 +386,8 @@ export default class Evaluator {
         }
         return env;
       }
+    } else {
+      return undefined;
     }
   }
 
@@ -416,119 +415,123 @@ export default class Evaluator {
     }
   }
 
-  evalMatchExp(ctx, env) {
-    const value = this.lookup(ctx.x, env);
-    // Scilla requires exhaustive match statements, we do a check for this
-    // current assumption is that if expecting an ADT constructor
-    // only ADT constructors are used as patterns
-    if (value instanceof SL.ADTValue) {
-      const adt = this.ADTDict.lookUpADTByConstr(value.name);
-      const clausePatterns = ctx.clauses.map((clause) => clause.pat);
+  checkMatchExp(value, ctx, env) {
+    /**
+     * A pattern-match must be exhaustive,
+     * i.e., every legal (type-safe) value of x must be matched by a pattern.
+     * Additionally, every pattern must be reachable,
+     * i.e., for each pattern there must be a legal (type-safe) value of x
+     * that matches that pattern, and which does not match
+     * any pattern preceding it.
+     */
 
-      // check for reachable pattern
-      if (clausePatterns.length > 1) {
-        for (let i = 0; i < clausePatterns.length - 1; i++) {
-          if (clausePatterns[i] instanceof Pattern.WildCard) {
-            setError(
-              new Error(
-                `Error: ${ctx.constructor.name} Wildcard cannot be used before 
-                last pattern in a match statement`
-              )
-            );
-            return;
-          }
-        }
-        // check if last pattern is Wildcard, if so, we need to ensure that
-        // the prior sequence of patterns come from the ADT constructor
-        // and has at least 1 more pattern to match (otherwise Wildcard is
-        // useless)
-        if (
-          clausePatterns[clausePatterns.length - 1] instanceof Pattern.WildCard
-        ) {
-          const typesArr = adt.tconstr.map((constr) => constr.cname);
-          // for (let i = 0; i < clausePatterns.length - 1; i++) {
-          //   if (typesArr.includes(clausePatterns[i].c)) {
-          //     _.remove(typesArr, function (a) {
-          //       return a === clausePatterns[i].c;
-          //     });
-          //   } else {
-          //     setError(
-          //       new Error(
-          //         `Error: ${ctx.constructor.name} Unreachable pattern or
-          //         incorrect ADT constructor detected.`
-          //       )
-          //     );
-          //     return;
-          //   }
-          // }
-          if (typesArr.length === 0) {
-            setError(
-              new Error(
-                `Error: ${ctx.constructor.name} Unreachable Wildcard pattern
-                detected.`
-              )
-            );
-            return;
-          }
+    const checkPattern = (value, ctx) => {
+      if (ctx instanceof Pattern.WildCard) {
+        // no binding required
+        return true;
+      } else if (ctx instanceof Pattern.Binder) {
+        // bind value to variable to environment
+        return true;
+      } else if (ctx instanceof Pattern.ConstructorPat) {
+        // ConstructorPat case
+        const valueADTConstr = this.ADTDict.lookUpConstr(value.name);
+        const ctxADTConstr = this.ADTDict.lookUpConstr(ctx.c);
+
+        if (valueADTConstr.cname !== ctxADTConstr.cname) {
+          return false;
         } else {
-          // in this case, no Wildcard used, it must be that
-          // the number of the clause patterns matches the
-          // number of ADT constructors
-          // check for arity match
-          const checkExhaustiveADTMatch = (adtVal) => {
-            const adt = this.ADTDict.lookUpADTByConstr(adtVal.name);
-            const tconstr = adt.tconstr;
-            for (let i = 0; i < adt.tconstr.length; i++) {
-              // console.log(tconstr[i]);
-            }
-          };
-          const typl = value.typl;
-          const adtConstructors = adt; // arit
-          checkExhaustiveADTMatch(value);
-          // console.log("cp", clausePatterns);
+          if (value.ll.length !== ctxADTConstr.arity) {
+            setError(
+              new Error(
+                `Error: ${ctx.constructor.name} pattern matching arity mismatch for ADT.`
+              )
+            );
+            return false;
+          }
 
-          // if (clausePatterns.length !== adtConstructors.length) {
-          //   setError(
-          //     new Error(
-          //       `Error: ${ctx.constructor.name} pattern matching arity mismatch
-          //        for ADT.`
-          //     )
-          //   );
-          //   return;
-          // }
-
-          // check that all ADT constructors are provided as patterns to match
-          for (let j = 0; j < adtConstructors.length; j++) {
-            let foundFlag = false;
-            for (let k = 0; k < clausePatterns.length; k++) {
-              if (adtConstructors[j].cname === clausePatterns[k].c) {
-                foundFlag = true;
-              }
+          for (let a = 0; a < ctxADTConstr.arity; a++) {
+            if (isError()) {
+              return false;
             }
-            if (!foundFlag) {
-              setError(
-                new Error(
-                  `Error: ${ctx.constructor.name} Invalid constructor provided 
-                  in pattern match.`
-                )
-              );
-              return;
+            const nextEnv = checkArgPattern(value.ll[a], ctx.ps[a], env);
+            if (nextEnv === false) {
+              return false;
+            } else {
             }
           }
+          return true;
         }
+      } else {
+        return false;
+      }
+    };
+
+    const checkArgPattern = (value, ctx) => {
+      if (ctx instanceof Pattern.WildCard) {
+        // no binding required
+        return true;
+      } else if (ctx instanceof Pattern.Binder) {
+        return true;
+      } else if (ctx instanceof Pattern.ConstructorPat) {
+        if (ctx.ps !== []) {
+          return checkPattern(value, ctx);
+        }
+
+        if (value.name === ctx.c) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        // currently this case will not occur due to the syntax translation
+        // layer
+        return checkPattern(value, ctx);
+      }
+    };
+
+    const clauseReachability = ctx.clauses.map(() => 0); // initialize empty array
+    for (const [index, clause] of ctx.clauses.entries()) {
+      const isReachable = checkPattern(value, clause.pat);
+      if (isReachable) {
+        clauseReachability[index] = clauseReachability[index] + 1;
       }
     }
 
-    let matchedPat = undefined;
-    let matchedExp = undefined;
+    if (!clauseReachability.every((reached) => reached <= 1)) {
+      setError(new Error("Duplicate pattern found in pattern match"));
+      return undefined;
+    }
+
+    if (clauseReachability.every((reached) => reached === 0)) {
+      setError(new Error("Non-exhaustive pattern matching found"));
+      return undefined;
+    }
+
+    return true;
+  }
+
+  enumerateExpectedPatterns(value) {
+    /**
+     * This function should enumerate all expected patterns
+     * using the bounded variable's value to enumerate
+     * the kind of types and hence constructors that must appear
+     * in the match expression for it to be well-formed.
+     */
+  }
+
+  evalMatchExp(ctx, env) {
+    const value = this.lookup(ctx.x, env);
+
+    const wellFormedMatch = this.checkMatchExp(value, ctx, env);
+    if (!wellFormedMatch) {
+      return;
+    }
+
     let nextEnv = undefined;
     for (const clause of ctx.clauses) {
       nextEnv = this.evalPattern(value, clause.pat, env);
       if (nextEnv !== undefined) {
-        matchedPat = clause.pat;
-        matchedExp = clause.exp;
-        console.log("matchedExp", matchedExp);
-        return this.evalExp(matchedExp, nextEnv);
+        return this.evalExp(clause.exp, nextEnv);
       }
     }
 
@@ -539,49 +542,6 @@ export default class Evaluator {
     if (isError()) {
       return;
     }
-
-    /*
-    let found = undefined;
-    let matchedPat = undefined;
-    let matchedExp = undefined;
-    for (const clause of ctx.clauses) {
-      found = this.matchClause(value, clause.pat);
-      if (found !== undefined) {
-        matchedPat = clause.pat;
-        matchedExp = clause.exp;
-        break;
-      }
-    }
-    // check if an error occurred while matching clauses
-    if (found === undefined) {
-      setError(new Error("matchClause: didn't find a matching clause."));
-      return;
-    }
-    // evalPattern returns an env for evaluating the expression
-    // of the pattern
-    const nextEnv = this.evalPattern(value, matchedPat, env);
-
-    // error occurred durng evaluation of pattern
-    if (isError()) {
-      return;
-    }
-
-    return this.evalExp(matchedExp, nextEnv);
-    */
-    // for (const clause of ctx.clauses) {
-    //   const found = this.matchClause(value, clause.pat);
-    //   // check if an error occurred while matching clauses
-
-    //   if (found === undefined) {
-    //   } //continue
-    //   else {
-    //     // evalPattern returns an env for evaluating the expression
-    //     // of the pattern
-    //     const nextEnv = this.evalPattern(value, clause.pat, env);
-    //     return this.evalExp(clause.exp, nextEnv);
-    //     // return new Evaluator(env).evalExp(clause.exp);
-    //   }
-    // }
   }
 
   evalTFun(ctx, env) {
@@ -595,7 +555,7 @@ export default class Evaluator {
   }
 
   evalTApp(ctx, env) {
-    // console.log("At Tapp for " + ctx.getText());
+    // console.log("At Tapp for " + this.evalSid(ctx.f, env));
     const tfunc_id = this.evalSid(ctx.f, env);
     const tfunc = this.lookup(tfunc_id, env);
     // check if an error occurred during lookup
@@ -612,14 +572,6 @@ export default class Evaluator {
 
     return fullyAppliedTRes;
   }
-
-  // evalAtomic(ctx) {
-  //   return ctx instanceof SE.Literal //Literal
-  //     ? this.evalLiteral(ctx.a)
-  //     : ctx instanceof SE.Var //Identifier
-  //     ? this.lookup(this.evalSid(ctx.a), this.globalEnv)
-  //     : this.printError("evalAtomic", "Couldn't match atomic expression.");
-  // }
 
   evalLiteral(ctx, env) {
     return ctx;

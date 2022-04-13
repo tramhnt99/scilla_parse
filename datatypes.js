@@ -75,7 +75,7 @@ export class DataTypeDict {
    */
   addAdt(newAdt) {
     //To add a new ADT - we add a ScillaDataTypes along with its Constructors
-    if (this.ADTDict[new_adt] !== undefined) {
+    if (this.ADTDict[newAdt] !== undefined) {
       //If ADT already exists, we do nothing.
       return this.ADTDict;
     }

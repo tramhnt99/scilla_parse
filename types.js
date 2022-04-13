@@ -32,9 +32,9 @@ export function parseStringToPrimType(str) {
     : str === "Message"
     ? new MessageTyp()
     : str === "Event"
-    ? new Event()
+    ? new EventTyp()
     : str === "Exception"
-    ? new Exception()
+    ? new ExceptionTyp()
     : str.indexOf("ByStr") !== -1 && str.length > 5
     ? new ByStrXTyp(parseInt(str.substr(5, str.length - 1)))
     : // : str.substr(0, 6) === "Option"

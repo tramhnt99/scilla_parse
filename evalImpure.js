@@ -34,14 +34,14 @@ class ContrConf {
    * @param {Component[]} procedures
    */
   constructor(env, compStack, incomingFunds, procedures) {
-    (this.initEnv = env),
-      (this.env = env),
-      (this.accepted = false),
-      (this.incomingFunds = incomingFunds),
-      (this.procedures = procedures),
-      (this.compStack = compStack),
-      (this.emitted = {}),
-      (this.events = {});
+    this.initEnv = env;
+    this.env = env;
+    this.accepted = false;
+    this.incomingFunds = incomingFunds;
+    this.procedures = procedures;
+    this.compStack = compStack;
+    this.emitted = {};
+    this.events = {};
   }
 }
 
@@ -278,7 +278,7 @@ export function evalStmts(stmts, conf) {
 
   if (s instanceof SS.Bind) {
     const env_ = _.cloneDeep(conf.env);
-    const val = evalSimpleExp(s.e, env_);
+    const val = E.evalSimpleExp(s.e, env_);
     conf.env[s.x] = val;
     return evalStmts(sts, conf);
   }
@@ -332,7 +332,7 @@ export function evalStmts(stmts, conf) {
     return evalStmts(sts, conf);
   }
 
-  if (s instanceof MapGet) {
+  if (s instanceof SS.MapGet) {
     const klist = s.klist.map((k) => conf.env[k]);
     if (undefined in klist) {
       setError("evalStmts: MapGet - some keys do not exist.");
