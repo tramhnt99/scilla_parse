@@ -40,6 +40,46 @@ function reverseString(str) {
 }
 
 export default class Builtins {
+  constructor() {
+    this.builtinDict = {
+      eq: this.eq,
+      add: this.add,
+      sub: this.sub,
+      mul: this.mul,
+      div: this.div,
+      rem: this.rem,
+      lt: this.lt,
+      pow: this.pow,
+      isqrt: this.isqrt,
+      to_nat: this.to_nat,
+      concat: this.concat,
+      to_int32: this.to_int32,
+      to_int64: this.to_int64,
+      to_int128: this.to_int128,
+      to_int256: this.to_int256,
+      to_uint32: this.to_uint32,
+      to_uint64: this.to_uint64,
+      to_uint128: this.to_uint128,
+      to_uint256: this.to_uint256,
+      concat: this.concat,
+      substring: this.substring,
+      to_string: this.to_string,
+      strlen: this.strlen,
+      strrev: this.strrev,
+      to_ascii: undefined,
+      put: this.put,
+      get: this.get,
+      contains: this.contains,
+      remove: this.remove,
+      to_list: undefined,
+      size: this.size,
+      blt: undefined,
+      badd: undefined,
+      bsub: undefined,
+      to_bystr: undefined,
+    };
+  }
+
   printError(funcname, msg) {
     console.log("[ERROR]" + funcname + ": " + msg);
   }
@@ -61,77 +101,7 @@ export default class Builtins {
   }
 
   parseBuiltinIdentifier(id) {
-    return id === "eq"
-      ? this.eq
-      : id === "add"
-      ? this.add
-      : id === "sub"
-      ? this.sub
-      : id === "mul"
-      ? this.mul
-      : id === "div"
-      ? this.div
-      : id === "rem"
-      ? this.rem
-      : id === "lt"
-      ? this.lt
-      : id === "pow"
-      ? this.pow
-      : id === "isqrt"
-      ? this.isqrt
-      : id === "to_nat"
-      ? this.to_nat
-      : id === "concat"
-      ? this.concat
-      : id === "to_int32"
-      ? this.to_int32
-      : id === "to_int64"
-      ? this.to_int64
-      : id === "to_int128"
-      ? this.to_int128
-      : id === "to_int256"
-      ? this.to_int256
-      : id === "to_uint32"
-      ? this.to_uint32
-      : id === "to_uint64"
-      ? this.to_uint64
-      : id === "to_uint128"
-      ? this.to_uint128
-      : id === "to_uint256"
-      ? this.to_uint256
-      : id === "concat"
-      ? this.concat
-      : id === "substring"
-      ? this.substring
-      : id === "to_string"
-      ? this.to_string
-      : id === "strlen"
-      ? this.strlen
-      : id === "strrev"
-      ? this.strrev
-      : id === "to_ascii"
-      ? this.to_ascii
-      : id === "put"
-      ? this.put
-      : id === "get"
-      ? this.get
-      : id === "contains"
-      ? this.contains
-      : id === "remove"
-      ? this.remove
-      : id === "to_list"
-      ? this.to_list
-      : id === "size"
-      ? this.size
-      : id === "blt"
-      ? this.blt
-      : id === "badd"
-      ? this.badd
-      : id === "bsub"
-      ? this.bsub
-      : id === "to_bystr"
-      ? this.to_bystr
-      : undefined;
+    return this.builtinDict[id];
   }
 
   eq = (x) => (y) => {
@@ -370,7 +340,15 @@ export default class Builtins {
   };
 
   to_nat = (x) => {
-    console.log("TODO: to_nat");
+    if (x instanceof Uint32L) {
+      let res = new ADTValue("Zero", [], []);
+      for (let i = 0; i < x.i; i++) {
+        res = new ADTValue("Succ", [], [res]);
+      }
+      return res;
+    } else {
+      setError(new Error(`Error: builtin to_nat of ${x}`));
+    }
   };
 
   to_int32 = (x) => {
