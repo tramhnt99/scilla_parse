@@ -14,7 +14,7 @@ import * as TCU from "./typecheckerUtil.js";
  *
  *
  */
-// const E = new Evaluator({});
+const E = new Evaluator({});
 
 /**
  * Contract Configuration (Allows to track contract state)

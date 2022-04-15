@@ -9,8 +9,11 @@ import Evaluator from "./evalSyntax.js";
 import {
   getError,
   isError,
+  logOutput,
   parseAllStdLibs,
   resetErrorSettings,
+  resetLogOutput,
+  setPrintTrue,
   startingEEnv,
 } from "./general.js";
 import ScillaLexer from "./scillaLexer.js";
@@ -308,10 +311,15 @@ if (runEVALexp) {
   const parser = new ScillaParser(tokens);
   const tree = parser.simple_exp();
   const exprAst = tree.accept(new SyntaxVisitor());
+
+  setPrintTrue();
+  resetLogOutput();
+
   const value = SEEvaluator.evalChildren(exprAst);
   if (isError()) {
     console.log(getError().s);
   } else {
+    console.log("log", logOutput);
     console.log("output", util.inspect(value, false, null, true));
   }
 }

@@ -10,16 +10,20 @@ import { ScillaExpr as SE, Pattern, Error } from "./syntax.js";
 import SyntaxVisitor from "./syntaxVisitor.js";
 import * as SL from "./literals.js";
 import Builtins from "./builtins.js";
-import { allowedNodeEnvironmentFlags } from "process";
 import _ from "lodash";
 import * as DT from "./datatypes.js";
-import { isError, setError } from "./general.js";
+import {
+  addLineToLogOutput,
+  isError,
+  logOutput,
+  printLog,
+  setError,
+} from "./general.js";
 import util from "util";
 
 const ST = new ScillaType();
 const SV = new SyntaxVisitor();
 const BI = new Builtins();
-const DT = new DataTypeDict();
 
 export default class Evaluator {
   constructor(env) {
@@ -31,7 +35,7 @@ export default class Evaluator {
     // console.log("lookup", env, x, env[x]);
     return _.has(env, x)
       ? env[x]
-      : this.printError("lookup", "didn't find " + x);
+      : setError(new Error(`Error: environment lookup, didn't find ${x}`));
   }
 
   setEnv(k, v) {
@@ -81,8 +85,8 @@ export default class Evaluator {
   }
 
   substTypeInLit(tvar, type, lit) {
-    //TODO: Handles only Map and ADT literals
-    //Update the context - global
+    // Handles only Map and ADT literals
+    // Update the context - global
     if (lit instanceof SL.Map) {
       const kts = substTypeinType(tvar, type, lit.mtyp.t1);
       const vts = substTypeinType(tvar, type, lit.mtyp.t2);
@@ -158,7 +162,7 @@ export default class Evaluator {
 
     if (expr instanceof SE.DataConstructor) {
       expr.ts = expr.ts.map((ty) => substTypeinType(tvar, tp, ty));
-      return expr; //TODO: implement constructors
+      return expr;
     }
 
     if (expr instanceof SE.App) {
@@ -211,17 +215,11 @@ export default class Evaluator {
   }
 
   evalID(ctx, env) {
-    // console.log("Looking for ID " + ctx.getText());
     return ctx;
-    // return ctx.ID().getText()
-    //   ? ctx.ID().getText()
-    //   : this.printError("evalID", "Couldn't match ID");
   }
 
   evalTArg(ctx, env) {
     return ctx;
-    // return to_type(ctx);
-    // if (ctx instanceof TypTarg)
   }
 
   evalWildcard(ctx, env) {
@@ -232,67 +230,33 @@ export default class Evaluator {
     return ctx.map((arg) => this.evalSid(arg));
   }
 
-  evalExpPmClause(ctx, env) {
-    const p = this.evalPattern(ctx.p, env);
-    const e = this.evalExp(ctx.e, env);
-    return new ExpPmClause(p, e);
-  }
-
-  evalPattern(value, ctx, env) {
-    if (ctx instanceof Pattern.WildCard) {
-      //continue, Wildcard
-    } else if (ctx instanceof Pattern.Binder) {
-      // bind value to variable to environment
-      env[ctx.x] = value;
-    } else {
-      // ConstructorPat case
-      const adt = DT.lookUpConstr(ctx.c);
-      if (adt.arity > 0) {
-        for (let a = 0; a < adt.arity; a++) {
-          if (value instanceof SL.ADTValue) {
-            value = value.ll;
-          }
-          _.merge(
-            env,
-            this.evalPattern(this.lookup(value[a], env), ctx.ps[a], env)
-          );
-        }
-      }
-    }
-    return env;
-  }
+  // evalExpPmClause(ctx, env) {
+  //   const p = this.evalPattern(ctx.p, env);
+  //   const e = this.evalExp(ctx.e, env);
+  //   return new ExpPmClause(p, e);
+  // }
 
   evalLet(ctx, env) {
-    if (!ctx) {
-      return;
-    }
     const x = ctx.x;
     const value = this.evalSimpleExp(ctx.lhs, env);
+    // return if evaluation of lhs produced an error
+
+    if (isError()) {
+      return;
+    }
+
     env[x] = value;
-    // this.setEnv(x, value);
     return this.evalExp(ctx.rhs, env);
   }
 
   //Returns a closure
   evalFun(ctx, env) {
-    if (ctx === undefined) {
-      this.printError("evalFun", "Ctx is undefined.");
-    }
     const param = ctx.id;
     const clo = (x) => {
       const env_ = _.cloneDeep(env);
       env_[param] = x;
       return this.evalExp(ctx.e, env_);
     };
-    // const clo = function (x, env) {
-    //   // const newEvaluator = new Evaluator(env); // evaluate in new environment
-    //   // newEvaluator.setEnv(param, x); // set param binding
-    //   // return newEvaluator.evalExp(ctx.e);
-    //   console.log("param", param);
-    //   env[param] = x;
-    //   console.log(this.value);
-    //   return E_.evalExp(ctx.e, env);
-    // };
     return new SL.Clo(clo);
   }
 
@@ -300,26 +264,29 @@ export default class Evaluator {
   //`this` doesn't operate properly inside `reduce` since reduce is also
   //a closure.
   evalApp(ctx, env) {
-    console.log("eval app " + ctx.f_var);
     const func_id = this.evalSid(ctx.f_var, env); // gets the identifier
     const func = this.lookup(func_id, env);
+
     const argsLit = ctx.args.map((arg) =>
       this.lookup(this.evalSid(arg, env), env)
     );
 
-    const fullyAppliedRes = argsLit.reduce(function (res, arg) {
+    // check for an error at lookup
+    if (isError()) {
+      return;
+    }
+
+    let fullyAppliedRes = argsLit.reduce(function (res, arg) {
       //Apply closure to argument
       const partialRes = res.clo(arg);
       //   env = partialRes.env;
       return partialRes;
     }, func);
+
     return fullyAppliedRes;
   }
 
   evalMessage(ctx, env) {
-    if (ctx === undefined) {
-      this.printError("evalMessage", "Ctx is undefined.");
-    }
     const messageKVPairs = ctx.es.map((pair) => {
       if (pair?.i !== undefined && pair?.l !== undefined) {
         return new SL.MsgEntry(pair.i, SL.literalType(pair.l), pair.l);
@@ -327,7 +294,8 @@ export default class Evaluator {
         pair.v = this.lookup(pair.v, env);
         return new SL.MsgEntry(pair.i, SL.literalType(pair.v), pair.v);
       } else {
-        return `Error: evalMessage ${pair}`;
+        setError(new Error(`Error: ${ctx.constructor.name} ${pair}`));
+        return;
       }
     });
 
@@ -336,24 +304,32 @@ export default class Evaluator {
 
   evalBuiltin(ctx, env) {
     const id = this.evalID(ctx.b);
+    // console.log(this.lookup(ctx.xs[0], env));
+
     const builtinFunc = BI.parseBuiltinIdentifier(id);
     if (builtinFunc === undefined) {
-      return `Error: ${id} is not recognised as a builtin function`;
+      setError(
+        new Error(`Error: ${id} is not recognised as a builtin function`)
+      );
+      return;
     }
 
     // const typeArgs =
     //   ctx.targs !== undefined
     //     ? ctx.targs.map((targ) =>
-    //         targ.ts !== null ? resolveTArg(targ) : targ.getText()
+    //         targ.ts !== null ? ST.resolveTArg(targ) : targ.getText()
     //       )
     //     : undefined;
 
     const builtinArgs = this.evalBuiltinArgs(ctx.xs).map((arg) => {
       return this.lookup(arg, env);
     });
-    // console.log("typeArgs", typeArgs);
-    // console.log("ctx.xs", ctx.xs);
-    // console.log("builtinArgs", builtinArgs);
+
+    // check if an error occurred during lookup
+    if (isError()) {
+      return;
+    }
+
     const builtinFuncResult = builtinArgs.reduce(function (res, arg) {
       //Apply closure to argument
       const partialRes = res(arg);
@@ -365,61 +341,60 @@ export default class Evaluator {
 
   evalDataConstructor(ctx, env) {
     const c = this.evalScid(ctx.c, env);
+    const constr = this.ADTDict.lookUpConstr(c);
+    if (constr === undefined) {
+      setError(
+        new Error(`${ctx.constructor.name}: ADT constructor does not exist`)
+      );
+      return;
+    }
+    if (constr.arity !== ctx.args.length) {
+      setError(
+        new Error(`${ctx.constructor.name}: Constructor arity mismatch`)
+      );
+      return;
+    }
     const targs = ctx.ts;
-    const args = ctx.args.map((arg) => this.evalSid(arg, env));
+    const args = ctx.args.map((arg) =>
+      this.lookup(this.evalSid(arg, env), env)
+    );
     return new SL.ADTValue(c, targs, args);
   }
 
-  // NOT USED DUE TO ARGPATTERN BEING TRANSLATED TO PATTERN
-  // evalArgPattern(ctx) {
-  //   if (ctx instanceof Pattern.Wildcard) {
-  //     return new ArgPattern(this.evalWildcard(ctx), null, null, null);
-  //   } else if (ctx instanceof Pattern.Binder) {
-  //     return new ArgPattern(null, this.evalID(ctx.x), null, null);
-  //   } else if (ctx instanceof Pattern.ConstructorPat) {
-  //     // const ps = ctx.ps !== null ? this.evalArgPattern(ctx.ps) : null;
-  //     return new ArgPattern(null, null, this.evalScid(ctx.c), null);
-  //   } else {
-  //     return `ERROR[ evalArgPattern ]: ctx provided was ${ctx} `;
-  //   }
-  // }
+  evalPattern(value, ctx, env) {
+    if (ctx instanceof Pattern.WildCard) {
+      // no binding required
+      return env;
+    } else if (ctx instanceof Pattern.Binder) {
+      // bind value to variable to environment
+      env[ctx.x] = value;
+      return env;
+    } else if (ctx instanceof Pattern.ConstructorPat) {
+      // ConstructorPat case
+      const valueADTConstr = this.ADTDict.lookUpConstr(value.name);
+      const ctxADTConstr = this.ADTDict.lookUpConstr(ctx.c);
 
-  evalMatchExp(ctx, env) {
-    const value = this.lookup(ctx.x, env);
-    // Scilla requires exhaustive match statements, we do a check for this
-    // current assumption is that if expecting an ADT constructor
-    // only ADT constructors are used as patterns
-    if (value instanceof SL.ADTValue) {
-      const adt = DT.lookUpADTByConstr(value.name);
-      const clausePatterns = ctx.clauses.map((clause) => clause.pat);
-
-      // check for reachable pattern
-      if (clausePatterns.length > 1) {
-        for (let i = 0; i < clausePatterns.length - 1; i++) {
-          if (clausePatterns[i] instanceof Pattern.WildCard) {
-            return `Error: Wildcard cannot be used before last pattern in a match statement`;
-          }
+      if (valueADTConstr.cname !== ctxADTConstr.cname) {
+        return undefined;
+      } else {
+        if (value.ll.length !== ctxADTConstr.arity) {
+          setError(
+            new Error(
+              `Error: ${ctx.constructor.name} pattern matching arity mismatch for ADT.`
+            )
+          );
+          return undefined;
         }
-        // check if last pattern is Wildcard, if so, we need to ensure that
-        // the prior sequence of patterns come from the ADT constructor
-        // and has at least 1 more pattern to match (otherwise Wildcard is
-        // useless)
-        if (
-          clausePatterns[clausePatterns.length - 1] instanceof Pattern.WildCard
-        ) {
-          const typesArr = adt.tconstr.map((constr) => constr.cname);
-          for (let i = 0; i < clausePatterns.length - 1; i++) {
-            if (typesArr.includes(clausePatterns[i].c)) {
-              _.remove(typesArr, function (a) {
-                return a === clausePatterns[i].c;
-              });
-              // return `Error: Wildcard cannot be used before last pattern in a match statement`;
-            } else {
-              return `Error: Unreachable pattern or incorrect ADT constructor detected.`;
-            }
+
+        for (let a = 0; a < ctxADTConstr.arity; a++) {
+          if (isError()) {
+            return undefined;
           }
-          if (typesArr.length === 0) {
-            return `Error: Unreachable Wildcard pattern detected.`;
+          const nextEnv = this.evalArgPattern(value.ll[a], ctx.ps[a], env);
+          if (nextEnv === undefined) {
+            return undefined;
+          } else {
+            _.merge(env, nextEnv);
           }
         }
         return env;
@@ -482,53 +457,117 @@ export default class Evaluator {
         if (valueADTConstr.cname !== ctxADTConstr.cname) {
           return false;
         } else {
-          // in this case, no Wildcard used, it must be that
-          // the number of the clause patterns matches the
-          // number of ADT constructors
-          // check for arity match
-          const adtConstructors = adt.tconstr;
-          if (clausePatterns.length !== adtConstructors.length) {
-            return `Error: Pattern matching arity mismatch for ADT`;
+          if (value.ll.length !== ctxADTConstr.arity) {
+            setError(
+              new Error(
+                `Error: ${ctx.constructor.name} pattern matching arity mismatch for ADT.`
+              )
+            );
+            return false;
           }
 
-          // check that all ADT constructors are provided as patterns to match
-          for (let j = 0; j < adtConstructors.length; j++) {
-            let foundFlag = false;
-            for (let k = 0; k < clausePatterns.length; k++) {
-              if (adtConstructors[j].cname === clausePatterns[k].c) {
-                foundFlag = true;
-              }
+          for (let a = 0; a < ctxADTConstr.arity; a++) {
+            if (isError()) {
+              return false;
             }
-            if (!foundFlag) {
-              console.log(adtConstructors);
-              return `Error: Invalid constructor provided in pattern match`;
+            const nextEnv = checkArgPattern(value.ll[a], ctx.ps[a], env);
+            if (nextEnv === false) {
+              return false;
+            } else {
             }
           }
+          return true;
         }
+      } else {
+        return false;
       }
     };
 
-    for (const clause of ctx.clauses) {
-      const found = this.matchClause(value, clause.pat);
-      if (found === undefined) {
-      } //continue
-      else {
-        // evalPattern returns an env for evaluating the expression
-        // of the pattern
-        const nextEnv = this.evalPattern(value, clause.pat, env);
-        return this.evalExp(clause.exp, nextEnv);
-        // return new Evaluator(env).evalExp(clause.exp);
+    const checkArgPattern = (value, ctx) => {
+      if (ctx instanceof Pattern.WildCard) {
+        // no binding required
+        return true;
+      } else if (ctx instanceof Pattern.Binder) {
+        return true;
+      } else if (ctx instanceof Pattern.ConstructorPat) {
+        if (ctx.ps !== []) {
+          return checkPattern(value, ctx);
+        }
+
+        if (value.name === ctx.c) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        // currently this case will not occur due to the syntax translation
+        // layer
+        return checkPattern(value, ctx);
       }
+    };
+
+    const clauseReachability = ctx.clauses.map(() => 0); // initialize empty array
+    for (const [index, clause] of ctx.clauses.entries()) {
+      const isReachable = checkPattern(value, clause.pat);
+      if (isReachable) {
+        clauseReachability[index] = clauseReachability[index] + 1;
+      }
+    }
+
+    if (!clauseReachability.every((reached) => reached <= 1)) {
+      setError(new Error("Duplicate pattern found in pattern match"));
+      return undefined;
+    }
+
+    if (clauseReachability.every((reached) => reached === 0)) {
+      setError(new Error("Non-exhaustive pattern matching found"));
+      return undefined;
+    }
+
+    return true;
+  }
+
+  enumerateExpectedPatterns(value) {
+    /**
+     * This function should enumerate all expected patterns
+     * using the bounded variable's value to enumerate
+     * the kind of types and hence constructors that must appear
+     * in the match expression for it to be well-formed.
+     */
+  }
+
+  evalMatchExp(ctx, env) {
+    const value = this.lookup(ctx.x, env);
+
+    const wellFormedMatch = this.checkMatchExp(value, ctx, env);
+    if (!wellFormedMatch) {
+      return;
+    }
+
+    let nextEnv = undefined;
+    for (const clause of ctx.clauses) {
+      nextEnv = this.evalPattern(value, clause.pat, env);
+      if (nextEnv !== undefined) {
+        return this.evalExp(clause.exp, nextEnv);
+      }
+    }
+
+    // reaching this point would be due to an error
+    // no clauses matched
+    setError(new Error("Couldn't find a matching clause"));
+
+    if (isError()) {
+      return;
     }
   }
 
   evalTFun(ctx, env) {
-    if (ctx === undefined) {
-      this.printError("evalTFun", "Ctx is undefined.");
-    }
     const tvar = ctx.i;
     const clo = (tp) => {
       const env_ = _.cloneDeep(env);
+      if (printLog) {
+        addLineToLogOutput(`Instantiating ${tvar} as ${tp.constructor.name}`);
+      }
       const exp = this.substTypeInExpr(tvar, tp, ctx.e);
       return this.evalSimpleExp(exp, env_);
     };
@@ -536,56 +575,35 @@ export default class Evaluator {
   }
 
   evalTApp(ctx, env) {
-    console.log("At Tapp for " + this.evalSid(ctx.f, env));
+    // console.log("At Tapp for " + this.evalSid(ctx.f, env));
     const tfunc_id = this.evalSid(ctx.f, env);
     const tfunc = this.lookup(tfunc_id, env);
+    // check if an error occurred during lookup
+    if (isError()) {
+      return;
+    }
+
     const argsLit = ctx.targs.map((targ) => this.evalTArg(targ, env));
     const fullyAppliedTRes = argsLit.reduce(function (tres, arg) {
       //Apply closure to arg
       const partialRes = tres.clo(arg);
-
       return partialRes;
     }, tfunc);
     return fullyAppliedTRes;
-    // return new TApp(tfunc, argsLit);
   }
 
-  // evalAtomic(ctx) {
-  //   return ctx instanceof SE.Literal //Literal
-  //     ? this.evalLiteral(ctx.a)
-  //     : ctx instanceof SE.Var //Identifier
-  //     ? this.lookup(this.evalSid(ctx.a), this.globalEnv)
-  //     : this.printError("evalAtomic", "Couldn't match atomic expression.");
-  // }
-
   evalLiteral(ctx, env) {
-    // console.log("oh literal! ", ctx);
     return ctx;
-    // const val =
-    //   ctx instanceof SL.StringLit // SP.LitCidContext
-    //     ? this.evalCid(ctx.s)
-    //     : ctx instanceof SL.IntLit
-    //     ? parseInt(ctx.i) //integer
-    //     : ctx instanceof SL.UintLit
-    //     ? parseInt(ctx.i) //integer
-    //     : ctx instanceof SL.BNumLit // SP.LitBNumContext
-    //     ? parseInt(ctx.i_number.getText()) //BNUM number (> 0)
-    //     : // : ctx instanceof // SP.LitNumContext
-    //     // ? parseInt(ctx.n.getText()) //number
-    //     ctx instanceof SP.LitHexContext
-    //     ? console.log(ctx, "HEX TODO") //hex TODOA
-    //     : ctx instanceof SL.StringLit // SP.LitStringContext
-    //     ? console.log("SL.StringLit TODO", ctx) //string
-    //     : ctx instanceof SL.Map // SP.LitEmpContext
-    //     ? console.log("SL.Map TODO", ctx) //empty map TODO
-    //     : ctx instanceof SP.LitBoolContext
-    //     ? ctx.getText() //(ctx.b.getText() === "True")
-    //     : this.printError("evalLiteral", "Couldn't match literal.");
-    // return val;
   }
 
   evalVar(ctx, env) {
-    return this.lookup(this.evalSid(ctx.s), env);
+    const variable = this.lookup(this.evalSid(ctx.s), env);
+
+    // check if an error occurred during lookup
+    if (isError()) {
+      return;
+    }
+    return variable;
   }
 
   evalSimpleExp(ctx, env) {
