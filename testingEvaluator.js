@@ -15,6 +15,7 @@ import {
 } from "./general.js";
 import ScillaLexer from "./scillaLexer.js";
 import ScillaParser from "./scillaParser.js";
+import util from "util";
 
 const expressions = [
   "ackermann.scilexp",
@@ -330,7 +331,7 @@ if (runEVALexp) {
   // Single test debugging expressions
   // const input = fs.readFileSync("examples/tester.scilexp").toString();
   // const input = fs.readFileSync("examples/church_naturals.scilexp").toString();
-  const input = fs.readFileSync("scilexp/list_zip_with.scilexp").toString();
+  const input = fs.readFileSync("scilexp/list_tail.scilexp").toString();
   const chars = new antlr4.InputStream(input);
   const lexer = new ScillaLexer(chars);
   const tokens = new antlr4.CommonTokenStream(lexer);
@@ -341,7 +342,7 @@ if (runEVALexp) {
   if (isError()) {
     console.log(getError().s);
   } else {
-    console.log("output", value);
+    console.log("output", util.inspect(value, false, null, true));
   }
 }
 

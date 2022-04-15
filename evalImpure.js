@@ -14,13 +14,7 @@ import * as TCU from "./typecheckerUtil.js";
  *
  *
  */
-const E = new Evaluator({});
-
-/**
- * TEMPORARY SOLVE FOR A NON WORKING EXPRESSION EVALUATOR
- * All expressions will be kept as ExpPlaceHolder
- */
-class ExpPlaceHolder {}
+// const E = new Evaluator({});
 
 /**
  * Contract Configuration (Allows to track contract state)

@@ -2,6 +2,7 @@
 import antlr4 from "antlr4";
 import fs from "fs";
 import Evaluator from "./evalSyntax.js";
+import util from "util";
 import ScillaLexer from "./scillaLexer.js";
 import ScillaParser from "./scillaParser.js";
 import { Error } from "./syntax.js";
@@ -13,6 +14,7 @@ import {
 } from "./general.js";
 import _ from "lodash";
 import * as TC from "./typechecker.js";
+import {ppType} from "./types.js";
 
 import SyntaxVisitor from "./syntaxVisitor.js";
 import ScillaTypeChecker from "./typechecker.js";
@@ -443,8 +445,10 @@ if (testSingle) {
   const typed = STC.typeExpr(exprAst, tenv_);
   if (isError()) {
     console.log(getError());
+  } else {
+    console.log(ppType(typed.ty));
   }
-  console.log(typed.ty.t.t1);
+  
 }
 
 /**

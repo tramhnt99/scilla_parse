@@ -1,11 +1,95 @@
 //Types that exist in Scilla
 import SP from "./scillaParser.js"; //short for ScillaParser
+import { Fun } from "./syntax.js";
 
 /***************************************************
  *
  * Type Utility Functions
  *
  **************************************************/
+export function ppType(ty) {
+  if (ty instanceof PrimType) {
+    return ty instanceof Int64
+      ? "Int64"
+      : ty instanceof Int32
+      ? "Int32"
+      : ty instanceof Int128 
+      ? "Int128"
+      : ty instanceof Int256 
+      ? "Int256"
+      : ty instanceof Uint32
+      ? "Uint32"
+      : ty instanceof Uint64 
+      ? "Uint64"
+      : ty instanceof Uint128 
+      ? "Uint128"
+      : ty instanceof Uint256
+      ? "Uint256"
+      : ty instanceof ByStrTyp 
+      ? "ByStr"
+      : ty instanceof String
+      ? "String"
+      : ty instanceof BNum
+      ? "BNum"
+      : ty instanceof MessageTyp
+      ? "Message"
+      : ty instanceof EventTyp
+      ? "Event"
+      : ty instanceof ExceptionTyp
+      ? "Exception"
+      : ty instanceof ByStrXTyp
+      ? "BystrXTyp" + ty.i.toString()
+      : console.log("ERROR: Not a primary type");
+  }
+  if (ty instanceof Unit) {
+    return "()";
+  }
+  if (ty instanceof MapType) {
+    const t1 = ppType(ty.t1);
+    const t2 = ppType(ty.t2);
+    return "Map " + t1 + " " + t2;
+  }
+  if (ty instanceof FunType) {
+    const t1 = withParen(ty.t1);
+    const t2 = ppType(ty.t2);
+    return t1 + " -> " + t2;
+  }
+  if (ty instanceof TypeVar) {
+    return ty.name;
+  }
+  if (ty instanceof PolyFun) {
+    const t = ppType(ty.t);
+    return "forall " + ty.name + ". " + t;
+  }
+  if (ty instanceof ADT) {
+    const t = ppType(ty.t);
+    return ty.name + " {" + t + "} ";
+  }
+  if (ty instanceof AnyAddr) {
+    return "ByStr20 with end";
+  }
+  if (ty instanceof ContrAddr) {
+    const fields = ty.fs.map(f => "field " + f.id + ": " + ppType(f.typ));
+    const fields_ = fields.join();
+    return "ByStr20 with contract " + fields_ + " end";
+  }
+  if (ty instanceof LibAddr) {
+    return "ByStr20 with library end";
+  }
+  if (ty instanceof CodeAddr) {
+    return "ByStr20 with end";
+  }
+  console.log("Missed the type");
+}
+
+function withParen(ty) {
+  if (ty instanceof FunType || ty instanceof PolyFun) {
+    return "( " + ppType(ty) + " )";
+  } else {
+    return ppType(ty);
+  }
+}
+
 export function parseStringToPrimType(str) {
   return str === "Int64"
     ? new Int64()
@@ -42,6 +126,8 @@ export function parseStringToPrimType(str) {
       undefined;
   // : console.log("[ERROR]parseStringToPrimType: Couldn't match Prim Type: " + str);
 }
+
+
 
 //@n: string
 //returns ScillaType
