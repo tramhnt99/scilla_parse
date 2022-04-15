@@ -5,9 +5,18 @@ import Evaluator from "./evalSyntax.js";
 import ScillaLexer from "./scillaLexer.js";
 import ScillaParser from "./scillaParser.js";
 import { Error } from "./syntax.js";
-import { getError, isError, resetErrorSettings, startingTEnv } from "./general.js";
-import _ from 'lodash';
-import * as TC from './typechecker.js';
+import {
+  getError,
+  isError,
+  resetErrorSettings,
+  startingTEnv,
+} from "./general.js";
+import _ from "lodash";
+import * as TC from "./typechecker.js";
+
+import SyntaxVisitor from "./syntaxVisitor.js";
+import ScillaTypeChecker from "./typechecker.js";
+import TranslateVisitor from "./translate.js";
 
 const expressions = [
   "ackermann.scilexp",
@@ -151,7 +160,6 @@ const expressions = [
   "type_subst2.scilexp",
   "uint_conversions.scilexp",
 ];
-
 
 //Many expressions above are not written with proper typing
 const expressionsTC = [
@@ -356,25 +364,21 @@ export const contracts = [
 ];
 
 export const stdlib = [
-  'BoolUtils',
-  'Conversions',
-  'CryptoUtils',
-  'IntUtils',
-  'ListUtils',
-  'NatUtils',
-  'PairUtils',
-  'Polynetwork',
-  'ShogiLib'
+  "BoolUtils",
+  "Conversions",
+  "CryptoUtils",
+  "IntUtils",
+  "ListUtils",
+  "NatUtils",
+  "PairUtils",
+  "Polynetwork",
+  "ShogiLib",
 ];
 
-import SyntaxVisitor from "./syntaxVisitor.js";
-import ScillaTypeChecker from "./typechecker.js";
-import TranslateVisitor from "./translate.js";
-
 /**
- * 
+ *
  * Typechecking expressions
- * 
+ *
  */
 const runTCexp = false;
 if (runTCexp) {
@@ -383,46 +387,52 @@ if (runTCexp) {
   const tenv = tenvSTC[0];
   const STC = tenvSTC[1];
   for (let i = 0; i < expressionsTC.length; i++) {
-      const input = fs.readFileSync('scilexp/'.concat(expressionsTC[i])).toString();
-      console.log("Input: " + 'scilexp/'.concat(expressionsTC[i]));
-      const chars = new antlr4.InputStream(input);
-      const lexer = new ScillaLexer(chars);
-      const tokens = new antlr4.CommonTokenStream(lexer);
-      const parser = new ScillaParser(tokens);
-      const tree = parser.simple_exp();
-      const exprAst = tree.accept(new SyntaxVisitor());
-      const tenv_ = _.cloneDeep(tenv);
-      const typed = STC.typeExpr(exprAst, tenv_);
-      if (!typed) {
-
-        console.log(getError());
-        if (getError().s 
-            && (getError().s.search("fold") !== -1
-            || getError().s.search("We do not handle builtin") !== -1
-            || getError().s.search("gt") !== -1
-            || getError().s.search("alt_bn") !== -1
-            || getError().s.search("list_") !== -1
-            || getError().s.search("nat_") !== -1
-            || getError().s.search("extract") !== -1
-            || getError().s.search("Book") !== -1)) { //We don't have folding, so we don't have list ops
-          //If an error occurs because a stdlib has not been implemented - we allow it
-          resetErrorSettings();
-          continue;
-        }
+    const input = fs
+      .readFileSync("scilexp/".concat(expressionsTC[i]))
+      .toString();
+    console.log("Input: " + "scilexp/".concat(expressionsTC[i]));
+    const chars = new antlr4.InputStream(input);
+    const lexer = new ScillaLexer(chars);
+    const tokens = new antlr4.CommonTokenStream(lexer);
+    const parser = new ScillaParser(tokens);
+    const tree = parser.simple_exp();
+    const exprAst = tree.accept(new SyntaxVisitor());
+    const tenv_ = _.cloneDeep(tenv);
+    const typed = STC.typeExpr(exprAst, tenv_);
+    if (!typed) {
+      console.log(getError());
+      if (
+        getError().s &&
+        (getError().s.search("fold") !== -1 ||
+          getError().s.search("We do not handle builtin") !== -1 ||
+          getError().s.search("gt") !== -1 ||
+          getError().s.search("alt_bn") !== -1 ||
+          getError().s.search("list_") !== -1 ||
+          getError().s.search("nat_") !== -1 ||
+          getError().s.search("extract") !== -1 ||
+          getError().s.search("Book") !== -1)
+      ) {
+        //We don't have folding, so we don't have list ops
+        //If an error occurs because a stdlib has not been implemented - we allow it
         resetErrorSettings();
-        break;
-      } else {
-        // console.log(typed);
+        continue;
       }
+      resetErrorSettings();
+      break;
+    } else {
+      // console.log(typed);
+    }
   }
 }
 const testSingle = true;
 if (testSingle) {
   const tenvSTC = startingTEnv();
-  if (isError()) { console.log(getError())};
+  if (isError()) {
+    console.log(getError());
+  }
   const tenv = tenvSTC[0];
   const STC = tenvSTC[1];
-  const input = fs.readFileSync('scilexp/church_nat2.scilexp').toString();
+  const input = fs.readFileSync("scilexp/church_nat2.scilexp").toString();
   const chars = new antlr4.InputStream(input);
   const lexer = new ScillaLexer(chars);
   const tokens = new antlr4.CommonTokenStream(lexer);
@@ -431,21 +441,23 @@ if (testSingle) {
   const exprAst = tree.accept(new SyntaxVisitor());
   const tenv_ = _.cloneDeep(tenv);
   const typed = STC.typeExpr(exprAst, tenv_);
-  if (isError()) { console.log(getError())};
-  console.log(typed);
+  if (isError()) {
+    console.log(getError());
+  }
+  console.log(typed.ty.t.t1);
 }
 
 /**
- * 
+ *
  * Typechecking cmods
- * 
+ *
  */
 const runTCcmod = false;
 if (runTCcmod) {
   for (let i = 0; i < contracts.length; i++) {
     resetErrorSettings();
-    const input = fs.readFileSync('contracts/'.concat(contracts[i])).toString();
-    console.log("Input: " + 'contracts/'.concat(contracts[i]));
+    const input = fs.readFileSync("contracts/".concat(contracts[i])).toString();
+    console.log("Input: " + "contracts/".concat(contracts[i]));
     const chars = new antlr4.InputStream(input);
     const lexer = new ScillaLexer(chars);
     const tokens = new antlr4.CommonTokenStream(lexer);
