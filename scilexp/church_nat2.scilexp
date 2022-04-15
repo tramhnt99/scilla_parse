@@ -38,6 +38,6 @@ let church_nat_to_uint32 : (forall 'X. ('X -> 'X) -> 'X -> 'X) -> Uint32 =
     c32 add1 zero
 in
 (* tests *)
-let c4 = cmul c2 c2 in
-let c8 = cadd c4 c4 in
-c8
+let c4 = cadd c2 c2 in
+let c16 = cmul c4 c4 in
+church_nat_to_uint32 c16

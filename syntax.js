@@ -1,10 +1,8 @@
 //Syntax of Scilla programs
 
-class ScillaProgram {}
-
 //Scilla expressions
 // export default class ScillaExpr {}
-export class ScillaExpr extends ScillaProgram {}
+export class ScillaExpr {}
 //@x: String
 //@f: ScillaExpr
 //@e: ScillaExpr
@@ -83,6 +81,13 @@ export class Builtin extends ScillaExpr {
 ScillaExpr.Builtin = Builtin;
 
 export class Message extends ScillaExpr {
+    /**
+     * 
+     * @param {{id: String, l: ScillaLiterals}[]
+     *            or
+     *          {id: String, v: String}[]
+     *        } es 
+     */
     constructor(es) {
         super();
         this.es = es;

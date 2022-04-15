@@ -465,7 +465,6 @@ export default class Evaluator {
     const tfunc_id = this.evalSid(ctx.f, env);
     const tfunc = this.lookup(tfunc_id, env);
     const argsLit = ctx.targs.map((targ) => this.evalTArg(targ, env));
-    console.log(tfunc);
     const fullyAppliedTRes = argsLit.reduce(function (tres, arg) {
       //Apply closure to arg
       const partialRes = tres.clo(arg);

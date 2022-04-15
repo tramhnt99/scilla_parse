@@ -10,6 +10,7 @@ import * as BI from './builtin.js';
 import * as DT from './datatypes.js';
 import { isError, getError, setError, resetErrorSettings, parseLib } from './general.js';
 import * as TCU from './typecheckerUtil.js'; //Type Checker Utilities
+import util from 'util';
 
 /*
  * Type Library Entry
@@ -317,6 +318,10 @@ export function typeStmts(stmts, tenv, STC) {
         if (isError()) {return;}
         const tenv__ = _.cloneDeep(tenv);
         tenv__[s.x] = tyExp.ty;
+        if (s.x === "a") {
+            console.log(s.x + " ");
+            console.log(util.inspect(tyExp.ty, false, null, true /* enable colors */))
+        }
         return typeStmts(sts, tenv__, STC);
     }
 
@@ -682,6 +687,9 @@ export default class ScillaTypeChecker{
 
         if (e instanceof SS.Let) {
             const typedLhs = this.typeExpr(e.lhs, tenv);
+            if (e.x === "bs") {
+                console.log(typedLhs);
+            }
             if (isError()) { return; }
             const actualTyp = 
                 e.ty === null

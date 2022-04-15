@@ -1,0 +1,42 @@
+scilla_version 0
+
+library TCExampleLib
+
+type Animal =
+    | Rabbit of Uint128
+    | Cow of Bool 
+    | Alligator of Int32 
+    | Pig of Uint128 Bool Int32
+
+
+contract TCExample (animal : Animal)
+
+transition someAnimal()
+    a = 
+        let value =
+            match animal with 
+            | Rabbit x => True
+            | Cow y => y
+            | Alligator z => True
+            | Pig x y z => y
+            end
+        in value;
+    e = { _exception : "SenderIsNotAdmin" };
+    throw e
+end
+
+(*
+transition someAnimal()
+    a = 
+        let value =
+            match animal with 
+            | Rabbit x => x
+            | Cow y => y
+            | Alligator z => z
+            | Pig x y z => z
+            end
+        in value;
+    e = { _exception : "SenderIsNotAdmin" };
+    throw e
+end
+*)

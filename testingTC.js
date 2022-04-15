@@ -416,7 +416,7 @@ if (runTCexp) {
       }
   }
 }
-const testSingle = false;
+const testSingle = true;
 if (testSingle) {
   const tenvSTC = startingTEnv();
   if (isError()) { console.log(getError())};
@@ -432,7 +432,7 @@ if (testSingle) {
   const tenv_ = _.cloneDeep(tenv);
   const typed = STC.typeExpr(exprAst, tenv_);
   if (isError()) { console.log(getError())};
-  console.log(typed.ty.t.t1);
+  console.log(typed);
 }
 
 /**
@@ -456,17 +456,63 @@ if (runTCcmod) {
     TC.typeCMod(cmod, {}, STC);
   }
 }
-// const input = fs.readFileSync('contracts/'.concat("address_list_traversal.scilla")).toString();
-// const chars = new antlr4.InputStream(input);
-// const lexer = new ScillaLexer(chars);
-// const tokens = new antlr4.CommonTokenStream(lexer);
-// const parser = new ScillaParser(tokens);
-// const tree = parser.cmodule();
-// const cmod = tree.accept(new TranslateVisitor());
-// const STC = new ScillaTypeChecker();
-// TC.typeCMod(cmod, {}, STC);
-// if (isError()) { console.log(getError());}
+const runSingleCmod = false;
+if (runSingleCmod) {
+  const input = fs.readFileSync('contracts/'.concat("tcexample.scilla")).toString();
+  const chars = new antlr4.InputStream(input);
+  const lexer = new ScillaLexer(chars);
+  const tokens = new antlr4.CommonTokenStream(lexer);
+  const parser = new ScillaParser(tokens);
+  const tree = parser.cmodule();
+  const cmod = tree.accept(new TranslateVisitor());
+  const STC = new ScillaTypeChecker();
+  const typed = TC.typeCMod(cmod, {}, STC);
+  if (isError()) { console.log(getError());}
+}
+/*
 
+let list_foldk : forall 'A. forall 'B. ('B -> 'A -> ('B -> 'B) -> 'B) -> 'B -> (List 'A) -> 'B =
+  tfun 'A => tfun 'B =>
+  fun (f: 'B -> 'A -> ('B -> 'B) -> 'B) =>
+  fun (z : 'B) => fun (l: List 'A) =>
+  let g = fun (a: 'B) => fun (b: List 'A) =>
+    match b with
+    | Cons h t => let partial = fun (k : 'B) => g k t in
+      f a h partial
+    | Nil => a
+    end
+  g z l
+
+
+let nat_foldk : ('T -> Nat -> ('T -> 'T) -> 'T) -> 'T -> Nat -> 'T =
+  tfun 'T => 
+  fun (fn : ('T -> Nat -> ('T -> 'T) -> 'T)) =
+  fun (f0 : 'T) => fun (n: Nat) =>
+  let g : 'T -> Nat -> 'T = 
+    fun (f0 : 'T) => fun (n: Nat) =>
+    match n with
+      | Succ n1 => let partial = fun (k : 'T) => g k n1 in 
+        fn f0 n partial
+      | Zero => f0
+    end
+  in
+  g f0 n
+
+let nat_fold : ('T -> Nat -> 'T) -> 'T -> Nat -> 'T =
+  tfun 'T =>
+  fun (fn: 'T -> Nat -> 'T) =>
+  fun (f0 : 'T) => fun (n: Nat) =>
+  let g : 'T -> Nat -> 'T =
+    fun (f0: 'T) => fun (n: Nat) =>
+    match n with
+      | Succ n1 => let res = fn f0 n1 in
+        g res n1
+      | Zero => f0
+    end
+  in
+  g f0 n
+
+*/
 // for (let i = 0; i < stdlib.length; i++) {
 //     const input = fs.readFileSync('stdlib/'.concat(stdlib[i]).concat('.scillib')).toString();
 //     console.log("Input: " + 'stdlib/'.concat(stdlib[i]).concat('.scillib'));
