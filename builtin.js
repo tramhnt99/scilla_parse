@@ -60,7 +60,7 @@ export class BI_strlen{
 export class BI_to_string {
     constructor() {
         this.arity = 1;
-        this.types = [new ST.String()].concat(ST.allBystr).concat(ST.allAddr);
+        this.types = [new ST.String()].concat(ST.allBystr).concat(ST.allAddr).concat(ST.allInts).concat(ST.allUints);
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.String));
     }
 }
@@ -317,6 +317,17 @@ export class BI_badd {
     }
 }
 
+export class BI_sha256hash {
+    constructor() {
+        this.arity = 1;
+        this.types = [new ST.ADT(), new ST.String].concat(ST.allBystr.concat(ST.allAddr)).concat(ST.allInts);
+        this.funTyp =
+        new ST.PolyFun("'A",
+            new ST.FunType(new ST.TypeVar("'A"), new ST.ByStrXTyp(32))
+        );
+    }
+}
+
 /**
  * Recursive Functions
  */
@@ -458,7 +469,8 @@ export const BuiltInDict = {
     "to_uint256": new BI_to_uint256(),
     "to_uint32": new BI_to_uint32(),
     "badd": new BI_badd(),
-    "nat_foldk": new BI_nat_foldk()
+    "nat_foldk": new BI_nat_foldk(),
+    "sha256hash": new BI_sha256hash()
 }
 
 /**
@@ -515,7 +527,7 @@ export function resolveBIFunType(fname, targs) {
         fname === "add" || fname === "sub" || fname === "mul" || fname === "div" ||
         fname === "rem" || fname === "pow" || fname === "isqrt" ||
         fname === "strlen" || fname === "strrev" || fname === "to_bystrx" || fname === "to_uint256" ||
-        fname === "to_uint32") 
+        fname === "to_uint32" || fname === "sha256hash") 
     {
         const info = BuiltInDict[fname];
         const basicsOk = checkBasics(info);

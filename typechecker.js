@@ -52,7 +52,7 @@ export function typeLentry(lentry, tenv, STC) {
         lentry.c.forEach(c => {
             const constr = new DT.Constructor();
             constr.cname = c.cname;
-            const check = c.cArgTypes.every(ty => TCU.isWellFormedType(ty, tenv, STC.ADTDict));
+            const check = c.cArgTypes.every(ty => TCU.isWellFormedType(ty, tenv, STC.ADTDict.ADTDict));
             if (!check) {
                 setError(new Error("typeLentry: Type of ADT is not well-formed."));
                 return;

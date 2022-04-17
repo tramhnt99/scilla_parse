@@ -1,7 +1,6 @@
 // test.js
 import antlr4 from "antlr4";
 import fs from "fs";
-import Evaluator from "./evalSyntax.js";
 import util from "util";
 import ScillaLexer from "./scillaLexer.js";
 import ScillaParser from "./scillaParser.js";
@@ -236,7 +235,7 @@ export const stdlib = [
  * Typechecking expressions
  *
  */
-const runTCexp = false;
+const runTCexp = true;
 if (runTCexp) {
   const tenvSTC = startingTEnv();
   resetErrorSettings();
@@ -258,23 +257,14 @@ if (runTCexp) {
     if (!typed) {
       if (
         getError().s &&
-        (getError().s.search("We do not handle builtin") !== -1 ||
-          getError().s.search("gt") !== -1 ||
-          getError().s.search("alt_bn") !== -1 ||
-          getError().s.search("extract") !== -1 
-          // || getError().s.search("Book") !== -1
-          )
+        (getError().s.search("We do not handle builtin") !== -1 ||)
       ) {
-        //We don't have folding, so we don't have list ops
-        //If an error occurs because a stdlib has not been implemented - we allow it
+        //We allow errors that have to do with builtins
         resetErrorSettings();
         continue;
       }
-      resetErrorSettings();
       console.log(getError());
       break;
-    } else {
-      // console.log(typed);
     }
   }
 }
@@ -312,7 +302,7 @@ if (testSingle) {
  * Typechecking cmods
  *
  */
-const runTCcmod = false;
+const runTCcmod = true;
 if (runTCcmod) {
   for (let i = 0; i < contracts.length; i++) {
     resetErrorSettings();
