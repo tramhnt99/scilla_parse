@@ -203,7 +203,7 @@ export function resolveTMapValueTArgs(ctx) {
 
 export function resolveTMapValueArgs(ctx) {
   if (ctx instanceof SP.TMP3Context) {
-    resolveTMapValueTArgs(ctx.t);
+    return resolveTMapValueTArgs(ctx.t);
   }
   if (ctx instanceof SP.TMP4Context) {
     return to_type(ctx.d.getText());
@@ -211,6 +211,7 @@ export function resolveTMapValueArgs(ctx) {
   if (ctx instanceof SP.TMP5Context) {
     return resolveMapType(ctx);
   }
+  console.log("resolveTMapValueArgs: Didn't match");
 }
 
 export function resolveTMapValue(ctx) {

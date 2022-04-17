@@ -25,7 +25,7 @@ transition someAnimal()
     throw e
 end
 
-(*
+
 transition someAnimal()
     a = 
         let value =
@@ -39,4 +39,3 @@ transition someAnimal()
     e = { _exception : "SenderIsNotAdmin" };
     throw e
 end
-*)

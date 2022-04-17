@@ -4,7 +4,8 @@
 import * as ST from './types.js';
 import {Error, Fun} from './syntax.js';
 import * as ER from './general.js';
-import { BystrX } from './literals.js';
+import { Bystr, BystrX } from './literals.js';
+import { typeAssignable } from './typecheckerUtil.js';
 
 /**
  * Each BI class includes the arity of the builtin function.
@@ -85,6 +86,14 @@ export class BI_to_bystrx {
         this.arity = 1;
         this.types = ST.allBystr.concat(ST.allUints);
         this.funTyp = new ST.PolyFun("'A", new ST.FunType(new ST.TypeVar("'A"), new ST.ADT("Option", new ST.ByStrXTyp(i))));
+    }
+}
+
+export class BI_to_bystr {
+    constructor() {
+        this.arity = 1;
+        this.types = [new ST.ByStrXTyp(20)];
+        this.funTyp = new ST.FunType(new ST.ByStrXTyp(20), new ST.ByStrTyp());
     }
 }
 
@@ -275,6 +284,38 @@ export class BI_isqrt {
 /** 
  * Unsigned integers specific builtins (skip)
 */
+export class BI_to_uint256 {
+    constructor() {
+        this.arity = 1;
+        this.types = ST.allUints.concat(ST.allBystr.concat([new ST.AnyAddr()]));
+        this.funTyp =
+        new ST.PolyFun("'A",
+            new ST.FunType(new ST.TypeVar("'A"), new ST.Uint256()));
+    }
+}
+
+export class BI_to_uint32 {
+    constructor() {
+        this.arity = 1;
+        this.types = ST.allUints.concat(ST.allBystr.concat([new ST.AnyAddr()])).concat(ST.allInts);
+        this.funTyp =
+        new ST.PolyFun("'A",
+            new ST.FunType(new ST.TypeVar("'A"), new ST.ADT("Option", [new ST.Uint32()])));
+    }
+}
+
+
+
+export class BI_badd {
+    constructor() {
+        this.arity = 2;
+        this.types =  [new ST.BNum()].concat(ST.allUints);
+        this.funTyp =
+        new ST.PolyFun("'A",
+            new ST.PolyFun("'B", 
+            new ST.FunType(new ST.TypeVar("'A"), new ST.FunType(new ST.TypeVar("'B"), new ST.BNum()))));
+    }
+}
 
 /**
  * Recursive Functions
@@ -348,6 +389,32 @@ export class BI_nat_fold {
     }
 }
 
+export class BI_nat_foldk {
+    constructor() {
+        this.arity = 3;
+        this.types = [new ST.String()].concat(ST.allUints.concat(ST.allInts.concat(ST.allAddr.concat(ST.allBystr))));
+        this.funTyp = 
+        new ST.PolyFun("'T",
+            new ST.FunType(
+                new ST.FunType(
+                    new ST.TypeVar("'T"),
+                    new ST.FunType(
+                        new ST.ADT("Nat", []),
+                        new ST.FunType(
+                            new ST.FunType(new ST.TypeVar("'T"), new ST.TypeVar("'T")),
+                            new ST.TypeVar("'T")
+                        )
+                    )
+                ),
+                new ST.FunType(
+                    new ST.TypeVar("'T"), 
+                    new ST.FunType(new ST.ADT("Nat", []), new ST.TypeVar("'T")))
+                )
+        );
+        //('T -> Nat -> ('T -> 'T) -> 'T) -> 'T -> Nat -> 'T
+    }
+}
+
 export class BI_to_nat{
     constructor() {
         this.arity = 1;
@@ -386,7 +453,12 @@ export const BuiltInDict = {
     "list_foldr": new BI_list_foldr(),
     "list_foldk": new BI_list_foldk(),
     "nat_fold": new BI_nat_fold(),
-    "to_nat": new BI_to_nat()
+    "to_nat": new BI_to_nat(),
+    "to_bystr": new BI_to_bystr(),
+    "to_uint256": new BI_to_uint256(),
+    "to_uint32": new BI_to_uint32(),
+    "badd": new BI_badd(),
+    "nat_foldk": new BI_nat_foldk()
 }
 
 /**
@@ -404,9 +476,9 @@ export function resolveBIFunType(fname, targs) {
         //Update: We only look at the first targ and if it's allowed
         //Eg. contains allows only type Map - but we would also have a type like Int32 of what the map contains.
         if (info.types.find(ty => ty.constructor === targs[0].constructor) === undefined) {
-            console.log(info.types);
-            console.log(targs);
             console.log(fname);
+            console.log(info.types);
+            console.log(targs[0]);
             return ER.setError(new Error("resolveBIFunType: Type of arguments are not allowed to this function."));
         } else {
             return true;
@@ -426,11 +498,24 @@ export function resolveBIFunType(fname, targs) {
         return ST.substTypeinType(fType.name, targs[0], fType.t);
     }
 
+    if (fname === "badd") {
+        const info = BuiltInDict[fname];
+        const basicsOk = checkBasics(info);
+        if (ER.isError()) { return; }
+        const fType = info.funTyp;
+
+        //Instantiate both 'A and 'B
+        const ty1 = ST.substTypeinType(fType.name, targs[0], fType.t);
+        const ty2 = ST.substTypeinType(ty1.name, targs[1], ty1.t);
+        return ty2;
+    }
+
     if (fname === "concat" || fname === "substr" ||
         fname === "to_string" || fname === "to_ascii" || fname === "lt" ||
         fname === "add" || fname === "sub" || fname === "mul" || fname === "div" ||
         fname === "rem" || fname === "pow" || fname === "isqrt" ||
-        fname === "strlen" || fname === "strrev" || fname === "to_bystrx") 
+        fname === "strlen" || fname === "strrev" || fname === "to_bystrx" || fname === "to_uint256" ||
+        fname === "to_uint32") 
     {
         const info = BuiltInDict[fname];
         const basicsOk = checkBasics(info);

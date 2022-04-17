@@ -17,17 +17,22 @@ import util from 'util';
  */
 //Returns updated tenv and ADTDict in STC
 export function typeLentry(lentry, tenv, STC) {
-    if (isError()) {return;}
+    if (isError()) { return; }
     if (lentry instanceof SS.LibVar) {
         const tenv_ = _.cloneDeep(tenv);
         const funTy = STC.typeExpr(lentry.e, tenv_);
         if (lentry.tyopt) {
+            const check = TCU.isWellFormedType(lentry.tyopt, tenv, STC.ADTDict.ADTDict);
+            if (!check) {
+                setError(new Error("typeLentry: The type of expression is not well-formed."));
+                return;
+            }
             const typAssign = TCU.typeAssignable(lentry.tyopt, STC.getTy(funTy));
             if (typAssign) {
                 tenv[lentry.x] = STC.getTy(funTy);
                 return {tenv: tenv, STC: STC};
             } else {
-                setError(new Error("startingTenv: Type of function is not assinable to declared type."));
+                setError(new Error("typeLentry: Type of function is not assinable to declared type."));
                 return {tenv: tenv, STC: STC};
             }
         } else {
@@ -47,6 +52,11 @@ export function typeLentry(lentry, tenv, STC) {
         lentry.c.forEach(c => {
             const constr = new DT.Constructor();
             constr.cname = c.cname;
+            const check = c.cArgTypes.every(ty => TCU.isWellFormedType(ty, tenv, STC.ADTDict));
+            if (!check) {
+                setError(new Error("typeLentry: Type of ADT is not well-formed."));
+                return;
+            }
             constr.arity = c.cArgTypes.length;
             adt.tmap[c.cname] = _.cloneDeep(c.cArgTypes);
             constrs.push(constr);
@@ -86,7 +96,6 @@ export function typeLmod(lmod, tenv, STC) {
         const lentry = lentries[i];
         // resetErrorSettings();
         typeLentry(lentry, tenv, STC);
-        if (isError()) { return; }
     }
     lmodDone.push(lmod.lib.lname);
     return {tenv: tenv, STC: STC, lmodDone: lmodDone};
@@ -122,14 +131,6 @@ export function typeCMod(cmod, tenv, STC) {
     //Type Contract
     if (cmod.contr) {
         typeContract(cmod.contr, tenv, STC);
-    }
-
-    if (isError()) {
-        console.log(getError());
-        if (getError().s.search("builtin") !== -1 ) {
-                return; //do not print those
-            }
-        console.log(getError());
     }
 }
 
@@ -293,19 +294,11 @@ export function typeStmts(stmts, tenv, STC) {
         const fty = tenv[s.x];
         const rty = tenv[s.r];
         if (fty === undefined || rty === undefined) {
-            console.log(s.x);
-            console.log(fty);
-            console.log(s.r);
-            console.log(rty);
             setError(new Error("typeStmts: Either the field or the argument is not bound."));
             return;
         }
         const check = TCU.typeAssignable(fty, rty);
         if (!check) {
-            console.log(s.x);
-            console.log(fty);
-            console.log(s.r);
-            console.log(rty);
             setError(new Error("typeStmts: Argument is not assignable to field"));
             return;
         }
@@ -318,10 +311,6 @@ export function typeStmts(stmts, tenv, STC) {
         if (isError()) {return;}
         const tenv__ = _.cloneDeep(tenv);
         tenv__[s.x] = tyExp.ty;
-        if (s.x === "a") {
-            console.log(s.x + " ");
-            console.log(util.inspect(tyExp.ty, false, null, true /* enable colors */))
-        }
         return typeStmts(sts, tenv__, STC);
     }
 
@@ -347,9 +336,6 @@ export function typeStmts(stmts, tenv, STC) {
             }
             const check = TCU.typeAssignable(resTy, r);
             if (!check) {
-                console.log(r);
-                console.log(resTy);
-                console.log(s);
                 setError(new Error("typeStmts: MapUpdate value is not assignable."));
                 return;
             }
@@ -583,7 +569,6 @@ export function typeStmts(stmts, tenv, STC) {
 //Handles Pure Scilla
 export default class ScillaTypeChecker{
     constructor(){
-        this.error_msg = undefined;
         this.ADTDict = new DT.DataTypeDict();
     }
 
@@ -637,7 +622,6 @@ export default class ScillaTypeChecker{
         if (e instanceof SS.Var) {
             const ty = tenv[e.s];
             if (ty === undefined) {
-                console.log(tenv);
                 setError(new Error("typeExpr: Variable " + e.s + " not found in Type Environment."));
                 return;;
             }
@@ -672,9 +656,6 @@ export default class ScillaTypeChecker{
             //Arguments Type - undefined arg types are checked in TCU.functionTypeApplies
             const actualsTy = e.args.map(arg => tenv[arg]);
             const resType = TCU.functionTypeApplies(fty, actualsTy);
-            if (isError()) {
-                console.log(tenv["foldl_while"].t1);
-            }
             
             const resTypeWF = TCU.isWellFormedType(resType, tenv, this.ADTDict.ADTDict);
             if (!resTypeWF) {
@@ -687,9 +668,6 @@ export default class ScillaTypeChecker{
 
         if (e instanceof SS.Let) {
             const typedLhs = this.typeExpr(e.lhs, tenv);
-            if (e.x === "bs") {
-                console.log(typedLhs);
-            }
             if (isError()) { return; }
             const actualTyp = 
                 e.ty === null
@@ -831,7 +809,7 @@ export default class ScillaTypeChecker{
         }
 
         if (e instanceof SS.TFun) {
-            //According to Scilla TC, it is illegal to declare a type variable
+            //It is illegal to declare a type variable
             //with the same name as an existing one in the scope
             if (tenv[e.i] !== undefined) {
                 setError(new Error("typeExpr: Type Variable is already in use"));
@@ -874,9 +852,6 @@ export default class ScillaTypeChecker{
             const funTy_ = TCU.refreshPolyFun(funTy, tenv);
             const funTy__ = applyToTFun(TCU.refreshPolyFun(funTy_, tenv), e.targs);
             if (!funTy__) {
-                console.log(funTy);
-                console.log(e.targs);
-                console.log(funTy_);
                 setError(new Error("typeExpr: TApp's funTy is undefined"));
                 return;
             }

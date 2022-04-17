@@ -77,12 +77,12 @@ export function literalType(l) {
     : l instanceof BystrX
     ? new ST.ByStrXTyp(l.width)
     : l instanceof Msg
-    ? new ST.MessageTyp()
+    ? new ST.Message()
     : l instanceof Map
     ? l.mtyp
     : l instanceof ADTValue
     ? new ST.ADT(l.name, l.typl)
-    : l instanceof Clo
+    : l instanceof CLo
     ? new Error("Cannot type runtime closure")
     : l instanceof TAbs
     ? new Error("Cannot type runtime type function")

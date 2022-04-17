@@ -110,6 +110,7 @@ export function isWellFormedType(ty, tenv, ADTDict) {
             //Check arity of ADT tvars
             const adt = ADTDict[t_.name];
             if (!adt) {
+                console.log(ADTDict);
                 setError(new Error("isWellFormedType_: Couldn't find adt " + t_.name + "."));
                 return false;
             }
@@ -263,14 +264,8 @@ export function functionTypeApplies(fty, actualsty) {
             if (assignable) {
                 return functionTypeApplies(fty.t2, actualsty.slice(1, actualsty.length));
             } else {
-                // console.log();
-                // console.log();
                 console.log(fty.t1);
                 console.log(actualsty[0]);
-                // console.log();
-                // console.log();
-                // console.log(fty);
-                // console.log(actualsty);
                 return setError(new Error("functionTypeApplies: Argument type is not assignable to function parameter."));
             }
         }
@@ -279,6 +274,8 @@ export function functionTypeApplies(fty, actualsty) {
     if (fty instanceof ScillaType && actualsty.length === 0) {
         return fty;
     }
+    console.log(fty);
+    console.log(actualsty);
     setError(new Error("Ill-typed function application."));
     return;;
 }
