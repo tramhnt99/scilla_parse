@@ -265,38 +265,6 @@ import TranslateVisitor from "./translate.js";
 //     tree.accept(new TranslateVisitor());
 // }
 
-// console.log(evalLmod(parseAllStdLibs().BoolUtils, {}, new DataTypeDict()));
-// const DTD_ = new DataTypeDict();
-// const stdLibObj = parseAllStdLibs();
-// const libEnv = {};
-// var lmodDone = [];
-// for (const lmod in stdLibObj) {
-//   //stdlib.length
-//   console.log("Input: " + lmod);
-//   if (stdLibObj[lmod].lib.lname in lmodDone) {
-//     continue;
-//   } else {
-//     const res = evalLmod(stdLibObj[lmod], libEnv, DTD_);
-//     lmodDone = lmodDone.concat(res.lmodDone);
-//   }
-//   // libEnv = { ...libEnv, ...evalLmod(stdLibObj[stdlib[i]], libEnv, DTD_).env };
-// }
-// console.log(lmodDone);
-// console.log(libEnv);
-
-// // Single test debugging contracts
-// const input = fs
-//   .readFileSync("contracts/address_list_traversal.scilla")
-//   .toString();
-// const chars = new antlr4.InputStream(input);
-// const lexer = new ScillaLexer(chars);
-// const tokens = new antlr4.CommonTokenStream(lexer);
-// export const parser = new ScillaParser(tokens);
-// // const tree = parser.simple_exp();
-// const tree = parser.cmodule();
-// const contractAst = tree.accept(new TranslateVisitor());
-// console.log(contractAst);
-
 const runEVALexp = true;
 if (runEVALexp) {
   const envScillaEvaluator = startingEEnv();
