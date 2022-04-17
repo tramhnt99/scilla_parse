@@ -11,8 +11,10 @@ import {
   isError,
   logOutput,
   parseAllStdLibs,
+  printLog,
   resetErrorSettings,
   resetLogOutput,
+  setPrintFalse,
   setPrintTrue,
   startingEEnv,
 } from "./general.js";
@@ -310,14 +312,16 @@ if (runEVALexp) {
   const tree = parser.simple_exp();
   const exprAst = tree.accept(new SyntaxVisitor());
 
-  setPrintTrue();
+  setPrintFalse();
   resetLogOutput();
 
   const value = SEEvaluator.evalExp(exprAst, env);
   if (isError()) {
     console.log(getError().s);
   } else {
-    console.log("log", logOutput);
+    if (printLog) {
+      console.log("log", logOutput);
+    }
     console.log("output", util.inspect(value, false, null, true));
   }
 }
