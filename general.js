@@ -122,8 +122,10 @@ export function addLineToLogOutput(line) {
 
 export function startingEEnv() {
   const parsedLibs = parseAllStdLibs();
+  const PrimRecLib = parseLib("PrimRec");
   let env = {};
   let ScillaEvaluator = new Evaluator(env);
+  evalLmod(PrimRecLib, env, ScillaEvaluator.ADTDict);
 
   let lmodDone = [];
   for (const lmod in parsedLibs) {
