@@ -2,22 +2,12 @@ import antlr4 from "antlr4";
 import fs from "fs";
 import ScillaLexer from "./scillaLexer.js";
 import ScillaParser from "./scillaParser.js";
-import { Error } from "./syntax.js";
-import * as SS from "./syntax.js";
 import ScillaTypeChecker, * as TC from "./typechecker.js";
 import _ from "lodash";
 import { stdlib } from "./constants.js";
 import TranslateVisitor from "./translate.js";
-import { Constructor, DataTypeDict } from "./datatypes.js";
-import * as TCU from "./typecheckerUtil.js";
 import Evaluator from "./evalSyntax.js";
 import { evalLmod } from "./evalImpure.js";
-import SyntaxVisitor from "./syntaxVisitor.js";
-
-//How error is propagated - function will return the error if tcerror has received an error
-//Issue - sometimes when a function result is an error and it's not noticed, the Error() object
-//would be evaluated.
-//Fix: we no longer return the Error() but rather just undefined. that way things break earlier
 
 export var tcerror = undefined;
 export var hideError = false;
@@ -143,6 +133,9 @@ export function startingEEnv() {
       continue;
     } else {
       const res = evalLmod(parsedLibs[lmod], env, ScillaEvaluator.ADTDict);
+      if (isError()) {
+        console.log(getError());
+      }
       lmodDone = lmodDone.concat(res.lmodDone);
     }
   }

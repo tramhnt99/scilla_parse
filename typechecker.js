@@ -1,20 +1,20 @@
 /**
  * Scilla Static Type Checker
  */
-import * as SS from './syntax.js';
-import { ScillaLiterals, literalType } from './literals.js';
+import { literalType } from './literals.js';
 import { Error } from './syntax.js';
-import ScillaType, * as ST from './types.js';
+import { isError, setError } from './general.js';
 import _ from 'lodash';
+import * as SS from './syntax.js';
+import * as ST from './types.js';
 import * as BI from './builtin.js';
 import * as DT from './datatypes.js';
-import { isError, getError, setError, resetErrorSettings, parseLib } from './general.js';
-import * as TCU from './typecheckerUtil.js'; //Type Checker Utilities
-import util from 'util';
+import * as TCU from './typecheckerUtil.js';
 
-/*
+
+/************************************
  * Type Library Entry
- */
+ ************************************/
 //Returns updated tenv and ADTDict in STC
 export function typeLentry(lentry, tenv, STC) {
     if (isError()) { return; }
@@ -73,9 +73,11 @@ export function typeLentry(lentry, tenv, STC) {
     }
 }
 
-/*
+
+
+/************************************
  * Type Library Module
- */
+ ************************************/
 //Returns updated tenv and ADTDict in STC, and also all the lmods it typechecked
 export function typeLmod(lmod, tenv, STC) {
     const lmodDone = [];
@@ -101,9 +103,9 @@ export function typeLmod(lmod, tenv, STC) {
     return {tenv: tenv, STC: STC, lmodDone: lmodDone};
 }
 
-/*
+/************************************
  * Type Contract Module
- */
+ ************************************/
 export function typeCMod(cmod, tenv, STC) {
     //Type elibs - elibs are already parsed and stored
     if (cmod.elibs.length > 0) {
@@ -135,9 +137,9 @@ export function typeCMod(cmod, tenv, STC) {
 }
 
 
-/*
+/************************************
  * Type Contract
- */
+ ************************************/
 export function typeContract(contract, tenv, STC) {
     //Add implicit parameters before evaluating component
     tenv["_amount"] = new ST.Uint128();

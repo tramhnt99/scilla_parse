@@ -2,7 +2,6 @@ import * as SS from "./syntax.js";
 import Evaluator from "./evalSyntax.js";
 import { getError, isError, setError } from "./general.js";
 import _ from "lodash";
-import * as BI from "./builtin.js";
 import * as DT from "./datatypes.js";
 import * as SL from "./literals.js";
 import * as TCU from "./typecheckerUtil.js";
@@ -10,7 +9,7 @@ import * as TCU from "./typecheckerUtil.js";
 /**
  *
  *
- * Evaluation of Scilla Contracts (Impure Scilla)
+ * Evaluation of Scilla Contracts (Impure Scilla) (unfinished)
  *
  *
  */

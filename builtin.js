@@ -2,10 +2,8 @@
  * Type information on Builtin Functions
  */
 import * as ST from './types.js';
-import {Error, Fun} from './syntax.js';
+import {Error} from './syntax.js';
 import * as ER from './general.js';
-import { Bystr, BystrX } from './literals.js';
-import { typeAssignable } from './typecheckerUtil.js';
 
 /**
  * Each BI class includes the arity of the builtin function.

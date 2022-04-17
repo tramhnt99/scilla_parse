@@ -11,7 +11,7 @@ import {
 } from "./general.js";
 import _ from "lodash";
 import * as TC from "./typechecker.js";
-import {expressionsTC, contracts, stdlib } from "./contracts.js";
+import {expressionsTC, contracts, stdlib } from "./constants.js";
 
 import SyntaxVisitor from "./syntaxVisitor.js";
 import ScillaTypeChecker from "./typechecker.js";
@@ -22,18 +22,11 @@ var runSingleExp = false;
 var runTCcmod = true;
 var runSingleCmod = false;
 
-export function toggleTCTesterOff() {
-  runTCexp = false;
-  runSingleExp = false;
-  runTCMod = false;
-  runSingleCMod = false;
-}
-
-/**
+/***************************************
  *
  * Typechecking expressions
  *
- */
+ ***************************************/
 if (runTCexp) {
   const tenvSTC = startingTEnv();
   resetErrorSettings();
