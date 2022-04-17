@@ -1,5 +1,5 @@
 Build the project
-`node intall`
+`node install`
 
 To run the tests for the Type Checker, gives an output print of passing tests.
 `node testingTC.js`
