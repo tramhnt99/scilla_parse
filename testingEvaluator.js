@@ -302,9 +302,7 @@ if (runEVALexp) {
   const env = envScillaEvaluator[0];
   const SEEvaluator = envScillaEvaluator[1];
   // Single test debugging expressions
-  // const input = fs.readFileSync("examples/tester.scilexp").toString();
-  const input = fs.readFileSync("examples/church_naturals.scilexp").toString();
-  // const input = fs.readFileSync("scilexp/builtin1.scilexp").toString();
+  const input = fs.readFileSync("scilexp/msg.scilexp").toString(); // input the path to the file that you want to test here
   const chars = new antlr4.InputStream(input);
   const lexer = new ScillaLexer(chars);
   const tokens = new antlr4.CommonTokenStream(lexer);
@@ -315,7 +313,7 @@ if (runEVALexp) {
   setPrintTrue();
   resetLogOutput();
 
-  const value = SEEvaluator.evalChildren(exprAst);
+  const value = SEEvaluator.evalExp(exprAst, env);
   if (isError()) {
     console.log(getError().s);
   } else {
@@ -323,32 +321,3 @@ if (runEVALexp) {
     console.log("output", util.inspect(value, false, null, true));
   }
 }
-
-// Single test debugging expressions
-// const input = fs.readFileSync("scilexp/pm3.scilexp").toString();
-// const chars = new antlr4.InputStream(input);
-// const lexer = new ScillaLexer(chars);
-// const tokens = new antlr4.CommonTokenStream(lexer);
-// export const parser = new ScillaParser(tokens);
-// const tree = parser.simple_exp();
-// const exprAst = tree.accept(new SyntaxVisitor());
-// const SEEvaluator = new Evaluator({});
-// const value = SEEvaluator.evalChildren(exprAst);
-// console.log(value);
-// console.log(value, SEEvaluator.globalEnv);
-
-//Testing Type Checking
-// import ScillaTypeChecker from "./typechecker.js";
-// const input = fs.readFileSync('scilexp/app4.scilexp').toString();
-// const chars = new antlr4.InputStream(input);
-// const lexer = new ScillaLexer(chars);
-// const tokens = new antlr4.CommonTokenStream(lexer);
-// export const parser = new ScillaParser(tokens);
-// const tree = parser.simple_exp();
-// const exprAst = tree.accept(new SyntaxVisitor());
-// const STC = new ScillaTypeChecker();
-// const typed = STC.typeExpr(exprAst, {});
-// console.log(typed);
-
-// tree.accept(new SyntaxVisitor);
-// tree.accept(new TranslateVisitor());

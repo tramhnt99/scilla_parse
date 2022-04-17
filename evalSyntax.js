@@ -2,6 +2,7 @@
 // https://medium.com/dailyjs/compiler-in-javascript-using-antlr-9ec53fd2780f
 import ScillaType, {
   MapType,
+  ppType,
   resolveTMapKey,
   resolveTMapValue,
   substTypeinType,
@@ -124,7 +125,7 @@ export default class Evaluator {
 
     //If Lit, update the lit
     if (expr instanceof SL.ScillaLiterals) {
-      this.substTypeInLit(tvar, tp, expr);
+      expr = this.substTypeInLit(tvar, tp, expr);
       return expr;
     }
     //If Lit, update the lit
@@ -137,8 +138,18 @@ export default class Evaluator {
 
     if (expr instanceof SE.Fun) {
       //Update type in fun type - Note: doesn't do anything yet
-      substTypeinType(tvar, tp, expr.ty);
-      this.substTypeInExpr(tvar, tp, expr.e);
+      // if (printLog) {
+      //   addLineToLogOutput(
+      //     `before type substitution ${util.inspect(expr.ty, false, null, true)}`
+      //   );
+      // }
+      expr.ty = substTypeinType(tvar, tp, expr.ty);
+      expr.e = this.substTypeInExpr(tvar, tp, expr.e);
+      // if (printLog) {
+      //   addLineToLogOutput(
+      //     `after type substitution ${util.inspect(expr.ty, false, null, true)}`
+      //   );
+      // }
       return expr;
     }
 
@@ -155,7 +166,7 @@ export default class Evaluator {
       if (expr.i === tvar) {
         return expr;
       } else {
-        this.substTypeInExpr(tvar, tp, expr.e);
+        expr.e = this.substTypeInExpr(tvar, tp, expr.e);
         return expr;
       }
     }
@@ -179,8 +190,8 @@ export default class Evaluator {
       if (expr.ty !== undefined) {
         substTypeinType(tvar, tp, expr.ty);
       }
-      this.substTypeInExpr(tvar, tp, expr.lhs); //lhs
-      this.substTypeInExpr(tvar, tp, expr.rhs); //rhs
+      expr.lhs = this.substTypeInExpr(tvar, tp, expr.lhs); //lhs
+      expr.rhs = this.substTypeInExpr(tvar, tp, expr.rhs); //rhs
       return expr;
     }
 
@@ -254,6 +265,11 @@ export default class Evaluator {
     const param = ctx.id;
     const clo = (x) => {
       const env_ = _.cloneDeep(env);
+      // if (printLog) {
+      //   addLineToLogOutput(
+      //     `Binding ${param} to ${x.constructor.name}: ${JSON.stringify(x)}`
+      //   );
+      // }
       env_[param] = x;
       return this.evalExp(ctx.e, env_);
     };
@@ -289,7 +305,11 @@ export default class Evaluator {
   evalMessage(ctx, env) {
     const messageKVPairs = ctx.es.map((pair) => {
       if (pair?.i !== undefined && pair?.l !== undefined) {
-        return new SL.MsgEntry(pair.i, SL.literalType(pair.l), pair.l);
+        return new SL.MsgEntry(
+          pair.i,
+          SL.literalType(pair.l),
+          this.evalLiteral(pair.l, env)
+        );
       } else if (pair?.i !== undefined && pair?.v !== undefined) {
         pair.v = this.lookup(pair.v, env);
         return new SL.MsgEntry(pair.i, SL.literalType(pair.v), pair.v);
@@ -385,7 +405,6 @@ export default class Evaluator {
           );
           return undefined;
         }
-
         for (let a = 0; a < ctxADTConstr.arity; a++) {
           if (isError()) {
             return undefined;
@@ -530,7 +549,7 @@ export default class Evaluator {
   enumerateExpectedPatterns(value) {
     /**
      * This function should enumerate all expected patterns
-     * using the bounded variable's value to enumerate
+     * using the type of the value to enumerate
      * the kind of types and hence constructors that must appear
      * in the match expression for it to be well-formed.
      */
@@ -565,9 +584,9 @@ export default class Evaluator {
     const tvar = ctx.i;
     const clo = (tp) => {
       const env_ = _.cloneDeep(env);
-      if (printLog) {
-        addLineToLogOutput(`Instantiating ${tvar} as ${tp.constructor.name}`);
-      }
+      // if (printLog) {
+      //   addLineToLogOutput(`Instantiating ${tvar} as ${ppType(tp)}`);
+      // }
       const exp = this.substTypeInExpr(tvar, tp, ctx.e);
       return this.evalSimpleExp(exp, env_);
     };
