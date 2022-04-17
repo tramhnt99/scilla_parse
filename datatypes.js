@@ -20,23 +20,6 @@ export class ScillaDataTypes {
     this.tconstr = [];
     this.tmap = {};
   }
-
-  //Geting type of each Data Type
-  boolTyp() {
-    return new ST.ADT("Bool", []);
-  }
-  natTyp() {
-    return new ST.ADT("Nat", []);
-  }
-  optionTyp() {
-    return new ST.ADT("Option", []);
-  }
-  listTyp() {
-    return new ST.ADT("List", []);
-  }
-  pairTyp() {
-    return new ST.ADT("Pair", []);
-  }
 }
 
 export class Constructor {

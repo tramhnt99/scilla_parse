@@ -1,4 +1,4 @@
-import {contracts, stdlib} from "./testingTC.js";
+import {contracts, stdlib} from "./constants.js";
 import antlr4 from "antlr4";
 import fs from "fs";
 import Evaluator from "./evalSyntax.js";

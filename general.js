@@ -6,7 +6,7 @@ import { Error } from "./syntax.js";
 import * as SS from "./syntax.js";
 import ScillaTypeChecker, * as TC from "./typechecker.js";
 import _ from "lodash";
-import { stdlib } from "./testingTC.js";
+import { stdlib } from "./constants.js";
 import TranslateVisitor from "./translate.js";
 import { Constructor, DataTypeDict } from "./datatypes.js";
 import * as TCU from "./typecheckerUtil.js";

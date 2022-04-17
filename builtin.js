@@ -488,9 +488,6 @@ export function resolveBIFunType(fname, targs) {
         //Update: We only look at the first targ and if it's allowed
         //Eg. contains allows only type Map - but we would also have a type like Int32 of what the map contains.
         if (info.types.find(ty => ty.constructor === targs[0].constructor) === undefined) {
-            console.log(fname);
-            console.log(info.types);
-            console.log(targs[0]);
             return ER.setError(new Error("resolveBIFunType: Type of arguments are not allowed to this function."));
         } else {
             return true;

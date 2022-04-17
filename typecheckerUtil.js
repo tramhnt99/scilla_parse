@@ -110,7 +110,6 @@ export function isWellFormedType(ty, tenv, ADTDict) {
             //Check arity of ADT tvars
             const adt = ADTDict[t_.name];
             if (!adt) {
-                console.log(ADTDict);
                 setError(new Error("isWellFormedType_: Couldn't find adt " + t_.name + "."));
                 return false;
             }
@@ -140,7 +139,6 @@ export function isWellFormedType(ty, tenv, ADTDict) {
             const res = t_.fs.reduce((is_true, t) => is_true && isWellFormedType_(t.typ, tb), true);
             return res;
         }
-        console.log(t_);
         setError(new Error("isWellFormedType_: Missed a type."));
         return false;
     }
