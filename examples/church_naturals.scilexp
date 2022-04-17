@@ -20,15 +20,7 @@ let cadd : (forall 'X. ('X -> 'X) -> 'X -> 'X) -> (forall 'X. ('X -> 'X) -> 'X -
   let nXsz = nX s z in
   mX s nXsz
 in
-(* multiplication *)
-let cmul : (forall 'X. ('X -> 'X) -> 'X -> 'X) -> (forall 'X. ('X -> 'X) -> 'X -> 'X) -> (forall 'X. ('X -> 'X) -> 'X -> 'X) =
-  fun (m : forall 'X. ('X -> 'X) -> 'X -> 'X) =>
-  fun (n : forall 'X. ('X -> 'X) -> 'X -> 'X) =>
-  let cadd_m = cadd m in
-  let nI = @n (forall 'X. ('X -> 'X) -> 'X -> 'X) in
-  nI cadd_m c0
-in
-(* Convert Church-encoded nats to Uint32 *)
+(* tests *)
 let church_nat_to_uint32 : (forall 'X. ('X -> 'X) -> 'X -> 'X) -> Uint32 =
   fun (c : forall 'X. ('X -> 'X) -> 'X -> 'X) =>
     let zero = Uint32 0 in
@@ -37,7 +29,7 @@ let church_nat_to_uint32 : (forall 'X. ('X -> 'X) -> 'X -> 'X) -> Uint32 =
     let c32 = @c Uint32 in
     c32 add1 zero
 in
-(* tests *)
 let c4 = cadd c2 c2 in
-let c16 = cmul c4 c4 in
-church_nat_to_uint32 c16
+church_nat_to_uint32 c4
+(* let c5 = cadd c4 c1 in *)
+(* church_nat_to_uint32 c5 *)

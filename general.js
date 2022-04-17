@@ -115,6 +115,21 @@ export function startingTEnv() {
   return [tenv, STC];
 }
 
+export var printLog = false;
+export var logOutput = "";
+export function setPrintFalse() {
+  printLog = false;
+}
+export function setPrintTrue() {
+  printLog = true;
+}
+export function resetLogOutput() {
+  logOutput = "";
+}
+export function addLineToLogOutput(line) {
+  logOutput = logOutput + "\n" + line;
+}
+
 export function startingEEnv() {
   const parsedLibs = parseAllStdLibs();
   let env = {};
